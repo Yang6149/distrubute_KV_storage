@@ -6,24 +6,16 @@ import "os"
 import "net/rpc"
 import "net/http"
 
-
 type Master struct {
 	// Your definitions here.
 
 }
 
 // Your code here -- RPC handlers for the worker to call.
-
-//
-// an example RPC handler.
-//
-// the RPC argument and reply types are defined in rpc.go.
-//
-func (m *Master) Example(args *ExampleArgs, reply *ExampleReply) error {
-	reply.Y = args.X + 1
+func (m *Master) Handler(args *ExampleArgs, reply *ExampleArgs) error {
+	//处理参数，处理回复
 	return nil
 }
-
 
 //
 // start a thread that listens for RPCs from worker.go
@@ -50,7 +42,6 @@ func (m *Master) Done() bool {
 
 	// Your code here.
 
-
 	return ret
 }
 
@@ -62,8 +53,8 @@ func (m *Master) Done() bool {
 func MakeMaster(files []string, nReduce int) *Master {
 	m := Master{}
 
-	// Your code here.
-
+	// 得到所有原始slide 文件和要确定的reduce数量
+	//分配worker：map去查读取这些文件
 
 	m.server()
 	return &m

@@ -23,7 +23,13 @@ type ExampleReply struct {
 }
 
 // Add your RPC definitions here.
-
+type MyRPCArgs struct {
+	X string
+}
+type MyRPCReplay struct {
+	Type     int
+	filename string
+}
 
 // Cook up a unique-ish UNIX-domain socket name
 // in /var/tmp, for the master.
