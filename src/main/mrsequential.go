@@ -47,8 +47,11 @@ func main() {
 		}
 		file.Close()
 		kva := mapf(filename, string(content))
+
+		//fmt.Println(kva)
 		intermediate = append(intermediate, kva...)
 	}
+
 
 	//
 	// a big difference from real MapReduce is that all the
@@ -75,8 +78,10 @@ func main() {
 		for k := i; k < j; k++ {
 			values = append(values, intermediate[k].Value)
 		}
+		//fmt.Println(values)
+		//fmt.Println("啊啊啊")
 		output := reducef(intermediate[i].Key, values)
-
+		//fmt.Println(output)
 		// this is the correct format for each line of Reduce output.
 		fmt.Fprintf(ofile, "%v %v\n", intermediate[i].Key, output)
 

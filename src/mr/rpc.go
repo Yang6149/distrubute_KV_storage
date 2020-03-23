@@ -14,21 +14,21 @@ import "strconv"
 // and reply for an RPC.
 //
 
-type ExampleArgs struct {
-	X int
-}
-
-type ExampleReply struct {
-	Y int
-}
-
 // Add your RPC definitions here.
 type MyRPCArgs struct {
 	X string
+	Type int
+	Id int
+
 }
 type MyRPCReplay struct {
 	Type     int
-	filename string
+	//Type 1为map
+	//Type 2为reduce
+	Filename string
+	ReduceN int
+	MapN int
+	Id int
 }
 
 // Cook up a unique-ish UNIX-domain socket name
