@@ -163,7 +163,7 @@ func CallExample() MyRPCReplay{
 	args := MyRPCArgs{}
 
 	// fill in the argument(s).
-	args.X = "free"
+	args.Status = "apply"
 
 	// declare a reply structure.
 	reply := MyRPCReplay{}

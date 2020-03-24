@@ -10,12 +10,20 @@ import "time"
 import "sync"
 
 
+const(
+	isworking = 1
+	idle = 2
+	commited = 3
+
+
+)
 type Master struct {
 	reduceN int
-	mapWork []WorkStatus
-	// Your definitions here.
+	mapWork []WorkStatus//
 	reduceTable []WorkStatus
 	mu sync.RWMutex
+	allFinished bool
+
 
 
 }

@@ -16,8 +16,8 @@ import "strconv"
 
 // Add your RPC definitions here.
 type MyRPCArgs struct {
-	X string
-	Type int
+	Status string// apply commit
+	Type int// 1 map 2 reduce
 	Id int
 
 }
@@ -29,6 +29,7 @@ type MyRPCReplay struct {
 	ReduceN int
 	MapN int
 	Id int
+	allFinished int
 }
 
 // Cook up a unique-ish UNIX-domain socket name
