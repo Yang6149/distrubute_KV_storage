@@ -8,6 +8,7 @@ import "net/http"
 import "strconv"
 import "time"
 import "sync"
+import "context"
 
 
 const(
@@ -18,7 +19,9 @@ const(
 
 )
 type Master struct {
+	timeout time.Duration
 	reduceN int
+	mapN int
 	mapWork []WorkStatus//
 	reduceTable []WorkStatus
 	mu sync.RWMutex
@@ -35,7 +38,96 @@ type WorkStatus struct{
 
 // Your code here -- RPC handlers for the worker to call.
 func (m *Master) Handler(args *MyRPCArgs, reply *MyRPCReplay) error {
-
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if args.Status=="apply"{
+		reply.MapN=m.mapN
+		reply.ReduceN=m.reduceN
+		reply.allFinished=m.allFinished
+		//当分配完任务后直接返回，让worker退出
+		if m.allFinished{
+			return nil
+		}
+		//开始分配map任务
+		for i :=range m.mapWork{
+			if m.mapWork[i].status==commited{
+				continue
+			}
+			//当任务还没开始或任务超时时，分配任务
+			if m.mapWork[i].status==idle||m.mapWork[i].status==0{
+				m.mapWork[i].status=isworking
+				reply.Type=1
+				reply.Id=i
+				reply.Filename=m.mapWork[i].filename
+				//设立超时，当前任务超过十秒没有完成任务
+				ctx, _ := context.WithTimeout(context.Background(), m.timeout)
+				go func() {
+					select {
+					case <-ctx.Done():
+						{
+							m.mu.Lock()
+							//再次判断如果任务没有完成则状态改为 dile
+							if m.mapWork[i].status!=commited{
+								m.mapWork[i].status=idle
+							}
+							m.mu.Unlock()
+						}
+					}
+				}()
+			}
+			return nil
+		}
+		//接下来是reduce部分
+		for i :=range m.reduceTable{
+			if m.reduceTable[i].status==commited{
+				continue
+			}
+			//当任务还没开始或任务超时时，分配任务
+			if m.reduceTable[i].status==idle||m.reduceTable[i].status==0{
+				m.reduceTable[i].status=isworking
+				reply.Type=2
+				reply.Id=i
+				reply.Filename="mr-out-"+strconv.Itoa(i)
+				//设立超时，当前任务超过十秒没有完成任务
+				ctx, _ := context.WithTimeout(context.Background(), m.timeout)
+				go func() {
+					select {
+					case <-ctx.Done():
+						{
+							m.mu.Lock()
+							//再次判断如果任务没有完成则状态改为 dile
+							if m.reduceTable[i].status!=commited{
+								m.reduceTable[i].status=idle
+							}
+							m.mu.Unlock()
+						}
+					}
+				}()
+			}
+			return nil
+		}
+	}
+	if args.Status=="commit"{
+		if args.Type==1{
+			m.mapWork[args.Id].status=commited
+		}else{
+			m.reduceTable[args.Id].status=commited
+		}
+		bo := true
+		for i:=range m.mapWork{
+			if m.mapWork[i].status!=commited {
+				bo=false
+				break
+			}
+		}
+		for i:=range m.reduceTable{
+			if m.reduceTable[i].status!=commited {
+				bo=false
+				break
+			}
+		}
+		m.allFinished=bo
+	}
 	return nil
 }
 
@@ -61,19 +153,10 @@ func (m *Master) server() {
 //
 func (m *Master) Done() bool {
 
-	for i:=range m.reduceTable{
-		if m.reduceTable[i].status!=1{
-			return false
-		}
-	}
-	for i:=range m.mapWork{
-		if m.mapWork[i].status!=1{
-			return false
-		}
-	}
+
 	// Your code here.
 
-	return true
+	return m.allFinished
 }
 
 //
@@ -82,16 +165,24 @@ func (m *Master) Done() bool {
 // nReduce is the number of reduce tasks to use.
 //
 func MakeMaster(files []string, nReduce int) *Master {
-	m := Master{}
-	m.reduceN=nReduce
-	m.mapWork=make([]WorkStatus,len(files))
+
+	mapWork:=make([]WorkStatus,len(files))
 	for i:=range files{
-		m.mapWork[i]=WorkStatus{files[i],0,0}
+		mapWork[i]=WorkStatus{files[i],0,0}
 	}
-	m.reduceTable=make([]WorkStatus,nReduce)
+	reduceTable:=make([]WorkStatus,nReduce)
 	for i:=0;i<nReduce;i++{
-		m.reduceTable[i]=WorkStatus{"mr-out-"+strconv.Itoa(i),0,0}
+		reduceTable[i]=WorkStatus{"mr-out-"+strconv.Itoa(i),0,0}
 	}
+	m := Master{
+		timeout : 	10*time.Second,
+		reduceN:	nReduce,
+		mapN:		len(files),
+		mapWork:	mapWork,
+		reduceTable:reduceTable,
+		allFinished:false,
+	}
+
 
 	// 得到所有原始slide 文件和要确定的reduce数量
 	//分配worker：map去查读取这些文件

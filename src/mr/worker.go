@@ -44,6 +44,9 @@ func Worker(mapf func(string, string) []KeyValue,
 	//调用一个call的包装方法里面定义好arg和reply
 	for{
 		response:=CallExample()
+		if response.allFinished{
+			return
+		}
 		if response.Type==1{
 			MapImp(response,mapf)
 			CallFinish(response.Id,response.Type)
@@ -119,11 +122,7 @@ func ReduceImp(response MyRPCReplay,reducef func(string, []string) string){
 		}
 
 	}
-	//等待全部读进缓存进行删除
-	for i:=0;i<mapNum;i++{
-		filename:="mr-"+strconv.Itoa(i)+"-"+strconv.Itoa(id)
-		os.Remove(filename)
-	}
+
 	sort.Sort(ByKey(kva))
 	i := 0
 	_, err := os.Lstat(response.Filename)
@@ -150,7 +149,11 @@ func ReduceImp(response MyRPCReplay,reducef func(string, []string) string){
 		i = j
 	}
 	ofile.Close()
-
+	//等待全部完成进行删除
+	for i:=0;i<mapNum;i++{
+		filename:="mr-"+strconv.Itoa(i)+"-"+strconv.Itoa(id)
+		os.Remove(filename)
+	}
 }
 //
 // example function to show how to make an RPC call to the master.
@@ -184,7 +187,7 @@ func CallFinish(id int,Type int)MyRPCReplay{
 	args := MyRPCArgs{}
 
 	// fill in the argument(s).
-	args.X = "done"
+	args.Status = "commit"
 	args.Id=id
 	args.Type=Type
 
