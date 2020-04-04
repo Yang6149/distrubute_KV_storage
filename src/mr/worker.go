@@ -9,7 +9,7 @@ import "encoding/json"
 import "os"
 import "strconv"
 import "sort"
-import "time"
+//import "time"
 
 //
 // Map functions return a slice of KeyValue.
@@ -44,21 +44,23 @@ func Worker(mapf func(string, string) []KeyValue,
 	//调用一个call的包装方法里面定义好arg和reply
 	for{
 		response:=CallExample()
-		if response.allFinished{
-			return
+		if response.AllFinished{
+			break
 		}
 		if response.Type==1{
 			MapImp(response,mapf)
-			CallFinish(response.Id,response.Type)
+			if CallFinish(response.Id,response.Type).AllFinished{
+				return
+			}
 		}else if response.Type==2{
 			ReduceImp(response,reducef)
-			CallFinish(response.Id,response.Type)
-		}else if response.Type==0{
-			return
+			if CallFinish(response.Id,response.Type).AllFinished{
+				return
+			}
 		}
-		time.Sleep(time.Second)
-	}
+		//time.Sleep(time.Second)
 
+	}
 }
 
 func MapImp(response MyRPCReplay,mapf func(string, string) []KeyValue){
@@ -87,6 +89,9 @@ func MapImp(response MyRPCReplay,mapf func(string, string) []KeyValue){
 		splitKey[y]=append(splitKey[y],kv)
 	}
 	for i:=range splitKey{
+		if IsExist("mr-"+strconv.Itoa(response.Id)+"-"+strconv.Itoa(i)){
+			fmt.Println("mr-"+strconv.Itoa(response.Id)+"-"+strconv.Itoa(i)+"文件存在了呀")
+		}
 		Wfile, _ :=os.Create("mr-"+strconv.Itoa(response.Id)+"-"+strconv.Itoa(i))
 		enc := json.NewEncoder(Wfile)
 		for _,kv := range splitKey[i]{
@@ -125,9 +130,8 @@ func ReduceImp(response MyRPCReplay,reducef func(string, []string) string){
 
 	sort.Sort(ByKey(kva))
 	i := 0
-	_, err := os.Lstat(response.Filename)
-	if !os.IsNotExist(err){
-		return
+	if IsExist(response.Filename){
+		fmt.Println("文件存在了"+response.Filename)
 	}
 	ofile, _ := os.Create(response.Filename)
 	for i < len(kva) {
@@ -139,11 +143,9 @@ func ReduceImp(response MyRPCReplay,reducef func(string, []string) string){
 		for k := i; k < j; k++ {
 			values = append(values, kva[k].Value)
 		}
-		//fmt.Println(values)
-		//fmt.Println("啊啊啊")
+
 		output := reducef(kva[i].Key, values)
-		//fmt.Println(output)
-		// this is the correct format for each line of Reduce output.
+
 		fmt.Fprintf(ofile, "%v %v\n", kva[i].Key, output)
 
 		i = j
@@ -170,16 +172,16 @@ func CallExample() MyRPCReplay{
 
 	// declare a reply structure.
 	reply := MyRPCReplay{}
-
 	// send the RPC request, wait for the reply.
 	if !call("Master.Handler", &args, &reply){
 		//拨通 并且返回了 reply
 		reply.Type=0
 		return reply
 	}
-
+	//fmt.Println(reply)
 	// reply.Y should be 100.
-	//fmt.Printf("reply.Y %v %v\n", reply.Type,reply.Filename)
+	//fmt.Printf("reply.Y %v %v\n", reply.allFinished,reply.Id)
+
 	return reply
 }
 func CallFinish(id int,Type int)MyRPCReplay{
@@ -201,8 +203,9 @@ func CallFinish(id int,Type int)MyRPCReplay{
 		return reply
 	}
 
+
+
 	// reply.Y should be 100.
-	//fmt.Printf("reply.Y %v %v\n", reply.Type,reply.Filename)
 	return reply
 }
 //
@@ -227,4 +230,12 @@ func call(rpcname string, args interface{}, reply interface{}) bool {
 
 	//fmt.Println(err)
 	return false
+}
+func IsExist(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil || os.IsExist(err)
+	// 或者
+	//return err == nil || !os.IsNotExist(err)
+	// 或者
+	//return !os.IsNotExist(err)
 }

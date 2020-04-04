@@ -9,6 +9,7 @@ import "strconv"
 import "time"
 import "sync"
 import "context"
+import "fmt"
 
 
 const(
@@ -40,17 +41,24 @@ type WorkStatus struct{
 func (m *Master) Handler(args *MyRPCArgs, reply *MyRPCReplay) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+
+	if m.allFinished{
+		reply.AllFinished=true;
+		return nil
+	}
+
+
 	if args.Status=="apply"{
 		reply.MapN=m.mapN
 		reply.ReduceN=m.reduceN
-		reply.allFinished=m.allFinished
+		reply.AllFinished=m.allFinished
 		//当分配完任务后直接返回，让worker退出
 		if m.allFinished{
 			return nil
 		}
 		//开始分配map任务
 		for i :=range m.mapWork{
-			if m.mapWork[i].status==commited{
+			if m.mapWork[i].status==commited||m.mapWork[i].status==isworking{
 				continue
 			}
 			//当任务还没开始或任务超时时，分配任务
@@ -68,6 +76,7 @@ func (m *Master) Handler(args *MyRPCArgs, reply *MyRPCReplay) error {
 							m.mu.Lock()
 							//再次判断如果任务没有完成则状态改为 dile
 							if m.mapWork[i].status!=commited{
+								fmt.Printf("超时了%v",i)
 								m.mapWork[i].status=idle
 							}
 							m.mu.Unlock()
@@ -77,9 +86,15 @@ func (m *Master) Handler(args *MyRPCArgs, reply *MyRPCReplay) error {
 			}
 			return nil
 		}
+		for i :=range m.mapWork {
+			if m.mapWork[i].status == commited {
+				continue
+			}
+			return nil
+		}
 		//接下来是reduce部分
 		for i :=range m.reduceTable{
-			if m.reduceTable[i].status==commited{
+			if m.reduceTable[i].status==commited||m.reduceTable[i].status==isworking{
 				continue
 			}
 			//当任务还没开始或任务超时时，分配任务
@@ -106,6 +121,7 @@ func (m *Master) Handler(args *MyRPCArgs, reply *MyRPCReplay) error {
 			}
 			return nil
 		}
+
 	}
 	if args.Status=="commit"{
 		if args.Type==1{
@@ -113,6 +129,7 @@ func (m *Master) Handler(args *MyRPCArgs, reply *MyRPCReplay) error {
 		}else{
 			m.reduceTable[args.Id].status=commited
 		}
+
 		bo := true
 		for i:=range m.mapWork{
 			if m.mapWork[i].status!=commited {
@@ -127,6 +144,8 @@ func (m *Master) Handler(args *MyRPCArgs, reply *MyRPCReplay) error {
 			}
 		}
 		m.allFinished=bo
+		reply.AllFinished=bo
+		return nil
 	}
 	return nil
 }

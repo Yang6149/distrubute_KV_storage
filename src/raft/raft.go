@@ -20,11 +20,11 @@ package raft
 import "sync"
 import "sync/atomic"
 import "../labrpc"
-
+import "log"
+import "time"
+import "math/rand"
 // import "bytes"
 // import "../labgob"
-
-
 
 //
 // as each Raft peer becomes aware that successive log entries are
@@ -46,26 +46,50 @@ type ApplyMsg struct {
 //
 // A Go object implementing a single Raft peer.
 //
+const leader=2
+const follower=0
+const candidate=1
 type Raft struct {
 	mu        sync.Mutex          // Lock to protect shared access to this peer's state
+	LeaderCond sync.Cond
+
+	electionTimer int64		// 选举的超时
+
+
 	peers     []*labrpc.ClientEnd // RPC end points of all peers
 	persister *Persister          // Object to hold this peer's persisted state
 	me        int                 // this peer's index into peers[]
 	dead      int32               // set by Kill()
+	state	  int
+	//持久状态
+	currentTerm int 			  // 当前的 term
+	voteFor	  int				  // 为某人投票
+	//log
+	//所有可变属性
+	commitIndex int
+	lastApplied int
 
-	// Your data here (2A, 2B, 2C).
-	// Look at the paper's Figure 2 for a description of what
-	// state a Raft server must maintain.
+	//可变 on leader
+	nextIndex []int
+	matchIndex []int
+
+
+
+	// Your data here (2A, 2B, 2C).-------------------------------------
 
 }
 
 // return currentTerm and whether this server
 // believes it is the leader.
 func (rf *Raft) GetState() (int, bool) {
-
+	//rf.mu.Lock()
+	//defer rf.mu.Unlock()
+	//log.Println("GetState")
 	var term int
 	var isleader bool
-	// Your code here (2A).
+	term = rf.currentTerm;
+	isleader=rf.state==leader
+	// Your code here (2A).------------------------------------------
 	return term, isleader
 }
 
@@ -116,7 +140,11 @@ func (rf *Raft) readPersist(data []byte) {
 // field names must start with capital letters!
 //
 type RequestVoteArgs struct {
-	// Your data here (2A, 2B).
+	// Your data here (2A, 2B).-----------------------------------
+	Term int
+	CandidateId int
+	//lastLogIndex
+	//lastLogTerm
 }
 
 //
@@ -124,14 +152,75 @@ type RequestVoteArgs struct {
 // field names must start with capital letters!
 //
 type RequestVoteReply struct {
-	// Your data here (2A).
+	// Your data here (2A).-----------------------------------------
+	Term int
+	VoteGranted bool
+}
+
+type AppendEntriesArgs struct{
+	Term int
+	LeaderId int
+	//PreLogIndex
+	//PreLogTerm
+	//Entries[]
+	//LeaderCommit
+}
+
+type AppendEntriesReply struct{
+	Term int
+	Success bool
 }
 
 //
-// example RequestVote RPC handler.
+// example RequestVote RPC handler.handler、handler、handler
 //
 func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
-	// Your code here (2A, 2B).
+	// Your code here (2A, 2B).----------------------------------------
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+	if args.Term>rf.currentTerm{
+		rf.currentTerm=args.Term
+		rf.voteFor=args.CandidateId
+		rf.state=follower
+		rf.electionTimer=time.Now().UnixNano()/int64(time.Millisecond)+electionConstTime()
+		DPrintf("%d votefor %d,当前 term %d",rf.me,args.CandidateId,rf.currentTerm)
+		reply.Term=args.Term
+		reply.VoteGranted=true
+	}else{
+		reply.Term=args.Term
+		reply.VoteGranted=false
+	}
+
+
+
+}
+func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+	if rf.state==follower{
+		if args.Term>=rf.currentTerm {
+			rf.state=follower
+			rf.currentTerm=args.Term
+			rf.electionTimer=time.Now().UnixNano()/int64(time.Millisecond)+electionConstTime()
+			reply.Term=args.Term
+			reply.Success=true
+		}else{
+			reply.Term=rf.currentTerm
+			reply.Success=false
+		}
+	}else if rf.state==candidate{
+		//candidate 收到了 leader 传来的 append
+		if args.Term>=rf.currentTerm {
+			rf.state=follower
+			rf.currentTerm=args.Term
+			rf.electionTimer=time.Now().UnixNano()/int64(time.Millisecond)+electionConstTime()
+			reply.Term=args.Term
+			reply.Success=true
+		}else{
+			reply.Term=rf.currentTerm
+			reply.Success=false
+		}
+	}
 }
 
 //
@@ -167,6 +256,10 @@ func (rf *Raft) sendRequestVote(server int, args *RequestVoteArgs, reply *Reques
 	ok := rf.peers[server].Call("Raft.RequestVote", args, reply)
 	return ok
 }
+func (rf *Raft) sendAppendEntries(server int, args *AppendEntriesArgs, reply *AppendEntriesReply) bool{
+	ok := rf.peers[server].Call("Raft.AppendEntries", args, reply)
+	return ok
+}
 
 
 //
@@ -187,7 +280,7 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 	index := -1
 	term := -1
 	isLeader := true
-
+	log.Println("start-------------------------")
 	// Your code here (2B).
 
 
@@ -207,6 +300,7 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 //
 func (rf *Raft) Kill() {
 	atomic.StoreInt32(&rf.dead, 1)
+	DPrintf("%d:去死吧！！！！！！！！！！！！！！！！！！！！！！！！！！！%d",rf.me,rf.dead)
 	// Your code here, if desired.
 }
 
@@ -232,12 +326,136 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.peers = peers
 	rf.persister = persister
 	rf.me = me
+	rf.electionTimer = time.Now().UnixNano()/int64(time.Millisecond)+int64(150+rand.Intn(150))
 
-	// Your initialization code here (2A, 2B, 2C).
+	// Your initialization code here (2A, 2B, 2C).-------------------------------
 
 	// initialize from state persisted before a crash
 	rf.readPersist(persister.ReadRaftState())
+	go func() {
+		go rf.electionTimeoutTick()
 
+		DPrintf("%d:哈吉马路由",me)
+	}()
+	//timeout 等Leader 信息
 
 	return rf
+}
+
+/**
+election 的 timeout
+是leader 的话就 wait 等待没有leader的时候，重新竞选新leader的时候signal?????????????????
+ */
+func (rf *Raft)electionTimeoutTick(){
+	for{
+		//DPrintf("%d ： 我现在的 dead为 %d",rf.me,rf.dead)
+		if rf.dead==1{
+			DPrintf("%d :原地去世",rf.me)
+			return
+		}
+		rf.mu.Lock()
+		if rf.state==leader{
+			//已经是 leader 了
+			go rf.heartBeatTimeout()
+			rf.mu.Unlock()
+			return
+			//rf.LeaderCond.Wait()
+		}else{
+			//现在的状态是 follower 或 candidate
+			if time.Now().UnixNano()/int64(time.Millisecond)>rf.electionTimer{
+				//超时需要重新竞选 leader
+				DPrintf("%d ： 开始竞选 leadrt,当前状态为 %d",rf.me,rf.state)
+				rf.state=candidate
+				rf.currentTerm++
+				voteForMe :=0
+				voteForMe++
+				rf.voteFor=rf.me
+				menkan :=len(rf.peers)/2+1
+				for i :=range rf.peers{
+					if(rf.me==i){
+						continue
+					}
+					args := &RequestVoteArgs{CandidateId:rf.me,Term:rf.currentTerm}
+					reply := &RequestVoteReply{}
+					DPrintf("%d ask vote from %d,顺便一说我当前的状态是 %d",rf.me,i,rf.state)
+					go func(i int) {
+						//rf.mu.Lock()
+						//defer rf.mu.Unlock()
+						rf.sendRequestVote(i,args,reply)
+						if reply.Term>rf.currentTerm {
+							rf.state=follower
+						}
+						if reply.VoteGranted {
+							voteForMe++
+						}
+						if voteForMe>=menkan{
+							DPrintf("%d 当选leader",rf.me)
+							rf.state=leader
+						}
+					}(i)
+
+
+				}
+
+				rf.electionTimer=time.Now().UnixNano()/int64(time.Millisecond)+electionConstTime()
+
+			}
+
+
+			time.Sleep(time.Millisecond*10)
+		}
+		rf.mu.Unlock()
+	}
+}
+
+/**
+heartBeat 的 timeout
+leader 用来并发的向 follower 们发送 AppendEntries
+ */
+func (rf *Raft)heartBeatTimeout(){
+	//DPrintf("%d ： 我现在的 dead为 %d",rf.me,rf.dead)
+	for{
+		if rf.dead==1{
+			DPrintf("%d :原地去世",rf.me)
+			return
+		}
+		rf.mu.Lock()
+		if rf.state==leader{
+			//并发的进行操作
+
+			for i :=range rf.peers{
+				if i==rf.me{
+					continue
+				}
+				args :=&AppendEntriesArgs{
+					Term:     rf.currentTerm,
+					LeaderId: rf.me,
+				}
+				reply :=&AppendEntriesReply{}
+				go func(i int) {
+					rf.mu.Lock()
+					defer rf.mu.Unlock()
+					boo :=rf.sendAppendEntries(i,args,reply)
+					if boo {
+						DPrintf("%d 发给 %d 的 heartBeat success",rf.me,i)
+
+					}else{
+						DPrintf("%d 发给 %d 的 heartBeat Fail~~~",rf.me,i)
+					}
+				}(i)
+			}
+		}else{
+			//阻塞等待唤醒
+			DPrintf("%d ：已经不是leader 了退出heartbeat",rf.me)
+			go rf.electionTimeoutTick()
+			rf.mu.Unlock()
+			return
+		}
+		rf.mu.Unlock()
+		time.Sleep(time.Millisecond*50)
+	}
+}
+
+func electionConstTime() int64{
+	return int64(150+rand.Intn(150))
 }

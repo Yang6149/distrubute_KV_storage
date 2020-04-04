@@ -29,7 +29,7 @@ type MyRPCReplay struct {
 	ReduceN int
 	MapN int
 	Id int
-	allFinished bool
+	AllFinished bool
 }
 
 // Cook up a unique-ish UNIX-domain socket name
