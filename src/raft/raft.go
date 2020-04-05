@@ -64,6 +64,7 @@ type Raft struct {
 	//持久状态
 	currentTerm int 			  // 当前的 term
 	voteFor	  int				  // 为某人投票
+	menkan 	  int
 	//log
 	//所有可变属性
 	commitIndex int
@@ -82,11 +83,11 @@ type Raft struct {
 // return currentTerm and whether this server
 // believes it is the leader.
 func (rf *Raft) GetState() (int, bool) {
-	//rf.mu.Lock()
-	//defer rf.mu.Unlock()
 	//log.Println("GetState")
 	var term int
 	var isleader bool
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
 	term = rf.currentTerm;
 	isleader=rf.state==leader
 	// Your code here (2A).------------------------------------------
@@ -284,6 +285,8 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 	index := -1
 	term := -1
 	isLeader := true
+	//log.Println(command)
+	//log.Println(command)
 	log.Println("start-------------------------")
 	// Your code here (2B).
 
@@ -331,6 +334,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.persister = persister
 	rf.me = me
 	rf.electionTimer = time.Now().UnixNano()/int64(time.Millisecond)+int64(150+rand.Intn(150))
+	rf.menkan =len(rf.peers)/2+1
 
 	// Your initialization code here (2A, 2B, 2C).-------------------------------
 
@@ -340,6 +344,11 @@ func Make(peers []*labrpc.ClientEnd, me int,
 		go rf.electionTimeoutTick()
 
 		DPrintf("%d:哈吉马路由",me)
+	}()
+	go func(){
+		for {
+			log.Println(<-applyCh)
+		}
 	}()
 	//timeout 等Leader 信息
 
@@ -353,7 +362,7 @@ election 的 timeout
 func (rf *Raft)electionTimeoutTick(){
 	for{
 		//DPrintf("%d ： 我现在的 dead为 %d",rf.me,rf.dead)
-		if rf.dead==1{
+		if atomic.LoadInt32(&rf.dead)==1{
 			DPrintf("%d :原地去世",rf.me)
 			return
 		}
@@ -374,7 +383,6 @@ func (rf *Raft)electionTimeoutTick(){
 				voteForMe :=0
 				voteForMe++
 				rf.voteFor=rf.me
-				menkan :=len(rf.peers)/2+1
 				for i :=range rf.peers{
 					if(rf.me==i){
 						continue
@@ -394,10 +402,11 @@ func (rf *Raft)electionTimeoutTick(){
 							DPrintf("%d:收到的心跳竟然term 比我大",rf.me)
 							rf.state=follower
 						}
-						if reply.VoteGranted {
+						if reply.VoteGranted && reply.Term==rf.currentTerm{
 							voteForMe++
 						}
-						if voteForMe>=menkan{
+						if voteForMe>=rf.menkan{
+							DPrintf("%d 我的 term为 %d ，本次收到投票 %d,它的 term 为%d",rf.me,rf.currentTerm,i,reply.Term)
 							DPrintf("%d 当选leader",rf.me)
 							rf.state=leader
 						}
@@ -424,11 +433,12 @@ leader 用来并发的向 follower 们发送 AppendEntries
 func (rf *Raft)heartBeatTimeout(){
 	//DPrintf("%d ： 我现在的 dead为 %d",rf.me,rf.dead)
 	for{
-		if rf.dead==1{
+		if atomic.LoadInt32(&rf.dead)==1{
 			DPrintf("%d :原地去世",rf.me)
 			return
 		}
 		rf.mu.Lock()
+
 		if rf.state==leader{
 			//并发的进行操作
 
@@ -455,14 +465,16 @@ func (rf *Raft)heartBeatTimeout(){
 						rf.state = follower
 						rf.electionTimer=time.Now().UnixNano()/int64(time.Millisecond)+electionConstTime()
 						DPrintf("%d :发现 term 更高的leader %d,yield！！",rf.me,i)
+					}else{
+						if boo {
+							DPrintf("%d 发给 %d 的 heartBeat success",rf.me,i)
+
+						}else{
+							DPrintf("%d 发给 %d 的 heartBeat Fail~~~",rf.me,i)
+						}
 					}
 					rf.mu.Unlock()
-					if boo {
-						DPrintf("%d 发给 %d 的 heartBeat success",rf.me,i)
 
-					}else{
-						DPrintf("%d 发给 %d 的 heartBeat Fail~~~",rf.me,i)
-					}
 				}(i)
 			}
 		}else{
