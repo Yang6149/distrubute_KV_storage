@@ -194,10 +194,12 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 
 
 }
+
+//目前写的很复杂，最后回同一删除精简
 func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
-	if rf.state==follower{
+	if rf.state!=leader{
 		if args.Term>=rf.currentTerm {
 			rf.state=follower
 			rf.currentTerm=args.Term
@@ -208,15 +210,17 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 			reply.Term=rf.currentTerm
 			reply.Success=false
 		}
-	}else if rf.state==candidate{
-		//candidate 收到了 leader 传来的 append
-		if args.Term>=rf.currentTerm {
+	}else{
+		DPrintf("%d :leader 收到了 心跳",rf.me)
+		if args.Term > rf.currentTerm {
+			DPrintf("%d :我承认你%d 我的term %d ,你的term %d",rf.me,args.LeaderId,rf.currentTerm,args.Term)
 			rf.state=follower
 			rf.currentTerm=args.Term
 			rf.electionTimer=time.Now().UnixNano()/int64(time.Millisecond)+electionConstTime()
 			reply.Term=args.Term
 			reply.Success=true
 		}else{
+			DPrintf("%d： 我不承认你%d 我的 term %d ，你的term %d",rf.me,args.LeaderId,rf.currentTerm,args.Term)
 			reply.Term=rf.currentTerm
 			reply.Success=false
 		}
@@ -381,8 +385,13 @@ func (rf *Raft)electionTimeoutTick(){
 					go func(i int) {
 						//rf.mu.Lock()
 						//defer rf.mu.Unlock()
+						DPrintf("%d 请求 %d 投票",rf.me,i)
 						rf.sendRequestVote(i,args,reply)
+						DPrintf("%d 请求 %d 投票 返回了！",rf.me,i)
+						rf.mu.Lock()
+						defer rf.mu.Unlock()
 						if reply.Term>rf.currentTerm {
+							DPrintf("%d:收到的心跳竟然term 比我大",rf.me)
 							rf.state=follower
 						}
 						if reply.VoteGranted {
@@ -427,15 +436,27 @@ func (rf *Raft)heartBeatTimeout(){
 				if i==rf.me{
 					continue
 				}
-				args :=&AppendEntriesArgs{
-					Term:     rf.currentTerm,
-					LeaderId: rf.me,
-				}
-				reply :=&AppendEntriesReply{}
+
 				go func(i int) {
 					rf.mu.Lock()
-					defer rf.mu.Unlock()
+					if rf.state == follower {
+						return
+					}
+					rf.mu.Unlock()
+					args :=&AppendEntriesArgs{
+						Term:     rf.currentTerm,
+						LeaderId: rf.me,
+					}
+					reply :=&AppendEntriesReply{}
 					boo :=rf.sendAppendEntries(i,args,reply)
+					rf.mu.Lock()
+					if reply.Term > rf.currentTerm {
+						rf.currentTerm=reply.Term
+						rf.state = follower
+						rf.electionTimer=time.Now().UnixNano()/int64(time.Millisecond)+electionConstTime()
+						DPrintf("%d :发现 term 更高的leader %d,yield！！",rf.me,i)
+					}
+					rf.mu.Unlock()
 					if boo {
 						DPrintf("%d 发给 %d 的 heartBeat success",rf.me,i)
 
