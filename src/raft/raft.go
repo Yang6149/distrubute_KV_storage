@@ -13,7 +13,6 @@ package raft
 //
 
 import (
-	"log"
 	"math/rand"
 	"sync"
 	"sync/atomic"
@@ -30,6 +29,7 @@ import (
 const leader = 2
 const follower = 0
 const candidate = 1
+const heartbeatConstTime = 20 * time.Millisecond
 
 //
 // as each Raft peer becomes aware that successive log entries are
@@ -52,22 +52,21 @@ type ApplyMsg struct {
 type Raft struct {
 	mu         sync.Mutex // Lock to protect shared access to this peer's state
 	LeaderCond sync.Cond
-
-	electionTimer int64 // 选举的超时
-
-	peers     []*labrpc.ClientEnd // RPC end points of all peers
-	persister *Persister          // Object to hold this peer's persisted state
-	me        int                 // this peer's index into peers[]
-	dead      int32               // set by Kill()
-	state     int
+	peers      []*labrpc.ClientEnd // RPC end points of all peers
+	persister  *Persister          // Object to hold this peer's persisted state
+	me         int                 // this peer's index into peers[]
+	dead       int32               // set by Kill()
+	state      int
 	//持久状态
-	currentTerm int     // 当前的 term
-	voteFor     int     // 为某人投票
-	menkan      int     //大多数的一个阈值
-	log         []Entry //logEntries
+	electionTimer  *time.Timer
+	heartbeatTimer *time.Timer
+	currentTerm    int     // 当前的 term
+	voteFor        int     // 为某人投票
+	menkan         int     //大多数的一个阈值
+	log            []Entry //logEntries
 	//log
 	//所有可变属性
-	commitIndex int //	目前知道commit的最大的log的index
+	commitIndex int //	当前 commit 的index
 	lastApplied int //	本机apply的最大的log的index
 
 	//可变 on leader
@@ -146,15 +145,16 @@ func (rf *Raft) readPersist(data []byte) {
 // the leader.
 //
 func (rf *Raft) Start(command interface{}) (int, int, bool) {
-	index := -1
-	term := -1
-	isLeader := true
-	//log.Println(command)
-	//log.Println(command)
-	log.Println("start-------------------------")
-	// Your code here (2B).
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+	if rf.state == leader {
+		return -1, -1, false
+	} else {
+		entry := Entry{Term: rf.currentTerm, Command: command}
+		rf.log = append(rf.log, entry) //向log 中加入client 最新的request
+		return -1, rf.currentTerm, rf.state == leader
 
-	return index, term, isLeader
+	}
 }
 
 //
@@ -196,28 +196,36 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.peers = peers
 	rf.persister = persister
 	rf.me = me
-	rf.electionTimer = time.Now().UnixNano()/int64(time.Millisecond) + int64(150+rand.Intn(150))
 	rf.menkan = len(rf.peers)/2 + 1
+	rf.electionTimer = time.NewTimer(electionConstTime())
+	rf.heartbeatTimer = time.NewTimer(heartbeatConstTime)
 
 	// Your initialization code here (2A, 2B, 2C).-------------------------------
 
 	// initialize from state persisted before a crash
 	rf.readPersist(persister.ReadRaftState())
-	go func() {
-		go rf.electionTimeoutTick()
-
-		DPrintf("%d:哈吉马路由", me)
-	}()
-	go func() {
+	go func(rf *Raft) {
 		for {
-			log.Println(<-applyCh)
-		}
-	}()
-	//timeout 等Leader 信息
+			select {
+			case <-rf.electionTimer.C:
+				rf.mu.Lock()
+				if rf.state == follower{
+					rf.conver(candidate)
+				}else{
+					rf.election()
+				}
+				rf.mu.Unlock()
+			case <-rf.heartbeatTimer.C:
+				rf.mu.Lock()
+				rf.heartBeat()
+				rf.mu.Unlock()
 
+			}
+		}
+	}(rf)
 	return rf
 }
 
-func electionConstTime() int64 {
-	return int64(150 + rand.Intn(150))
+func electionConstTime() time.Duration {
+	return time.Duration(150+rand.Intn(150)) * time.Millisecond
 }

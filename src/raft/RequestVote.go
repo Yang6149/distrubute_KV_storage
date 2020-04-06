@@ -1,7 +1,5 @@
 package raft
 
-import "time"
-
 //
 // example RequestVote RPC arguments structure.
 // field names must start with capital letters!
@@ -34,8 +32,8 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	if args.Term > rf.currentTerm {
 		rf.currentTerm = args.Term
 		rf.voteFor = args.CandidateId
-		rf.state = follower
-		rf.electionTimer = time.Now().UnixNano()/int64(time.Millisecond) + electionConstTime()
+		rf.conver(follower)
+		rf.electionTimer.Reset(electionConstTime())
 		DPrintf("%d votefor %d,当前 term %d", rf.me, args.CandidateId, rf.currentTerm)
 		reply.Term = args.Term
 		reply.VoteGranted = true

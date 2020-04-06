@@ -8,12 +8,16 @@ package raft
 // test with the original before submitting.
 //
 
-import "testing"
-import "fmt"
-import "time"
-import "math/rand"
-import "sync/atomic"
-import "sync"
+import (
+	"fmt"
+	"log"
+	"math/rand"
+	"os"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+)
 
 // The tester generously allows solutions to complete elections in one second
 // (much more than the paper's range of timeouts).
@@ -52,6 +56,12 @@ func TestInitialElection2A(t *testing.T) {
 
 func TestReElection2A(t *testing.T) {
 	servers := 3
+	f, err := os.OpenFile("logfile.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("file open error : %v", err)
+	}
+	defer f.Close()
+	log.SetOutput(f)
 	cfg := make_config(t, servers, false)
 	defer cfg.cleanup()
 
@@ -66,6 +76,7 @@ func TestReElection2A(t *testing.T) {
 	// if the old leader rejoins, that shouldn't
 	// disturb the new leader.
 	cfg.connect(leader1)
+	DPrintf("12121212121212121212121212121212121")
 	leader2 := cfg.checkOneLeader()
 	DPrintf("222222222222222222222222222222222")
 	// if there's no quorum, no leader should
@@ -77,10 +88,12 @@ func TestReElection2A(t *testing.T) {
 	DPrintf("3333333333333333333333333333333")
 	// if a quorum arises, it should elect a leader.
 	cfg.connect((leader2 + 1) % servers)
+	DPrintf("34343434343434343434343434343434")
 	cfg.checkOneLeader()
 	DPrintf("444444444444444444444444444444444")
 	// re-join of last node shouldn't prevent leader from existing.
 	cfg.connect(leader2)
+	DPrintf("45454545454545454545454545454545")
 	cfg.checkOneLeader()
 
 	cfg.end()
