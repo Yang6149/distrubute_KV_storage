@@ -17,12 +17,16 @@ package raft
 //   in the same server.
 //
 
-import "sync"
-import "sync/atomic"
-import "../labrpc"
-import "log"
-import "time"
-import "math/rand"
+import (
+	"log"
+	"math/rand"
+	"sync"
+	"sync/atomic"
+	"time"
+
+	"../labrpc"
+)
+
 // import "bytes"
 // import "../labgob"
 
@@ -46,40 +50,40 @@ type ApplyMsg struct {
 //
 // A Go object implementing a single Raft peer.
 //
-const leader=2
-const follower=0
-const candidate=1
+const leader = 2
+const follower = 0
+const candidate = 1
+
+//raft comment
 type Raft struct {
-	mu        sync.Mutex          // Lock to protect shared access to this peer's state
+	mu         sync.Mutex // Lock to protect shared access to this peer's state
 	LeaderCond sync.Cond
 
-	electionTimer int64		// 选举的超时
-
+	electionTimer int64 // 选举的超时
 
 	peers     []*labrpc.ClientEnd // RPC end points of all peers
 	persister *Persister          // Object to hold this peer's persisted state
 	me        int                 // this peer's index into peers[]
 	dead      int32               // set by Kill()
-	state	  int
+	state     int
 	//持久状态
-	currentTerm int 			  // 当前的 term
-	voteFor	  int				  // 为某人投票
-	menkan 	  int
+	currentTerm int // 当前的 term
+	voteFor     int // 为某人投票
+	menkan      int
 	//log
 	//所有可变属性
 	commitIndex int
 	lastApplied int
 
 	//可变 on leader
-	nextIndex []int
+	nextIndex  []int
 	matchIndex []int
-
-
 
 	// Your data here (2A, 2B, 2C).-------------------------------------
 
 }
 
+// GetState get command .
 // return currentTerm and whether this server
 // believes it is the leader.
 func (rf *Raft) GetState() (int, bool) {
@@ -88,8 +92,8 @@ func (rf *Raft) GetState() (int, bool) {
 	var isleader bool
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
-	term = rf.currentTerm;
-	isleader=rf.state==leader
+	term = rf.currentTerm
+	isleader = rf.state == leader
 	// Your code here (2A).------------------------------------------
 	return term, isleader
 }
@@ -109,7 +113,6 @@ func (rf *Raft) persist() {
 	// data := w.Bytes()
 	// rf.persister.SaveRaftState(data)
 }
-
 
 //
 // restore previously persisted state.
@@ -132,140 +135,6 @@ func (rf *Raft) readPersist(data []byte) {
 	//   rf.yyy = yyy
 	// }
 }
-
-
-
-
-//
-// example RequestVote RPC arguments structure.
-// field names must start with capital letters!
-//
-type RequestVoteArgs struct {
-	// Your data here (2A, 2B).-----------------------------------
-	Term int
-	CandidateId int
-	//lastLogIndex
-	//lastLogTerm
-}
-
-//
-// example RequestVote RPC reply structure.
-// field names must start with capital letters!
-//
-type RequestVoteReply struct {
-	// Your data here (2A).-----------------------------------------
-	Term int
-	VoteGranted bool
-}
-
-type AppendEntriesArgs struct{
-	Term int
-	LeaderId int
-	//PreLogIndex
-	//PreLogTerm
-	//Entries[]
-	//LeaderCommit
-}
-
-type AppendEntriesReply struct{
-	Term int
-	Success bool
-}
-
-//
-// example RequestVote RPC handler.handler、handler、handler
-//
-func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
-	// Your code here (2A, 2B).----------------------------------------
-	rf.mu.Lock()
-	defer rf.mu.Unlock()
-	if args.Term>rf.currentTerm{
-		rf.currentTerm=args.Term
-		rf.voteFor=args.CandidateId
-		rf.state=follower
-		rf.electionTimer=time.Now().UnixNano()/int64(time.Millisecond)+electionConstTime()
-		DPrintf("%d votefor %d,当前 term %d",rf.me,args.CandidateId,rf.currentTerm)
-		reply.Term=args.Term
-		reply.VoteGranted=true
-	}else{
-		reply.Term=args.Term
-		reply.VoteGranted=false
-	}
-
-
-
-}
-
-//目前写的很复杂，最后回同一删除精简
-func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
-	rf.mu.Lock()
-	defer rf.mu.Unlock()
-	if rf.state!=leader{
-		if args.Term>=rf.currentTerm {
-			rf.state=follower
-			rf.currentTerm=args.Term
-			rf.electionTimer=time.Now().UnixNano()/int64(time.Millisecond)+electionConstTime()
-			reply.Term=args.Term
-			reply.Success=true
-		}else{
-			reply.Term=rf.currentTerm
-			reply.Success=false
-		}
-	}else{
-		DPrintf("%d :leader 收到了 心跳",rf.me)
-		if args.Term > rf.currentTerm {
-			DPrintf("%d :我承认你%d 我的term %d ,你的term %d",rf.me,args.LeaderId,rf.currentTerm,args.Term)
-			rf.state=follower
-			rf.currentTerm=args.Term
-			rf.electionTimer=time.Now().UnixNano()/int64(time.Millisecond)+electionConstTime()
-			reply.Term=args.Term
-			reply.Success=true
-		}else{
-			DPrintf("%d： 我不承认你%d 我的 term %d ，你的term %d",rf.me,args.LeaderId,rf.currentTerm,args.Term)
-			reply.Term=rf.currentTerm
-			reply.Success=false
-		}
-	}
-}
-
-//
-// example code to send a RequestVote RPC to a server.
-// server is the index of the target server in rf.peers[].
-// expects RPC arguments in args.
-// fills in *reply with RPC reply, so caller should
-// pass &reply.
-// the types of the args and reply passed to Call() must be
-// the same as the types of the arguments declared in the
-// handler function (including whether they are pointers).
-//
-// The labrpc package simulates a lossy network, in which servers
-// may be unreachable, and in which requests and replies may be lost.
-// Call() sends a request and waits for a reply. If a reply arrives
-// within a timeout interval, Call() returns true; otherwise
-// Call() returns false. Thus Call() may not return for a while.
-// A false return can be caused by a dead server, a live server that
-// can't be reached, a lost request, or a lost reply.
-//
-// Call() is guaranteed to return (perhaps after a delay) *except* if the
-// handler function on the server side does not return.  Thus there
-// is no need to implement your own timeouts around Call().
-//
-// look at the comments in ../labrpc/labrpc.go for more details.
-//
-// if you're having trouble getting RPC to work, check that you've
-// capitalized all field names in structs passed over RPC, and
-// that the caller passes the address of the reply struct with &, not
-// the struct itself.
-//
-func (rf *Raft) sendRequestVote(server int, args *RequestVoteArgs, reply *RequestVoteReply) bool {
-	ok := rf.peers[server].Call("Raft.RequestVote", args, reply)
-	return ok
-}
-func (rf *Raft) sendAppendEntries(server int, args *AppendEntriesArgs, reply *AppendEntriesReply) bool{
-	ok := rf.peers[server].Call("Raft.AppendEntries", args, reply)
-	return ok
-}
-
 
 //
 // the service using Raft (e.g. a k/v server) wants to start
@@ -290,7 +159,6 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 	log.Println("start-------------------------")
 	// Your code here (2B).
 
-
 	return index, term, isLeader
 }
 
@@ -307,7 +175,7 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 //
 func (rf *Raft) Kill() {
 	atomic.StoreInt32(&rf.dead, 1)
-	DPrintf("%d:去死吧！！！！！！！！！！！！！！！！！！！！！！！！！！！%d",rf.me,rf.dead)
+	DPrintf("%d:去死吧！！！！！！！！！！！！！！！！！！！！！！！！！！！%d", rf.me, rf.dead)
 	// Your code here, if desired.
 }
 
@@ -333,8 +201,8 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.peers = peers
 	rf.persister = persister
 	rf.me = me
-	rf.electionTimer = time.Now().UnixNano()/int64(time.Millisecond)+int64(150+rand.Intn(150))
-	rf.menkan =len(rf.peers)/2+1
+	rf.electionTimer = time.Now().UnixNano()/int64(time.Millisecond) + int64(150+rand.Intn(150))
+	rf.menkan = len(rf.peers)/2 + 1
 
 	// Your initialization code here (2A, 2B, 2C).-------------------------------
 
@@ -343,9 +211,9 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	go func() {
 		go rf.electionTimeoutTick()
 
-		DPrintf("%d:哈吉马路由",me)
+		DPrintf("%d:哈吉马路由", me)
 	}()
-	go func(){
+	go func() {
 		for {
 			log.Println(<-applyCh)
 		}
@@ -358,69 +226,67 @@ func Make(peers []*labrpc.ClientEnd, me int,
 /**
 election 的 timeout
 是leader 的话就 wait 等待没有leader的时候，重新竞选新leader的时候signal?????????????????
- */
-func (rf *Raft)electionTimeoutTick(){
-	for{
+*/
+func (rf *Raft) electionTimeoutTick() {
+	for {
 		//DPrintf("%d ： 我现在的 dead为 %d",rf.me,rf.dead)
-		if atomic.LoadInt32(&rf.dead)==1{
-			DPrintf("%d :原地去世",rf.me)
+		if atomic.LoadInt32(&rf.dead) == 1 {
+			DPrintf("%d :原地去世", rf.me)
 			return
 		}
 		rf.mu.Lock()
-		if rf.state==leader{
+		if rf.state == leader {
 			//已经是 leader 了
 			go rf.heartBeatTimeout()
 			rf.mu.Unlock()
 			return
 			//rf.LeaderCond.Wait()
-		}else{
+		} else {
 			//现在的状态是 follower 或 candidate
-			if time.Now().UnixNano()/int64(time.Millisecond)>rf.electionTimer{
+			if time.Now().UnixNano()/int64(time.Millisecond) > rf.electionTimer {
 				//超时需要重新竞选 leader
-				DPrintf("%d ： 开始竞选 leadrt,当前状态为 %d",rf.me,rf.state)
-				rf.state=candidate
+				DPrintf("%d ： 开始竞选 leadrt,当前状态为 %d", rf.me, rf.state)
+				rf.state = candidate
 				rf.currentTerm++
-				voteForMe :=0
+				voteForMe := 0
 				voteForMe++
-				rf.voteFor=rf.me
-				for i :=range rf.peers{
-					if(rf.me==i){
+				rf.voteFor = rf.me
+				for i := range rf.peers {
+					if rf.me == i {
 						continue
 					}
-					args := &RequestVoteArgs{CandidateId:rf.me,Term:rf.currentTerm}
+					args := &RequestVoteArgs{CandidateId: rf.me, Term: rf.currentTerm}
 					reply := &RequestVoteReply{}
-					DPrintf("%d ask vote from %d,顺便一说我当前的状态是 %d",rf.me,i,rf.state)
+					DPrintf("%d ask vote from %d,顺便一说我当前的状态是 %d", rf.me, i, rf.state)
 					go func(i int) {
 						//rf.mu.Lock()
 						//defer rf.mu.Unlock()
-						DPrintf("%d 请求 %d 投票",rf.me,i)
-						rf.sendRequestVote(i,args,reply)
-						DPrintf("%d 请求 %d 投票 返回了！",rf.me,i)
+						DPrintf("%d 请求 %d 投票", rf.me, i)
+						rf.sendRequestVote(i, args, reply)
+						DPrintf("%d 请求 %d 投票 返回了！", rf.me, i)
 						rf.mu.Lock()
 						defer rf.mu.Unlock()
-						if reply.Term>rf.currentTerm {
-							DPrintf("%d:收到的心跳竟然term 比我大",rf.me)
-							rf.state=follower
+						if reply.Term > rf.currentTerm {
+							DPrintf("%d:收到的心跳竟然term 比我大", rf.me)
+							rf.state = follower
 						}
-						if reply.VoteGranted && reply.Term==rf.currentTerm{
+						if reply.VoteGranted && reply.Term == rf.currentTerm {
 							voteForMe++
 						}
-						if voteForMe>=rf.menkan{
-							DPrintf("%d 我的 term为 %d ，本次收到投票 %d,它的 term 为%d",rf.me,rf.currentTerm,i,reply.Term)
-							DPrintf("%d 当选leader",rf.me)
-							rf.state=leader
+						if voteForMe >= rf.menkan {
+							DPrintf("%d 我的 term为 %d ，本次收到投票 %d,它的 term 为%d", rf.me, rf.currentTerm, i, reply.Term)
+							DPrintf("%d 当选leader", rf.me)
+							rf.state = leader
 						}
 					}(i)
 
-
 				}
 
-				rf.electionTimer=time.Now().UnixNano()/int64(time.Millisecond)+electionConstTime()
+				rf.electionTimer = time.Now().UnixNano()/int64(time.Millisecond) + electionConstTime()
 
 			}
 
-
-			time.Sleep(time.Millisecond*10)
+			time.Sleep(time.Millisecond * 10)
 		}
 		rf.mu.Unlock()
 	}
@@ -429,21 +295,21 @@ func (rf *Raft)electionTimeoutTick(){
 /**
 heartBeat 的 timeout
 leader 用来并发的向 follower 们发送 AppendEntries
- */
-func (rf *Raft)heartBeatTimeout(){
+*/
+func (rf *Raft) heartBeatTimeout() {
 	//DPrintf("%d ： 我现在的 dead为 %d",rf.me,rf.dead)
-	for{
-		if atomic.LoadInt32(&rf.dead)==1{
-			DPrintf("%d :原地去世",rf.me)
+	for {
+		if atomic.LoadInt32(&rf.dead) == 1 {
+			DPrintf("%d :原地去世", rf.me)
 			return
 		}
 		rf.mu.Lock()
 
-		if rf.state==leader{
+		if rf.state == leader {
 			//并发的进行操作
 
-			for i :=range rf.peers{
-				if i==rf.me{
+			for i := range rf.peers {
+				if i == rf.me {
 					continue
 				}
 
@@ -453,42 +319,42 @@ func (rf *Raft)heartBeatTimeout(){
 						return
 					}
 					rf.mu.Unlock()
-					args :=&AppendEntriesArgs{
+					args := &AppendEntriesArgs{
 						Term:     rf.currentTerm,
 						LeaderId: rf.me,
 					}
-					reply :=&AppendEntriesReply{}
-					boo :=rf.sendAppendEntries(i,args,reply)
+					reply := &AppendEntriesReply{}
+					boo := rf.sendAppendEntries(i, args, reply)
 					rf.mu.Lock()
 					if reply.Term > rf.currentTerm {
-						rf.currentTerm=reply.Term
+						rf.currentTerm = reply.Term
 						rf.state = follower
-						rf.electionTimer=time.Now().UnixNano()/int64(time.Millisecond)+electionConstTime()
-						DPrintf("%d :发现 term 更高的leader %d,yield！！",rf.me,i)
-					}else{
+						rf.electionTimer = time.Now().UnixNano()/int64(time.Millisecond) + electionConstTime()
+						DPrintf("%d :发现 term 更高的leader %d,yield！！", rf.me, i)
+					} else {
 						if boo {
-							DPrintf("%d 发给 %d 的 heartBeat success",rf.me,i)
+							DPrintf("%d 发给 %d 的 heartBeat success", rf.me, i)
 
-						}else{
-							DPrintf("%d 发给 %d 的 heartBeat Fail~~~",rf.me,i)
+						} else {
+							DPrintf("%d 发给 %d 的 heartBeat Fail~~~", rf.me, i)
 						}
 					}
 					rf.mu.Unlock()
 
 				}(i)
 			}
-		}else{
+		} else {
 			//阻塞等待唤醒
-			DPrintf("%d ：已经不是leader 了退出heartbeat",rf.me)
+			DPrintf("%d ：已经不是leader 了退出heartbeat", rf.me)
 			go rf.electionTimeoutTick()
 			rf.mu.Unlock()
 			return
 		}
 		rf.mu.Unlock()
-		time.Sleep(time.Millisecond*50)
+		time.Sleep(time.Millisecond * 50)
 	}
 }
 
-func electionConstTime() int64{
-	return int64(150+rand.Intn(150))
+func electionConstTime() int64 {
+	return int64(150 + rand.Intn(150))
 }
