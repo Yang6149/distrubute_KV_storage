@@ -8,10 +8,10 @@ import "time"
 //
 type RequestVoteArgs struct {
 	// Your data here (2A, 2B).-----------------------------------
-	Term        int
-	CandidateId int
-	//lastLogIndex
-	//lastLogTerm
+	Term         int
+	CandidateId  int
+	LastLogIndex int
+	LastLogTerm  int
 }
 
 //

@@ -3,12 +3,12 @@ package raft
 import "time"
 
 type AppendEntriesArgs struct {
-	Term     int
-	LeaderId int
-	//PreLogIndex
-	//PreLogTerm
-	//Entries[]
-	//LeaderCommit
+	Term         int
+	LeaderId     int
+	PreLogIndex  int
+	PreLogTerm   int
+	Entries      []Entry
+	LeaderCommit int
 }
 
 type AppendEntriesReply struct {
@@ -16,7 +16,7 @@ type AppendEntriesReply struct {
 	Success bool
 }
 
-//目前写的很复杂，最后回同一删除精简
+//目前写的很复杂，最后会统一删除精简
 func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
