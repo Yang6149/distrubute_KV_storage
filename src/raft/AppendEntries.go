@@ -15,13 +15,13 @@ type AppendEntriesReply struct {
 }
 
 func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
+	DPrintf("%d锁前接收 append", rf.me)
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
 	if args.Term >= rf.currentTerm {
 		rf.state = follower
 		rf.currentTerm = args.Term
-		rf.conver(follower)
-		rf.electionTimer.Reset(electionConstTime())
+		rf.appendChan <- 1
 		DPrintf("%d：重置ele时间", rf.me)
 		reply.Term = args.Term
 		reply.Success = true

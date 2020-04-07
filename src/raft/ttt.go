@@ -1,4 +1,4 @@
-package main
+package raft
 
 import (
 	"fmt"
@@ -7,20 +7,27 @@ import (
 
 type a struct {
 	time time.Timer
+	c    chan int
 }
 
 func main() {
 	b := &a{}
 	b.time = *time.NewTimer(time.Second)
+	b.c = make(chan int)
 	go func(b *a) {
-		select {
-		case <-b.time.C:
-			fmt.Println("b")
+		for {
+			b.c <- 1
+			fmt.Println("传值")
+			time.Sleep(500 * time.Millisecond)
 		}
 	}(b)
-	b.time.Stop()
-	b.time.Reset(3 * time.Second)
-	time.Sleep(2 * time.Second)
-	fmt.Println("a")
-	time.Sleep(2 * time.Second)
+	for {
+		select {
+		case <-b.c:
+			fmt.Println("111")
+		case <-time.After(time.Second):
+			fmt.Println("超时")
+		}
+	}
+
 }

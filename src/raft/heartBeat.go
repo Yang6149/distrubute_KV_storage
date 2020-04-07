@@ -28,14 +28,14 @@ func (rf *Raft) heartBeat() {
 			rf.mu.Lock()
 			if reply.Term > rf.currentTerm {
 				rf.currentTerm = reply.Term
-				rf.conver(follower)
+				rf.findBiggerChan<-1
 				DPrintf("%d :发现 term 更高的leader %d,yield！！", rf.me, i)
 			} else {
 				if boo {
 					DPrintf("%d 发给 %d 的 heartBeat success", rf.me, i)
 
 				} else {
-					DPrintf("%d 发给 %d 的 heartBeat Fail~~~", rf.me, i)
+					//DPrintf("%d 发给 %d 的 heartBeat Fail~~~", rf.me, i)
 				}
 			}
 			rf.mu.Unlock()

@@ -58,12 +58,13 @@ type Raft struct {
 	dead       int32               // set by Kill()
 	state      int
 	//持久状态
-	electionTimer  *time.Timer
-	heartbeatTimer *time.Timer
-	currentTerm    int     // 当前的 term
-	voteFor        int     // 为某人投票
-	menkan         int     //大多数的一个阈值
-	log            []Entry //logEntries
+	currentTerm     int // 当前的 term
+	voteFor         int // 为某人投票
+	voteGrantedChan chan int
+	appendChan      chan int
+	findBiggerChan  chan int
+	menkan          int     //大多数的一个阈值
+	log             []Entry //logEntries
 	//log
 	//所有可变属性
 	commitIndex int //	当前 commit 的index
@@ -197,28 +198,73 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.persister = persister
 	rf.me = me
 	rf.menkan = len(rf.peers)/2 + 1
-	rf.electionTimer = time.NewTimer(electionConstTime())
-	rf.heartbeatTimer = time.NewTimer(heartbeatConstTime)
-
+	rf.chanReset()
 	// Your initialization code here (2A, 2B, 2C).-------------------------------
 
 	// initialize from state persisted before a crash
 	rf.readPersist(persister.ReadRaftState())
 	go func(rf *Raft) {
 		for {
-			select {
-			case <-rf.electionTimer.C:
-				rf.mu.Lock()
-				if rf.state == follower{
+			if rf.killed() {
+				DPrintf("%d当场去世", rf.me)
+				return
+			}
+			rf.mu.Lock()
+			st := rf.state
+			rf.mu.Unlock()
+			switch st {
+			case follower:
+				//
+				select {
+				case <-rf.findBiggerChan:
+					DPrintf("%d is follower ,find bigger term", rf.me)
+				case <-rf.appendChan:
+					//follower收到有效append，重置超时
+				case <-time.After(electionConstTime()):
+					//超时啦，进行选举
+					rf.mu.Lock()
 					rf.conver(candidate)
-				}else{
 					rf.election()
+					rf.mu.Unlock()
 				}
-				rf.mu.Unlock()
-			case <-rf.heartbeatTimer.C:
-				rf.mu.Lock()
-				rf.heartBeat()
-				rf.mu.Unlock()
+			case candidate:
+				select {
+				case <-rf.findBiggerChan:
+					//发现了更大地 term ，转为follower
+				case <-rf.appendChan:
+					//candidate 收到有效心跳，转回follower
+					rf.mu.Lock()
+					rf.conver(follower)
+					rf.mu.Unlock()
+				case <-rf.voteGrantedChan:
+					//candidate 收到多数投票结果，升级为 leader
+					rf.mu.Lock()
+					rf.conver(leader)
+					rf.mu.Unlock()
+				case <-time.After(electionConstTime()):
+					//没有投票结果，也没有收到有效append，重新giao
+					rf.mu.Lock()
+					rf.election()
+					rf.mu.Unlock()
+				}
+				//
+			case leader:
+				select {
+				case <-rf.findBiggerChan:
+					rf.mu.Lock()
+					rf.conver(follower)
+					rf.mu.Unlock()
+				case <-rf.appendChan:
+					//收到有效地心跳，转为follower
+					rf.mu.Lock()
+					rf.conver(follower)
+					rf.mu.Unlock()
+				case <-time.After(heartbeatConstTime):
+					//进行一次append
+					rf.mu.Lock()
+					rf.heartBeat()
+					rf.mu.Unlock()
+				}
 
 			}
 		}

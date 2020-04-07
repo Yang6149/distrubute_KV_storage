@@ -32,8 +32,7 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	if args.Term > rf.currentTerm {
 		rf.currentTerm = args.Term
 		rf.voteFor = args.CandidateId
-		rf.conver(follower)
-		rf.electionTimer.Reset(electionConstTime())
+		rf.findBiggerChan<-1
 		DPrintf("%d votefor %d,当前 term %d", rf.me, args.CandidateId, rf.currentTerm)
 		reply.Term = args.Term
 		reply.VoteGranted = true
