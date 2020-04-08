@@ -53,9 +53,6 @@ func TestInitialElection2A(t *testing.T) {
 }
 
 func TestReElection2A(t *testing.T) {
-	DPrintf("sleep one second")
-	time.Sleep(10 * time.Millisecond)
-	DPrintf("sleep one second finished")
 	servers := 3
 	// f, err := os.OpenFile("logfile.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	// if err != nil {
@@ -214,7 +211,7 @@ func TestFailNoAgree2B(t *testing.T) {
 	cfg.disconnect((leader + 1) % servers)
 	cfg.disconnect((leader + 2) % servers)
 	cfg.disconnect((leader + 3) % servers)
-
+	DPrintf("disconnect three follower ************")
 	index, _, ok := cfg.rafts[leader].Start(20)
 	if ok != true {
 		t.Fatalf("leader rejected Start()")

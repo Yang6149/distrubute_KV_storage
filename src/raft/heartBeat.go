@@ -48,6 +48,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 			DPrintf("%d :发现 term 更高的leader %d,yield！！", rf.me, i)
 		} else {
 			if reply.Success {
+				rf.matchIndex[i] = reply.MatchIndex
 				//分两种情况，发送entry了，以及没有发送entry
 				//1. 发送了 entry
 				if len(rf.log) > rf.nextIndex[i] {
@@ -59,10 +60,10 @@ func (rf *Raft) sendAppendEntry(i int) {
 							if m == rf.me {
 								continue
 							}
-							DPrintf("%d :matchindex m is %d ,nextIndex m is %d ", rf.me, rf.matchIndex[m], rf.nextIndex[m])
-							if reply.MatchIndex >= rf.nextIndex[m] {
+							DPrintf("%d :matchindex m is %d ,nextIndex m is %d  this follower is %d", rf.me, rf.matchIndex[m], rf.nextIndex[m],m)
+							if rf.matchIndex[m]>= reply.MatchIndex {
 								matchNum++
-								DPrintf("%d the matchNum is %d,the index is ", rf.me, matchNum, reply.MatchIndex)
+								DPrintf("%d the matchNum is %d,the index is %d", rf.me, matchNum, reply.MatchIndex)
 							}
 							if matchNum >= rf.menkan {
 								DPrintf("%d 开始 commit at index %d", rf.me, rf.nextIndex[i])
