@@ -20,8 +20,10 @@ func (rf *Raft) conver(state int) {
 		//初始化 leader 的nextIndex
 		rf.nextIndex = make([]int, len(rf.peers))
 		for a := range rf.nextIndex {
-			rf.nextIndex[a] = rf.commitIndex + 1
+			DPrintf("%d init leader,nextIndex %d is %d", rf.me, a, rf.commitIndex+1)
+			rf.nextIndex[a] = len(rf.log)
 		}
+		rf.matchIndex = make([]int, len(rf.peers))
 		rf.heartBeat()
 	}
 }

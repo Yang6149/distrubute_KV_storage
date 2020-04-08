@@ -11,35 +11,84 @@ func (rf *Raft) heartBeat() {
 			continue
 		}
 
-		go func(i int) {
-			rf.mu.Lock()
-			if rf.state == follower {
-				rf.mu.Unlock()
-				return
-			}
-			rf.mu.Unlock()
-			args := &AppendEntriesArgs{
-				Term:     rf.currentTerm,
-				LeaderId: rf.me,
-			}
-			reply := &AppendEntriesReply{}
-			DPrintf("%d 发送心跳给 %d", rf.me, i)
-			boo := rf.sendAppendEntries(i, args, reply)
-			rf.mu.Lock()
-			if reply.Term > rf.currentTerm {
-				rf.currentTerm = reply.Term
-				rf.findBiggerChan<-1
-				DPrintf("%d :发现 term 更高的leader %d,yield！！", rf.me, i)
-			} else {
-				if boo {
-					DPrintf("%d 发给 %d 的 heartBeat success", rf.me, i)
-
-				} else {
-					//DPrintf("%d 发给 %d 的 heartBeat Fail~~~", rf.me, i)
-				}
-			}
-			rf.mu.Unlock()
-
-		}(i)
+		go rf.sendAppendEntry(i)
 	}
+}
+
+func (rf *Raft) sendAppendEntry(i int) {
+	rf.mu.Lock()
+	if rf.state == follower {
+		rf.mu.Unlock()
+		return
+	}
+	//初始化 append args
+	// DPrintf("%d:%d的nextIndex %d", rf.me, i, rf.nextIndex[i])
+	// DPrintf("%d 的len log %d ", rf.me, len(rf.log))
+	args := &AppendEntriesArgs{
+		Term:         rf.currentTerm,
+		LeaderId:     rf.me,
+		PreLogIndex:  rf.nextIndex[i] - 1,
+		PreLogTerm:   rf.log[rf.nextIndex[i]-1].Term,
+		LeaderCommit: rf.commitIndex,
+		Entries:      make([]Entry, 0),
+	}
+	if len(rf.log) > rf.nextIndex[i] {
+		args.Entries = append(args.Entries, rf.log[rf.nextIndex[i]])
+		DPrintf("%d 发送 index %d 的log 给 %d", rf.me, rf.nextIndex[i], i)
+	}
+	reply := &AppendEntriesReply{}
+	DPrintf("%d 发送心跳给 %d", rf.me, i)
+	rf.mu.Unlock()
+	res := rf.sendAppendEntries(i, args, reply)
+	rf.mu.Lock()
+	if res {
+		if reply.Term > rf.currentTerm {
+			rf.currentTerm = reply.Term
+			rf.findBiggerChan <- 1
+			DPrintf("%d :发现 term 更高的leader %d,yield！！", rf.me, i)
+		} else {
+			if reply.Success {
+				//分两种情况，发送entry了，以及没有发送entry
+				//1. 发送了 entry
+				if len(rf.log) > rf.nextIndex[i] {
+					if rf.log[rf.nextIndex[i]].Term == rf.currentTerm && rf.commitIndex < rf.nextIndex[i] {
+						//检测match数量，大于一大半就commit
+						matchNum := 1
+						for m := range rf.matchIndex {
+							if m == rf.me {
+								continue
+							}
+							if rf.matchIndex[m] >= rf.nextIndex[i] {
+								matchNum++
+							}
+							if matchNum >= rf.menkan {
+								DPrintf("%d 开始 commit at index %d", rf.me, rf.nextIndex[i])
+								rf.commitIndex = rf.nextIndex[i]
+								rf.sendApply <- rf.commitIndex
+								DPrintf("%d 发送 commit at index %d---成功", rf.me, rf.nextIndex[i])
+							}
+						}
+					}
+				} else {
+					//没有发送 entry ，just a heartbeat
+				}
+				DPrintf("%d 接收到了 %d 返回的matchIndex %d", rf.me, i, reply.MatchIndex)
+				rf.nextIndex[i] = reply.MatchIndex + 1
+				rf.matchIndex[i] = reply.MatchIndex
+				//处理leader 的commitedindex
+
+			} else {
+				//false两种情况：它的Term比我的大被上面解决了，这里只会是prevIndex的Term不匹配
+				//这里要做到秒发
+				DPrintf("%d:减一下 %d 的nextInt呗", rf.me, i)
+				rf.nextIndex[i]--
+				go rf.sendAppendEntry(i)
+			}
+		}
+	} else {
+		//发送 rpc 失败了
+	}
+
+	rf.mu.Unlock()
+
 }

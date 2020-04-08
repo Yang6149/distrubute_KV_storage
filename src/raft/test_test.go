@@ -10,9 +10,7 @@ package raft
 
 import (
 	"fmt"
-	"log"
 	"math/rand"
-	"os"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -55,13 +53,16 @@ func TestInitialElection2A(t *testing.T) {
 }
 
 func TestReElection2A(t *testing.T) {
+	DPrintf("sleep one second")
+	time.Sleep(10 * time.Millisecond)
+	DPrintf("sleep one second finished")
 	servers := 3
-	f, err := os.OpenFile("logfile.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("file open error : %v", err)
-	}
-	defer f.Close()
-	log.SetOutput(f)
+	// f, err := os.OpenFile("logfile.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	// if err != nil {
+	// 	log.Fatalf("file open error : %v", err)
+	// }
+	// defer f.Close()
+	// log.SetOutput(f)
 	DPrintf("999999999999999999999999999")
 	cfg := make_config(t, servers, false)
 	defer cfg.cleanup()

@@ -57,14 +57,13 @@ type Raft struct {
 	me         int                 // this peer's index into peers[]
 	dead       int32               // set by Kill()
 	state      int
+
 	//持久状态
-	currentTerm     int // 当前的 term
-	voteFor         int // 为某人投票
-	voteGrantedChan chan int
-	appendChan      chan int
-	findBiggerChan  chan int
-	menkan          int     //大多数的一个阈值
-	log             []Entry //logEntries
+	currentTerm int     // 当前的 term
+	voteFor     int     // 为某人投票
+	menkan      int     //大多数的一个阈值
+	log         []Entry //logEntries
+
 	//log
 	//所有可变属性
 	commitIndex int //	当前 commit 的index
@@ -72,8 +71,13 @@ type Raft struct {
 
 	//可变 on leader
 	nextIndex  []int //	下一个要发送给server的logEntry的index
-	matchIndex []int //	知道的每个server目前最高的复制的logEntry的index
+	matchIndex []int //	直到server 中各个log的index到哪了
 
+	voteGrantedChan chan int
+	appendChan      chan int
+	findBiggerChan  chan int
+	applyCh         chan ApplyMsg
+	sendApply       chan int
 	// Your data here (2A, 2B, 2C).-------------------------------------
 
 }
@@ -148,12 +152,13 @@ func (rf *Raft) readPersist(data []byte) {
 func (rf *Raft) Start(command interface{}) (int, int, bool) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
-	if rf.state == leader {
+	if rf.state != leader {
 		return -1, -1, false
 	} else {
 		entry := Entry{Term: rf.currentTerm, Command: command}
 		rf.log = append(rf.log, entry) //向log 中加入client 最新的request
-		return -1, rf.currentTerm, rf.state == leader
+		DPrintf("%d get command from Start at index %d", rf.me, len(rf.log)-1)
+		return len(rf.log) - 1, rf.currentTerm, true
 
 	}
 }
@@ -198,12 +203,18 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.persister = persister
 	rf.me = me
 	rf.menkan = len(rf.peers)/2 + 1
+	rf.applyCh = applyCh
+	rf.currentTerm = 1
+	rf.log = make([]Entry, 1)
+	rf.log[0] = Entry{Term: rf.currentTerm}
+	rf.sendApply = make(chan int)
 	rf.chanReset()
 	// Your initialization code here (2A, 2B, 2C).-------------------------------
 
 	// initialize from state persisted before a crash
 	rf.readPersist(persister.ReadRaftState())
 	go func(rf *Raft) {
+		DPrintf("%d林克四大头", rf.me)
 		for {
 			if rf.killed() {
 				DPrintf("%d当场去世", rf.me)
@@ -269,9 +280,33 @@ func Make(peers []*labrpc.ClientEnd, me int,
 			}
 		}
 	}(rf)
+	go func(rf *Raft) {
+		rf.apply()
+	}(rf)
 	return rf
 }
 
 func electionConstTime() time.Duration {
 	return time.Duration(150+rand.Intn(150)) * time.Millisecond
+}
+
+func (rf *Raft) apply() {
+	DPrintf("%d 初始化 apply", rf.me)
+	for {
+		DPrintf("%d 循环一次 apply", rf.me)
+		select {
+		case index := <-rf.sendApply:
+			DPrintf("%d 开始执行 apply", rf.me)
+			for i := rf.lastApplied + 1; i <= index; i++ {
+				msg := ApplyMsg{
+					CommandValid: true,
+					Command:      rf.log[i].Command,
+					CommandIndex: i,
+				}
+				DPrintf("%d apply 了一次xxxxxxxxxxxxxxxxxxxxxxxxxx%d", rf.me, i)
+				rf.applyCh <- msg
+				rf.lastApplied = i
+			}
+		}
+	}
 }
