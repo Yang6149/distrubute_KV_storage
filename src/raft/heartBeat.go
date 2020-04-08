@@ -37,7 +37,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 		DPrintf("%d 发送 index %d 的log 给 %d", rf.me, rf.nextIndex[i], i)
 	}
 	reply := &AppendEntriesReply{}
-	DPrintf("%d 发送心跳给 %d", rf.me, i)
+	DPrintf("%d append给 %d", rf.me, i)
 	rf.mu.Unlock()
 	res := rf.sendAppendEntries(i, args, reply)
 	rf.mu.Lock()
@@ -53,13 +53,16 @@ func (rf *Raft) sendAppendEntry(i int) {
 				if len(rf.log) > rf.nextIndex[i] {
 					if rf.log[rf.nextIndex[i]].Term == rf.currentTerm && rf.commitIndex < rf.nextIndex[i] {
 						//检测match数量，大于一大半就commit
+						DPrintf("%d term and index match between %d and index is %d", rf.me, i, rf.nextIndex[i])
 						matchNum := 1
 						for m := range rf.matchIndex {
 							if m == rf.me {
 								continue
 							}
-							if rf.matchIndex[m] >= rf.nextIndex[i] {
+							DPrintf("%d :matchindex m is %d ,nextIndex m is %d ", rf.me, rf.matchIndex[m], rf.nextIndex[m])
+							if reply.MatchIndex >= rf.nextIndex[m] {
 								matchNum++
+								DPrintf("%d the matchNum is %d,the index is ", rf.me, matchNum, reply.MatchIndex)
 							}
 							if matchNum >= rf.menkan {
 								DPrintf("%d 开始 commit at index %d", rf.me, rf.nextIndex[i])
@@ -68,6 +71,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 								DPrintf("%d 发送 commit at index %d---成功", rf.me, rf.nextIndex[i])
 							}
 						}
+
 					}
 				} else {
 					//没有发送 entry ，just a heartbeat

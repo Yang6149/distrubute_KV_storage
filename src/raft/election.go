@@ -14,7 +14,12 @@ func (rf *Raft) election() {
 		if rf.me == i {
 			continue
 		}
-		args := &RequestVoteArgs{CandidateId: rf.me, Term: rf.currentTerm}
+		args := &RequestVoteArgs{
+			CandidateId:  rf.me,
+			Term:         rf.currentTerm,
+			LastLogIndex: rf.commitIndex,
+			LastLogTerm:  rf.log[rf.commitIndex].Term,
+		}
 		reply := &RequestVoteReply{}
 		DPrintf("%d ask vote from %d,顺便一说我当前的状态是 %d", rf.me, i, rf.state)
 		go func(i int) {
@@ -23,18 +28,17 @@ func (rf *Raft) election() {
 			defer rf.mu.Unlock()
 			if reply.Term > rf.currentTerm {
 				DPrintf("%d:收到的选举返回心跳竟然term 比我大", rf.me)
-				rf.findBiggerChan<-1
+				rf.findBiggerChan <- 1
 				return
 			}
 			if reply.VoteGranted && reply.Term == rf.currentTerm {
 				voteForMe++
-				if rf.state!=candidate{
+				if rf.state != candidate {
 					return
 				}
 				if voteForMe >= rf.menkan {
 					DPrintf("%d 当选leader", rf.me)
-					rf.voteGrantedChan<-1
-					
+					rf.voteGrantedChan <- 1
 
 				}
 			}

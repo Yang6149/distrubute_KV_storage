@@ -181,6 +181,7 @@ func TestFailAgree2B(t *testing.T) {
 	// the leader and remaining follower should be
 	// able to agree despite the disconnected follower.
 	cfg.one(102, servers-1, false)
+	DPrintf("102！！！！！！！！！！！！！！！！！！！！！！")
 	cfg.one(103, servers-1, false)
 	time.Sleep(RaftElectionTimeout)
 	cfg.one(104, servers-1, false)
