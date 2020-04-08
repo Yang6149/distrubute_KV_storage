@@ -9,5 +9,5 @@ fi
 for ((i=0;i<$1;i++))
 do
     echo $i
-	go test -race -run TestBasicAgree2B
+	go test -race -run TestFailNoAgree2B
 done

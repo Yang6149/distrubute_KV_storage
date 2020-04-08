@@ -51,7 +51,8 @@ func (rf *Raft) sendAppendEntry(i int) {
 				rf.matchIndex[i] = reply.MatchIndex
 				//分两种情况，发送entry了，以及没有发送entry
 				//1. 发送了 entry
-				if len(rf.log) > rf.nextIndex[i] {
+				if len(args.Entries) > 0 {
+					DPrintf("check entries", args.Entries)
 					if rf.log[rf.nextIndex[i]].Term == rf.currentTerm && rf.commitIndex < rf.nextIndex[i] {
 						//检测match数量，大于一大半就commit
 						DPrintf("%d term and index match between %d and index is %d", rf.me, i, rf.nextIndex[i])
@@ -60,8 +61,8 @@ func (rf *Raft) sendAppendEntry(i int) {
 							if m == rf.me {
 								continue
 							}
-							DPrintf("%d :matchindex m is %d ,nextIndex m is %d  this follower is %d", rf.me, rf.matchIndex[m], rf.nextIndex[m],m)
-							if rf.matchIndex[m]>= reply.MatchIndex {
+							DPrintf("%d :matchindex m is %d ,nextIndex m is %d  this follower is %d", rf.me, rf.matchIndex[m], rf.nextIndex[m], m)
+							if rf.matchIndex[m] >= reply.MatchIndex {
 								matchNum++
 								DPrintf("%d the matchNum is %d,the index is %d", rf.me, matchNum, reply.MatchIndex)
 							}

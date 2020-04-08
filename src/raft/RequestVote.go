@@ -31,21 +31,22 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	defer rf.mu.Unlock()
 	if args.Term > rf.currentTerm {
 		rf.currentTerm = args.Term
-		if args.LastLogIndex >= rf.commitIndex && rf.log[rf.commitIndex].Term==args.LastLogTerm{
+		if args.LastLogIndex == rf.commitIndex && rf.log[rf.commitIndex].Term != args.LastLogTerm {
+			DPrintf("%d what ? what the fuck?!", rf.me)
+			reply.Term = args.Term
+			reply.VoteGranted = false
+			return
+		}
+		if args.LastLogIndex >= rf.commitIndex  {
 			rf.voteFor = args.CandidateId
 			rf.findBiggerChan <- 1
 			DPrintf("%d votefor %d,当前 term %d", rf.me, args.CandidateId, rf.currentTerm)
 			reply.Term = args.Term
 			reply.VoteGranted = true
-			return 
+			return
 		}
-		if args.LastLogIndex >= rf.commitIndex && rf.log[rf.commitIndex].Term!=args.LastLogTerm{
-			DPrintf("%d what ? what the fuck?!", rf.me)
-			reply.Term = args.Term
-			reply.VoteGranted = false
-			return 
-		}
-		DPrintf("%d leader %d的lastcommit害没自己的 commit大", rf.me,args.CandidateId)
+		DPrintf("%d candicate %d的lastcommit害没自己的 commit大", rf.me, args.CandidateId)
+		DPrintf("%d 拒绝，因为现在我的 term is %d ，your are %d term is %d", rf.me, rf.currentTerm, args.CandidateId, args.Term)
 		reply.Term = args.Term
 		reply.VoteGranted = false
 	} else {

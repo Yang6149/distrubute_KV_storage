@@ -293,14 +293,15 @@ func electionConstTime() time.Duration {
 func (rf *Raft) apply() {
 	DPrintf("%d 初始化 apply", rf.me)
 	for {
-		DPrintf("%d 循环一次 apply", rf.me)
 		select {
 		case index := <-rf.sendApply:
-			DPrintf("%d 开始执行 apply", rf.me)
 			for i := rf.lastApplied + 1; i <= index; i++ {
+				//rf.mu.Lock()
+				command := rf.log[i].Command
+				//rf.mu.Unlock()
 				msg := ApplyMsg{
 					CommandValid: true,
-					Command:      rf.log[i].Command,
+					Command:      command,
 					CommandIndex: i,
 				}
 				DPrintf("%d apply 了一次xxxxxxxxxxxxxxxxxxxxxxxxxx%d", rf.me, i)
