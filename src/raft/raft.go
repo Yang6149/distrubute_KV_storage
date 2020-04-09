@@ -29,7 +29,7 @@ import (
 const leader = 2
 const follower = 0
 const candidate = 1
-const heartbeatConstTime = 20 * time.Millisecond
+const heartbeatConstTime = 50 * time.Millisecond
 
 //
 // as each Raft peer becomes aware that successive log entries are
