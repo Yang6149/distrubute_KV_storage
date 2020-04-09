@@ -207,7 +207,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.currentTerm = 1
 	rf.log = make([]Entry, 1)
 	rf.log[0] = Entry{Term: rf.currentTerm}
-	rf.sendApply = make(chan int)
+	rf.sendApply = make(chan int, 1000)
 	rf.chanReset()
 	// Your initialization code here (2A, 2B, 2C).-------------------------------
 

@@ -50,6 +50,10 @@ func (rf *Raft) sendAppendEntry(i int) {
 				DPrintf("%d :发现 term 更高的leader %d,yield！！", rf.me, i)
 			} else {
 				if reply.Success {
+					if reply.MatchIndex <= rf.matchIndex[i] {
+						rf.mu.Unlock()
+						return
+					}
 					rf.matchIndex[i] = reply.MatchIndex
 					//分两种情况，发送entry了，以及没有发送entry
 					//1. 发送了 entry
@@ -83,9 +87,10 @@ func (rf *Raft) sendAppendEntry(i int) {
 					}
 					DPrintf("%d 接收到了 %d 返回的matchIndex %d", rf.me, i, reply.MatchIndex)
 					rf.nextIndex[i] = reply.MatchIndex + 1
-					rf.matchIndex[i] = reply.MatchIndex
 					//处理leader 的commitedindex
-
+					if rf.matchIndex[i] < rf.commitIndex {
+						go rf.sendAppendEntry(i)
+					}
 				} else {
 					//false两种情况：它的Term比我的大被上面解决了，这里只会是prevIndex的Term不匹配
 					//这里要做到秒发
@@ -95,7 +100,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 					//fmt.Println(rf.me, "-- args:", args, "reply:", reply)
 					rf.nextIndex[i]--
 					//fmt.Println(rf.me, "减完后 ", i, "的nextIndex 为", rf.nextIndex[i])
-					//go rf.sendAppendEntry(i)
+					go rf.sendAppendEntry(i)
 
 				}
 			}
