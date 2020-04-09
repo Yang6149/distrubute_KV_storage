@@ -41,6 +41,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 			reply.Term = rf.currentTerm
 			reply.Success = true
 			if len(args.Entries) > 0 {
+
 				//sent a entry
 				//determine whether it is overwrited
 				if args.PreLogIndex+1 < len(rf.log) {
@@ -51,7 +52,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 					rf.log = append(rf.log, args.Entries[0])
 				}
 				reply.MatchIndex = args.PreLogIndex + 1
-				DPrintf("%d ：成功接收一个 entry，matchIndex 为%d", rf.me, reply.MatchIndex)
+				DPrintf("%d ：成功接收一个 entry，matchIndex 为%d ,the entry is ", rf.me, reply.MatchIndex, args.Entries)
 			} else {
 				//just a heartbeat
 				reply.Term = rf.currentTerm
@@ -63,9 +64,10 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 				//commit all index before args.LeaderCommit
 				newCommitNum := min(args.LeaderCommit, reply.MatchIndex)
 				if newCommitNum > rf.commitIndex {
-					DPrintf("%dcommit index %d", rf.me, rf.commitIndex)
+					DPrintf("%dcommit index %d", rf.me, newCommitNum)
 					rf.commitIndex = newCommitNum
 					rf.sendApply <- rf.commitIndex
+					DPrintf("%d commit index %d finished", rf.me)
 				}
 			}
 		}

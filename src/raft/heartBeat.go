@@ -58,7 +58,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 					//分两种情况，发送entry了，以及没有发送entry
 					//1. 发送了 entry
 					if len(args.Entries) > 0 {
-						DPrintf("%d :check entries to %d", rf.me, i, args.Entries)
+						DPrintf("%d :check->send entries to %d :%d", rf.me, i, args.Entries)
 						if rf.log[rf.nextIndex[i]].Term == rf.currentTerm && rf.commitIndex < rf.nextIndex[i] {
 							//检测match数量，大于一大半就commit
 							DPrintf("%d term and index match between %d and index is %d", rf.me, i, rf.nextIndex[i])
