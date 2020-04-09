@@ -296,15 +296,17 @@ func (rf *Raft) apply() {
 		select {
 		case index := <-rf.sendApply:
 			for i := rf.lastApplied + 1; i <= index; i++ {
-				//rf.mu.Lock()
+				rf.mu.Lock()
 				command := rf.log[i].Command
-				//rf.mu.Unlock()
+				DPrintf("%d apply at index %d", rf.me, i)
+				DPrintf("%d :", rf.me, rf.log)
+				rf.mu.Unlock()
 				msg := ApplyMsg{
 					CommandValid: true,
 					Command:      command,
 					CommandIndex: i,
 				}
-				DPrintf("%d apply 了一次xxxxxxxxxxxxxxxxxxxxxxxxxx%d", rf.me, i)
+
 				rf.applyCh <- msg
 				rf.lastApplied = i
 			}

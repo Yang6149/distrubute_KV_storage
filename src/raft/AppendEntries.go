@@ -31,7 +31,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 			return
 		}
 		if rf.log[args.PreLogIndex].Term != args.PreLogTerm {
-			//
+
 			//index and  term can't match,return false
 			reply.Term = rf.currentTerm
 			reply.Success = false
@@ -61,8 +61,12 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 			}
 			if args.LeaderCommit > rf.commitIndex {
 				//commit all index before args.LeaderCommit
-				rf.commitIndex = min(args.LeaderCommit, reply.MatchIndex)
-				rf.sendApply<-rf.commitIndex
+				newCommitNum := min(args.LeaderCommit, reply.MatchIndex)
+				if newCommitNum > rf.commitIndex {
+					DPrintf("%dcommit index %d", rf.me, rf.commitIndex)
+					rf.commitIndex = newCommitNum
+					rf.sendApply <- rf.commitIndex
+				}
 			}
 		}
 
