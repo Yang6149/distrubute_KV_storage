@@ -47,9 +47,12 @@ func (rf *Raft) sendAppendEntry(i int) {
 			if reply.Term > rf.currentTerm {
 				rf.currentTerm = reply.Term
 				rf.findBiggerChan <- 1
-				DPrintf("%d :发现 term 更高的leader %d,yield！！", rf.me, i)
+				DPrintf("%d :发现 term 更高的node %d,yield！！", rf.me, i)
 			} else {
-				if reply.Success {
+				if reply.MatchIndex==-1{
+					DPrintf("%d 重复了，不用进行任何操作:%d", rf.me,i)
+
+				}else if reply.Success {
 					myLastMatch := rf.matchIndex[i]
 
 					rf.matchIndex[i] = reply.MatchIndex

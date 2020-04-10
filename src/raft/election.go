@@ -17,8 +17,8 @@ func (rf *Raft) election() {
 		args := &RequestVoteArgs{
 			CandidateId:  rf.me,
 			Term:         rf.currentTerm,
-			LastLogIndex: rf.commitIndex,
-			LastLogTerm:  rf.log[rf.commitIndex].Term,
+			LastLogIndex: len(rf.log) - 1,
+			LastLogTerm:  rf.log[len(rf.log)-1].Term,
 		}
 		reply := &RequestVoteReply{}
 		DPrintf("%d ask vote from %d,顺便一说我当前的状态是 %d", rf.me, i, rf.state)
@@ -27,7 +27,7 @@ func (rf *Raft) election() {
 			rf.mu.Lock()
 			defer rf.mu.Unlock()
 			if reply.Term > rf.currentTerm {
-				DPrintf("%d:收到的选举返回心跳竟然term 比我大", rf.me)
+				DPrintf("%d:收到的选举返回竟然term 比我大", rf.me)
 				rf.findBiggerChan <- 1
 				return
 			}

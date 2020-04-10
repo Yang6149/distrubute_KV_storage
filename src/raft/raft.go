@@ -58,7 +58,7 @@ type Raft struct {
 	dead       int32               // set by Kill()
 	state      int
 
-	//持久状态
+	//持久化
 	currentTerm int     // 当前的 term
 	voteFor     int     // 为某人投票
 	menkan      int     //大多数的一个阈值
@@ -297,9 +297,10 @@ func (rf *Raft) apply() {
 		case index := <-rf.sendApply:
 			for i := rf.lastApplied + 1; i <= index; i++ {
 				rf.mu.Lock()
+				DPrintf("%d len(rf.log) :%d", rf.me,len(rf.log))
 				command := rf.log[i].Command
 				DPrintf("%d apply at index %d", rf.me, i)
-				DPrintf("%d :", rf.me, rf.log)
+				DPrintf("%d : %d", rf.me, rf.log)
 				rf.mu.Unlock()
 				msg := ApplyMsg{
 					CommandValid: true,
