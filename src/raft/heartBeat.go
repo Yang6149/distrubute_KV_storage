@@ -49,42 +49,38 @@ func (rf *Raft) sendAppendEntry(i int) {
 				rf.findBiggerChan <- 1
 				DPrintf("%d :发现 term 更高的node %d,yield！！", rf.me, i)
 			} else {
-				if reply.MatchIndex==-1{
-					DPrintf("%d 重复了，不用进行任何操作:%d", rf.me,i)
+				if reply.MatchIndex == -1 {
+					DPrintf("%d 重复了，不用进行任何操作:%d", rf.me, i)
 
-				}else if reply.Success {
+				} else if reply.Success {
 					myLastMatch := rf.matchIndex[i]
 
 					rf.matchIndex[i] = reply.MatchIndex
-					//分两种情况，发送entry了，以及没有发送entry
-					//1. 发送了 entry
-					if len(args.Entries) > 0 {
-						DPrintf("%d :check->send entries to %d :%d", rf.me, i, args.Entries)
-						if rf.log[rf.nextIndex[i]].Term == rf.currentTerm && rf.commitIndex < rf.nextIndex[i] && reply.MatchIndex > myLastMatch {
-							//检测match数量，大于一大半就commit
-							DPrintf("%d term and index match between %d and index is %d", rf.me, i, rf.nextIndex[i])
-							matchNum := 1
-							for m := range rf.matchIndex {
-								if m == rf.me {
-									continue
-								}
-								DPrintf("%d :matchindex m is %d ,nextIndex m is %d  this follower is %d", rf.me, rf.matchIndex[m], rf.nextIndex[m], m)
-								if rf.matchIndex[m] >= reply.MatchIndex {
-									matchNum++
-									DPrintf("%d the matchNum is %d,the index is %d", rf.me, matchNum, reply.MatchIndex)
-								}
-								if matchNum >= rf.menkan {
-									DPrintf("%d 开始 commit at index %d", rf.me, rf.nextIndex[i])
-									rf.commitIndex = rf.nextIndex[i]
-									rf.sendApply <- rf.commitIndex
-									DPrintf("%d 发送 commit at index %d---成功", rf.me, rf.nextIndex[i])
-									break
-								}
-							}
 
+					//1. check MatchIndex
+					DPrintf("%d :check->send entries to %d :%d", rf.me, i, args.Entries)
+					if rf.log[reply.MatchIndex].Term == rf.currentTerm && rf.commitIndex < reply.MatchIndex && reply.MatchIndex > myLastMatch {
+						//检测match数量，大于一大半就commit
+						DPrintf("%d term and index match between %d and index is %d", rf.me, i, reply.MatchIndex)
+						matchNum := 1
+						for m := range rf.matchIndex {
+							if m == rf.me {
+								continue
+							}
+							DPrintf("%d :matchindex m is %d ,nextIndex m is %d  this follower is %d", rf.me, rf.matchIndex[m], rf.nextIndex[m], m)
+							if rf.matchIndex[m] >= reply.MatchIndex {
+								matchNum++
+								DPrintf("%d the matchNum is %d,the index is %d", rf.me, matchNum, reply.MatchIndex)
+							}
+							if matchNum >= rf.menkan {
+								DPrintf("%d 开始 commit at index %d", rf.me, rf.nextIndex[i])
+								rf.commitIndex = rf.nextIndex[i]
+								rf.sendApply <- rf.commitIndex
+								DPrintf("%d 发送 commit at index %d---成功", rf.me, rf.nextIndex[i])
+								break
+							}
 						}
-					} else {
-						//没有发送 entry ，just a heartbeat
+
 					}
 					DPrintf("%d 接收到了 %d 返回的matchIndex %d", rf.me, i, reply.MatchIndex)
 					rf.nextIndex[i] = reply.MatchIndex + 1
