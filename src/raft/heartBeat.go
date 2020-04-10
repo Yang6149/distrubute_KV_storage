@@ -50,16 +50,14 @@ func (rf *Raft) sendAppendEntry(i int) {
 				DPrintf("%d :发现 term 更高的leader %d,yield！！", rf.me, i)
 			} else {
 				if reply.Success {
-					if reply.MatchIndex <= rf.matchIndex[i] {
-						rf.mu.Unlock()
-						return
-					}
+					myLastMatch := rf.matchIndex[i]
+
 					rf.matchIndex[i] = reply.MatchIndex
 					//分两种情况，发送entry了，以及没有发送entry
 					//1. 发送了 entry
 					if len(args.Entries) > 0 {
 						DPrintf("%d :check->send entries to %d :%d", rf.me, i, args.Entries)
-						if rf.log[rf.nextIndex[i]].Term == rf.currentTerm && rf.commitIndex < rf.nextIndex[i] {
+						if rf.log[rf.nextIndex[i]].Term == rf.currentTerm && rf.commitIndex < rf.nextIndex[i] && reply.MatchIndex > myLastMatch {
 							//检测match数量，大于一大半就commit
 							DPrintf("%d term and index match between %d and index is %d", rf.me, i, rf.nextIndex[i])
 							matchNum := 1
