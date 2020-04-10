@@ -35,7 +35,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 			//index and  term can't match,return false
 			reply.Term = rf.currentTerm
 			reply.Success = false
-			DPrintf("%d :index and term can't match ,return false", rf.me)
+			DPrintf("%d :index and term can't match ,return false,my last Command is ", rf.me, rf.log[args.PreLogIndex].Command)
 		} else {
 			// index and term is matched
 			reply.Term = rf.currentTerm

@@ -39,11 +39,12 @@ func (rf *Raft) sendAppendEntry(i int) {
 	}
 	reply := &AppendEntriesReply{}
 	DPrintf("%d append给 %d", rf.me, i)
+	yourLastMatchIndex := rf.matchIndex[i]
 	rf.mu.Unlock()
 	ok := rf.sendAppendEntries(i, args, reply)
 	rf.mu.Lock()
 	if ok && rf.state == leader {
-		if args.PreLogIndex == rf.nextIndex[i]-1 {
+		if args.PreLogIndex == rf.nextIndex[i]-1 && yourLastMatchIndex == rf.matchIndex[i] &&args.Term==rf.currentTerm{ //证明传输后信息没有变化
 			if reply.Term > rf.currentTerm {
 				rf.currentTerm = reply.Term
 				rf.findBiggerChan <- 1
@@ -91,7 +92,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 				} else {
 					//false两种情况：它的Term比我的大被上面解决了，这里只会是prevIndex的Term不匹配
 					//这里要做到秒发
-
+					DPrintf("%d: preIndex %d,preTerm %d,myTerm %d", rf.me, args.PreLogIndex, args.PreLogTerm, rf.log[args.PreLogIndex].Term)
 					DPrintf("%d:减一下 %d 的nextInt呗", rf.me, i)
 					//fmt.Println(rf.nextIndex, "leader is :", rf.me, ",send to ", i)
 					//fmt.Println(rf.me, "-- args:", args, "reply:", reply)

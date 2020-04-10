@@ -31,6 +31,8 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	defer rf.mu.Unlock()
 	myLastIndex := len(rf.log) - 1
 	if args.Term > rf.currentTerm {
+		//defer rf.conver(follower)
+		rf.findBiggerChan <- 1
 		rf.currentTerm = args.Term
 		// if args.LastLogIndex == rf.commitIndex && rf.log[rf.commitIndex].Term != args.LastLogTerm {
 		// 	DPrintf("%d what ? what the fuck?!", rf.me)
@@ -42,7 +44,6 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 			if args.LastLogTerm > rf.log[myLastIndex].Term || args.LastLogIndex >= myLastIndex {
 				DPrintf("%d my lastIndex %d my lastTerm %d,candidate lastIndex and term %d,%d", rf.me, myLastIndex, rf.log[myLastIndex].Term, args.LastLogIndex, args.LastLogTerm)
 				rf.voteFor = args.CandidateId
-				rf.findBiggerChan <- 1
 				DPrintf("%d votefor %d,当前 term %d", rf.me, args.CandidateId, rf.currentTerm)
 				reply.Term = args.Term
 				reply.VoteGranted = true
@@ -59,6 +60,7 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 		DPrintf("%d 拒绝，因为现在我的 term is %d ，your are %d term is %d", rf.me, rf.currentTerm, args.CandidateId, args.Term)
 		reply.Term = args.Term
 		reply.VoteGranted = false
+
 	} else {
 		reply.Term = args.Term
 		reply.VoteGranted = false
