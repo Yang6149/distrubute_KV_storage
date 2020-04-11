@@ -87,7 +87,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 					rf.nextIndex[i] = reply.MatchIndex + 1
 					//处理leader 的commitedindex
 					if rf.matchIndex[i] < rf.commitIndex {
-						go rf.sendAppendEntry(i)
+						rf.heartBeatchs[i].c <- 1
 					}
 				} else {
 					//false两种情况：它的Term比我的大被上面解决了，这里只会是prevIndex的Term不匹配
@@ -104,7 +104,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 					}
 
 					//fmt.Println(rf.me, "减完后 ", i, "的nextIndex 为", rf.nextIndex[i])
-					go rf.sendAppendEntry(i)
+					rf.heartBeatchs[i].c <- 1
 
 				}
 			}
