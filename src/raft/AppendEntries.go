@@ -28,6 +28,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 			DPrintf("%d :因为leader传来的preIndex大于自己的len(log)所以return false", rf.me)
 			reply.Term = rf.currentTerm
 			reply.Success = false
+			reply.MatchIndex = len(rf.log) - 1
 			return
 		}
 		if rf.log[args.PreLogIndex].Term != args.PreLogTerm {

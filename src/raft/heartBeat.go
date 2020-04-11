@@ -96,7 +96,13 @@ func (rf *Raft) sendAppendEntry(i int) {
 					DPrintf("%d:减一下 %d 的nextInt呗", rf.me, i)
 					//fmt.Println(rf.nextIndex, "leader is :", rf.me, ",send to ", i)
 					//fmt.Println(rf.me, "-- args:", args, "reply:", reply)
-					rf.nextIndex[i]--
+					if reply.MatchIndex != 0 {
+						DPrintf("%d 直接把%d的nextInt 跳到%d，原来是%d", rf.me, i, reply.MatchIndex+1, rf.nextIndex[i])
+						rf.nextIndex[i] = reply.MatchIndex + 1
+					} else {
+						rf.nextIndex[i]--
+					}
+
 					//fmt.Println(rf.me, "减完后 ", i, "的nextIndex 为", rf.nextIndex[i])
 					go rf.sendAppendEntry(i)
 
