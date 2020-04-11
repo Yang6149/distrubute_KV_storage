@@ -102,6 +102,12 @@ func TestReElection2A(t *testing.T) {
 }
 
 func TestBasicAgree2B(t *testing.T) {
+	f, err := os.OpenFile("logfile.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("file open error : %v", err)
+	}
+	defer f.Close()
+	log.SetOutput(f)
 	servers := 3
 	cfg := make_config(t, servers, false)
 	defer cfg.cleanup()
@@ -160,12 +166,13 @@ func TestRPCBytes2B(t *testing.T) {
 }
 
 func TestFailAgree2B(t *testing.T) {
-	// f, err := os.OpenFile("logfile.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	// if err != nil {
-	// 	log.Fatalf("file open error : %v", err)
-	// }
-	// defer f.Close()
-	// log.SetOutput(f)
+	f, err := os.OpenFile("logfile.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("file open error : %v", err)
+	}
+	defer f.Close()
+	log.SetOutput(f)
+	DPrintf("TestFailAgree2B")
 	servers := 3
 	cfg := make_config(t, servers, false)
 	defer cfg.cleanup()

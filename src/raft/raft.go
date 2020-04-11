@@ -297,7 +297,7 @@ func (rf *Raft) apply() {
 		case index := <-rf.sendApply:
 			for i := rf.lastApplied + 1; i <= index; i++ {
 				rf.mu.Lock()
-				DPrintf("%d len(rf.log) :%d", rf.me,len(rf.log))
+				DPrintf("%d len(rf.log) :%d", rf.me, len(rf.log))
 				command := rf.log[i].Command
 				DPrintf("%d apply at index %d", rf.me, i)
 				DPrintf("%d : %d", rf.me, rf.log)
