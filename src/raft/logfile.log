@@ -1,0 +1,430 @@
+2020/04/11 util.go:10: 0林克四大头
+2020/04/11 util.go:10: 0 初始化 apply
+2020/04/11 util.go:10: 1林克四大头
+2020/04/11 util.go:10: 1 初始化 apply
+2020/04/11 util.go:10: 2林克四大头
+2020/04/11 util.go:10: 2 初始化 apply
+2020/04/11 util.go:10: 1 转变为 candidate
+2020/04/11 util.go:10: 1 ： 开始竞选 leadrt,当前term为2
+2020/04/11 util.go:10: 1 ask vote from 0,顺便一说我当前的状态是 1
+2020/04/11 util.go:10: 1 ask vote from 2,顺便一说我当前的状态是 1
+2020/04/11 util.go:10: 2 my lastIndex 0 my lastTerm 1,candidate lastIndex and term 0,1
+2020/04/11 util.go:10: 2 votefor 1,当前 term 2
+2020/04/11 util.go:10: 0 is follower ,find bigger term
+2020/04/11 util.go:10: 0 my lastIndex 0 my lastTerm 1,candidate lastIndex and term 0,1
+2020/04/11 util.go:10: 1 当选leader
+2020/04/11 util.go:10: 0 votefor 1,当前 term 2
+2020/04/11 util.go:10: 1 转变为 leader
+2020/04/11 util.go:10: 1 init leader,nextIndex 0 is 1
+2020/04/11 util.go:10: 1 init leader,nextIndex 1 is 1
+2020/04/11 util.go:10: 1 init leader,nextIndex 2 is 1
+2020/04/11 util.go:10: 1 append给 2
+2020/04/11 util.go:10: 2 转变为 candidate
+2020/04/11 util.go:10: 2 ： 开始竞选 leadrt,当前term为3
+2020/04/11 util.go:10: 2 ask vote from 0,顺便一说我当前的状态是 1
+2020/04/11 util.go:10: 1 append给 0
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 0 my lastIndex 0 my lastTerm 1,candidate lastIndex and term 0,1
+2020/04/11 util.go:10: 0 votefor 2,当前 term 3
+2020/04/11 util.go:10: 2 ask vote from 1,顺便一说我当前的状态是 1
+2020/04/11 util.go:10: 2 :因为自己的term比leader 1 更大return false
+2020/04/11 util.go:10: 1 get command from Start at index 1
+2020/04/11 util.go:10: 0 is follower ,find bigger term
+2020/04/11 util.go:10: 2 当选leader
+2020/04/11 util.go:10: 1 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 1 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 转变为 leader
+2020/04/11 util.go:10: 2 init leader,nextIndex 0 is 1
+2020/04/11 util.go:10: 2 init leader,nextIndex 1 is 1
+2020/04/11 util.go:10: 2 init leader,nextIndex 2 is 1
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 1 candicate 2的lastcommit害没自己的 commit大
+2020/04/11 util.go:10: 1 拒绝，因为现在我的 term is 3 ，your are 2 term is 3
+2020/04/11 util.go:10: 1 超时发送HB
+2020/04/11 util.go:10: 1 转变为 follower
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 1 超时发送HB
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 超时发送HB
+2020/04/11 util.go:10: 2 append给 1
+2020/04/11 util.go:10: 2 append给 0
+2020/04/11 util.go:10: 1：重置ele时间
+2020/04/11 util.go:10: 1 ：just a heartBeat 为0
+2020/04/11 util.go:10: 0：重置ele时间
+2020/04/11 util.go:10: 0 ：just a heartBeat 为0
+2020/04/11 util.go:10: 2 :check->send entries to 1 :[]
+2020/04/11 util.go:10: 2 接收到了 1 返回的matchIndex 0
+2020/04/11 util.go:10: 2 :check->send entries to 0 :[]
+2020/04/11 util.go:10: 2 接收到了 0 返回的matchIndex 0
+2020/04/11 util.go:10: 0:去死吧！！！！！！！！！！！！！！！！！！！！！！！！！！！1
+2020/04/11 util.go:10: 1:去死吧！！！！！！！！！！！！！！！！！！！！！！！！！！！1
+2020/04/11 util.go:10: 2:去死吧！！！！！！！！！！！！！！！！！！！！！！！！！！！1

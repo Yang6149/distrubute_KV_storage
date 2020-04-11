@@ -16,9 +16,9 @@ do
 	#go test -race -run TestFailNoAgree2B
 	#go test -race -run TestConcurrentStarts2B
 	#go test -race -run TestRejoin2B
-	#go test -race -run TestBasicAgree2B
+	go test -race -run TestBackup2B
 	#go test -race -run TestFailAgree2B
-	go test -race -run 2B
+	#go test -race -run 2B
 	cat logfile.log > temp/$i
 	rm logfile.log
 done

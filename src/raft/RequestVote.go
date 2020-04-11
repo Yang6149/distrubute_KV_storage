@@ -32,8 +32,10 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	myLastIndex := len(rf.log) - 1
 	if args.Term > rf.currentTerm {
 		//defer rf.conver(follower)
-		rf.isChange=true
-		rf.findBiggerChan <- 1
+		if rf.state != follower {
+			rf.isChange = true
+			rf.findBiggerChan <- 1
+		}
 		rf.currentTerm = args.Term
 		// if args.LastLogIndex == rf.commitIndex && rf.log[rf.commitIndex].Term != args.LastLogTerm {
 		// 	DPrintf("%d what ? what the fuck?!", rf.me)
@@ -58,7 +60,7 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 			// return
 		}
 		DPrintf("%d candicate %d的lastcommit害没自己的 commit大", rf.me, args.CandidateId)
-		DPrintf("%d 拒绝，因为现在我的 term is %d ，your are %d term is %d", rf.me, rf.currentTerm, args.CandidateId, args.Term)
+		DPrintf("%d 拒绝，现在我的 term is ", rf.me, rf.currentTerm)
 		reply.Term = args.Term
 		reply.VoteGranted = false
 
