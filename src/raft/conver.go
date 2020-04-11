@@ -1,7 +1,7 @@
 package raft
 
 func (rf *Raft) conver(state int) {
-	rf.isChange=false
+	rf.isChange = false
 	if state == rf.state {
 		return
 	}
@@ -18,6 +18,7 @@ func (rf *Raft) conver(state int) {
 	case leader:
 		rf.chanReset()
 		DPrintf("%d 转变为 leader", rf.me)
+		//初始化 每个follower 的HBchs
 		//初始化 leader 的nextIndex
 		rf.nextIndex = make([]int, len(rf.peers))
 		for a := range rf.nextIndex {
@@ -25,11 +26,12 @@ func (rf *Raft) conver(state int) {
 			rf.nextIndex[a] = len(rf.log)
 		}
 		rf.matchIndex = make([]int, len(rf.peers))
-		rf.heartBeat()
+		go rf.heartBeatInit()
 	}
 }
 func (rf *Raft) chanReset() {
 	rf.appendChan = make(chan int, 10000)
 	rf.voteGrantedChan = make(chan int, 10000)
 	rf.findBiggerChan = make(chan int, 10000)
+	
 }

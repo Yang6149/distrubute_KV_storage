@@ -47,15 +47,16 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 				if args.PreLogIndex+1 < len(rf.log) {
 					//如果我要 overwrite 的内容和我要写的内容一模一样，就证明有一个线程走在我前面，我退出
 					if args.Entries[0].Term == rf.log[args.PreLogIndex+1].Term {
-						reply.MatchIndex = -1
-						DPrintf("%d我这个是个重复overwrite操作，有个线程在我之前，直接退出", rf.me)
-						return
+						DPrintf("%d我这个是个重复overwrite操作，有个线程在我之前，直接下一个", rf.me)
+
+					} else {
+						//if it is overwrite
+						DPrintf("%d 原来的 log 为 %d ", rf.me, rf.log)
+						rf.log[args.PreLogIndex+1] = args.Entries[0]
+						rf.log = rf.log[0 : args.PreLogIndex+2]
+						DPrintf("%d overwrite 后的 log 为%d", rf.me, rf.log)
 					}
-					//if it is overwrite
-					DPrintf("%d 原来的 log 为 %d ", rf.me, rf.log)
-					rf.log[args.PreLogIndex+1] = args.Entries[0]
-					rf.log = rf.log[0 : args.PreLogIndex+2]
-					DPrintf("%d overwrite 后的 log 为%d", rf.me, rf.log)
+
 				} else {
 					//else append to log
 					rf.log = append(rf.log, args.Entries[0])

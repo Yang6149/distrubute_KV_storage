@@ -47,6 +47,9 @@ type ApplyMsg struct {
 	Command      interface{}
 	CommandIndex int
 }
+type HBchs struct {
+	c chan int
+}
 
 //raft comment
 type Raft struct {
@@ -78,6 +81,7 @@ type Raft struct {
 	findBiggerChan  chan int
 	applyCh         chan ApplyMsg
 	sendApply       chan int
+	heartBeatchs    []HBchs
 	// Your data here (2A, 2B, 2C).-------------------------------------
 	isChange bool
 }
@@ -208,6 +212,10 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.log = make([]Entry, 1)
 	rf.log[0] = Entry{Term: rf.currentTerm}
 	rf.sendApply = make(chan int, 1000)
+	rf.heartBeatchs = make([]HBchs, len(rf.peers))
+	for i := range rf.heartBeatchs {
+		rf.heartBeatchs[i].c = make(chan int, 100)
+	}
 	rf.chanReset()
 	// Your initialization code here (2A, 2B, 2C).-------------------------------
 
@@ -217,6 +225,10 @@ func Make(peers []*labrpc.ClientEnd, me int,
 		DPrintf("%d林克四大头", rf.me)
 		for {
 			if rf.killed() {
+				rf.mu.Lock()
+				defer rf.mu.Unlock()
+				rf.isChange = true
+				rf.conver(follower)
 				DPrintf("%d当场去世", rf.me)
 				return
 			}
@@ -271,10 +283,10 @@ func Make(peers []*labrpc.ClientEnd, me int,
 					rf.conver(follower)
 					rf.mu.Unlock()
 				case <-time.After(heartbeatConstTime):
-					//进行一次append
-					rf.mu.Lock()
-					rf.heartBeat()
-					rf.mu.Unlock()
+					// 	//进行一次append
+					// 	rf.mu.Lock()
+					// 	rf.heartBeat()
+					// 	rf.mu.Unlock()
 				}
 
 			}

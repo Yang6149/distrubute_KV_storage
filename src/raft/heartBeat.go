@@ -1,5 +1,7 @@
 package raft
 
+import "time"
+
 /**
 heartBeat 的 timeout
 leader 用来并发的向 follower 们发送 AppendEntries
@@ -43,18 +45,15 @@ func (rf *Raft) sendAppendEntry(i int) {
 	rf.mu.Unlock()
 	ok := rf.sendAppendEntries(i, args, reply)
 	rf.mu.Lock()
-	if ok && rf.state == leader && rf.isChange==false{
-		if args.PreLogIndex == rf.nextIndex[i]-1 && yourLastMatchIndex == rf.matchIndex[i] &&args.Term==rf.currentTerm{ //证明传输后信息没有变化
+	if ok && rf.state == leader && rf.isChange == false {
+		if args.PreLogIndex == rf.nextIndex[i]-1 && yourLastMatchIndex == rf.matchIndex[i] && args.Term == rf.currentTerm { //证明传输后信息没有变化
 			if reply.Term > rf.currentTerm {
 				rf.currentTerm = reply.Term
 				rf.findBiggerChan <- 1
-				rf.isChange=true
+				rf.isChange = true
 				DPrintf("%d :发现 term 更高的node %d,yield！！", rf.me, i)
 			} else {
-				if reply.MatchIndex == -1 {
-					DPrintf("%d 重复了，不用进行任何操作:%d", rf.me, i)
-
-				} else if reply.Success {
+				if reply.Success {
 					myLastMatch := rf.matchIndex[i]
 
 					rf.matchIndex[i] = reply.MatchIndex
@@ -110,4 +109,37 @@ func (rf *Raft) sendAppendEntry(i int) {
 
 	rf.mu.Unlock()
 
+}
+
+func (rf *Raft) heartBeatForN(i int) {
+
+	// Send periodic heartbeats, as long as still leader.
+	for {
+
+		go rf.sendAppendEntry(i)
+		select {
+		case <-rf.heartBeatchs[i].c:
+			//收到了请求
+			DPrintf("%d 收到强制HB请求", rf.me)
+		case <-time.After(heartbeatConstTime):
+			DPrintf("%d 超时发送HB", rf.me)
+			//超时
+		}
+
+		rf.mu.Lock()
+		if rf.state != leader {
+			rf.heartBeatchs[i].c = make(chan int, 100)
+			rf.mu.Unlock()
+			return
+		}
+		rf.mu.Unlock()
+	}
+}
+func (rf *Raft) heartBeatInit() {
+	for i := range rf.peers {
+		if i == rf.me {
+			continue
+		}
+		go rf.heartBeatForN(i)
+	}
 }
