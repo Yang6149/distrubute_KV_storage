@@ -79,7 +79,7 @@ type Raft struct {
 	applyCh         chan ApplyMsg
 	sendApply       chan int
 	// Your data here (2A, 2B, 2C).-------------------------------------
-
+	isChange bool
 }
 
 // GetState get command .

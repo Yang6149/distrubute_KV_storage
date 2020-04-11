@@ -32,6 +32,7 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	myLastIndex := len(rf.log) - 1
 	if args.Term > rf.currentTerm {
 		//defer rf.conver(follower)
+		rf.isChange=true
 		rf.findBiggerChan <- 1
 		rf.currentTerm = args.Term
 		// if args.LastLogIndex == rf.commitIndex && rf.log[rf.commitIndex].Term != args.LastLogTerm {

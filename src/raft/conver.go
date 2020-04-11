@@ -1,6 +1,7 @@
 package raft
 
 func (rf *Raft) conver(state int) {
+	rf.isChange=false
 	if state == rf.state {
 		return
 	}
