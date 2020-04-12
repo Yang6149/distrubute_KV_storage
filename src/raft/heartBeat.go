@@ -51,6 +51,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 		if args.PreLogIndex == rf.nextIndex[i]-1 && yourLastMatchIndex == rf.matchIndex[i] && args.Term == rf.currentTerm { //证明传输后信息没有变化
 			if reply.Term > rf.currentTerm {
 				rf.currentTerm = reply.Term
+				rf.persist()
 				rf.findBiggerChan <- 1
 				rf.isChange = true
 				DPrintf("%d :发现 term 更高的node %d,yield！！", rf.me, i)

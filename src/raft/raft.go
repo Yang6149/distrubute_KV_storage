@@ -1,28 +1,18 @@
 package raft
 
-// rf = Make(...)
-//   create a new Raft server.
-// rf.Start(command interface{}) (index, term, isleader)
-//   start agreement on a new log entry
-// rf.GetState() (term, isLeader)
-//   ask a Raft for its current term, and whether it thinks it is leader
-// ApplyMsg
-//   each time a new entry is committed to the log, each Raft peer
-//   should send an ApplyMsg to the service (or tester)
-//   in the same server.
-//
-
 import (
+	"bytes"
 	"math/rand"
 	"sync"
 	"sync/atomic"
 	"time"
 
+	"../labgob"
 	"../labrpc"
 )
 
 // import "bytes"
-// import "../labgob"
+
 //
 // A Go object implementing a single Raft peer.
 //
@@ -115,6 +105,14 @@ func (rf *Raft) persist() {
 	// e.Encode(rf.yyy)
 	// data := w.Bytes()
 	// rf.persister.SaveRaftState(data)
+	w := new(bytes.Buffer)
+	e := labgob.NewEncoder(w)
+	e.Encode(rf.currentTerm)
+	e.Encode(rf.voteFor)
+	e.Encode(rf.log)
+	data := w.Bytes()
+	rf.persister.SaveRaftState(data)
+	DPrintf("%d persist", rf.me)
 }
 
 //
@@ -137,6 +135,21 @@ func (rf *Raft) readPersist(data []byte) {
 	//   rf.xxx = xxx
 	//   rf.yyy = yyy
 	// }
+	DPrintf("%d readPersist", rf.me)
+	r := bytes.NewBuffer(data)
+	d := labgob.NewDecoder(r)
+	var currentTerm int
+	var voteFor int
+	var log []Entry
+	if d.Decode(&currentTerm) != nil ||
+		d.Decode(&voteFor) != nil ||
+		d.Decode(&log) != nil {
+		DPrintf("%d readPersist error", rf.me)
+	} else {
+		rf.currentTerm = currentTerm
+		rf.voteFor = voteFor
+		rf.log = log
+	}
 }
 
 //
@@ -161,6 +174,7 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 	} else {
 		entry := Entry{Term: rf.currentTerm, Command: command}
 		rf.log = append(rf.log, entry) //向log 中加入client 最新的request
+		rf.persist()
 		DPrintf("%d get command from Start at index %d", rf.me, len(rf.log)-1)
 		return len(rf.log) - 1, rf.currentTerm, true
 
@@ -221,6 +235,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 
 	// initialize from state persisted before a crash
 	rf.readPersist(persister.ReadRaftState())
+	DPrintf("%d start or restart 一次", rf.me)
 	go func(rf *Raft) {
 		DPrintf("%d林克四大头", rf.me)
 		for {

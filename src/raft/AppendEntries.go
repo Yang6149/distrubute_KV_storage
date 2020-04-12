@@ -20,7 +20,10 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 	defer rf.mu.Unlock()
 	if args.Term >= rf.currentTerm {
 		rf.state = follower
-		rf.currentTerm = args.Term
+		if args.Term>rf.currentTerm{
+			rf.currentTerm = args.Term
+			rf.persist()
+		}
 		rf.appendChan <- 1
 		DPrintf("%d：重置ele时间", rf.me)
 		if args.PreLogIndex >= len(rf.log) {
@@ -55,12 +58,14 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 						DPrintf("%d 原来的 log 为 %d ", rf.me, rf.log)
 						rf.log[args.PreLogIndex+1] = args.Entries[0]
 						rf.log = rf.log[0 : args.PreLogIndex+2]
+						rf.persist()
 						DPrintf("%d overwrite 后的 log 为%d", rf.me, rf.log)
 					}
 
 				} else {
 					//else append to log
 					rf.log = append(rf.log, args.Entries[0])
+					rf.persist()
 					DPrintf("%d 添加一个新log,现在长度为：%d", rf.me, len(rf.log))
 				}
 				DPrintf("%d ：现在的log长度是 %d", rf.me, len(rf.log))

@@ -6,6 +6,7 @@ election 的 timeout
 */
 func (rf *Raft) election() {
 	rf.currentTerm++
+	rf.persist()
 	DPrintf("%d ： 开始竞选 leadrt,当前term为%d", rf.me, rf.currentTerm)
 	voteForMe := 0
 	voteForMe++
