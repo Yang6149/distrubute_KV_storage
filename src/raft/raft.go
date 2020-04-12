@@ -156,7 +156,7 @@ func (rf *Raft) readPersist(data []byte) {
 func (rf *Raft) Start(command interface{}) (int, int, bool) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
-	if rf.state != leader {
+	if rf.state != leader || rf.isChange {
 		return -1, -1, false
 	} else {
 		entry := Entry{Term: rf.currentTerm, Command: command}
@@ -253,6 +253,9 @@ func Make(peers []*labrpc.ClientEnd, me int,
 			case candidate:
 				select {
 				case <-rf.findBiggerChan:
+					rf.mu.Lock()
+					rf.conver(follower)
+					rf.mu.Unlock()
 					//发现了更大地 term ，转为follower
 				case <-rf.appendChan:
 					//candidate 收到有效心跳，转回follower

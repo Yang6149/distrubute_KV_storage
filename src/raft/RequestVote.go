@@ -59,7 +59,7 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 			// reply.VoteGranted = true
 			// return
 		}
-		DPrintf("%d candicate %d的lastcommit害没自己的 commit大", rf.me, args.CandidateId)
+		DPrintf("%d candicate %d的up-to-data害没自己的 last大", rf.me, args.CandidateId)
 		DPrintf("%d 拒绝，现在我的 term is ", rf.me, rf.currentTerm)
 		reply.Term = args.Term
 		reply.VoteGranted = false

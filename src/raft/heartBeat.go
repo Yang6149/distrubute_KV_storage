@@ -19,14 +19,16 @@ func (rf *Raft) heartBeat() {
 
 func (rf *Raft) sendAppendEntry(i int) {
 	rf.mu.Lock()
-	if rf.state == follower {
+	if rf.state != leader || rf.isChange {
 		rf.mu.Unlock()
 		return
 	}
+
 	//初始化 append args
 	// DPrintf("%d:%d的nextIndex %d", rf.me, i, rf.nextIndex[i])
 	// DPrintf("%d 的len log %d ", rf.me, len(rf.log))
-
+	DPrintf("%d 初始化 args,log 长度%d，nextIndex i is%d,i is %d", rf.me, len(rf.log), rf.nextIndex[i], i)
+	DPrintf("%d log is %d", rf.me, rf.log)
 	args := &AppendEntriesArgs{
 		Term:         rf.currentTerm,
 		LeaderId:     rf.me,
