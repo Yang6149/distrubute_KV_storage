@@ -13,6 +13,7 @@ type AppendEntriesReply struct {
 	Term       int
 	Success    bool
 	MatchIndex int
+	TargetTerm int
 }
 
 func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
@@ -20,7 +21,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 	defer rf.mu.Unlock()
 	if args.Term >= rf.currentTerm {
 		rf.state = follower
-		if args.Term>rf.currentTerm{
+		if args.Term > rf.currentTerm {
 			rf.currentTerm = args.Term
 			rf.persist()
 		}
@@ -39,7 +40,9 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 			//index and  term can't match,return false
 			reply.Term = rf.currentTerm
 			reply.Success = false
-			DPrintf("%d :index and term can't match ,return false,my last Command is ", rf.me, rf.log[args.PreLogIndex].Command)
+			reply.TargetTerm = rf.log[args.PreLogIndex].Term
+			DPrintf("%d :index and term can't match ,return false,my last Command is %d", rf.me, rf.log[args.PreLogIndex].Command)
+			DPrintf("%d :args.PreLogIndex=%d,我的term是%d，argsTerm is %d", rf.me,args.PreLogIndex,rf.log[args.PreLogIndex].Term,args.PreLogTerm)
 		} else {
 			// index and term is matched
 			reply.Term = rf.currentTerm

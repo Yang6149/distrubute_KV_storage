@@ -99,13 +99,25 @@ func (rf *Raft) sendAppendEntry(i int) {
 					DPrintf("%d:减一下 %d 的nextInt呗", rf.me, i)
 					//fmt.Println(rf.nextIndex, "leader is :", rf.me, ",send to ", i)
 					//fmt.Println(rf.me, "-- args:", args, "reply:", reply)
+
 					if reply.MatchIndex != 0 {
 						DPrintf("%d 直接把%d的nextInt 跳到%d，原来是%d", rf.me, i, reply.MatchIndex+1, rf.nextIndex[i])
 						rf.nextIndex[i] = reply.MatchIndex + 1
+					} else if reply.TargetTerm != 0 {
+						index := args.PreLogIndex - 1
+						for a := index; a >= 0; a-- {
+							if rf.log[a].Term <= reply.TargetTerm {
+								rf.nextIndex[i] = a + 1
+								break
+							}
+						}
+						DPrintf("%d 直接把%d的nextInt 跳到%d，原来是%d,跳到<=index:%d并且term<=reply.preTerm-1.term：%d的最后一个", rf.me, i, rf.nextIndex[i], args.PreLogIndex, index, rf.log[index].Term)
 					} else {
 						rf.nextIndex[i]--
 					}
-
+					if reply.TargetTerm != 0 && reply.MatchIndex != 0 {
+						DPrintf("%d 警告，returnfalse 后MathIndex和TargetTerm同时不为零", rf.me)
+					}
 					//fmt.Println(rf.me, "减完后 ", i, "的nextIndex 为", rf.nextIndex[i])
 					rf.heartBeatchs[i].c <- 1
 
