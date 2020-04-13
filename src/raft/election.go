@@ -30,6 +30,7 @@ func (rf *Raft) election() {
 			if reply.Term > rf.currentTerm {
 				DPrintf("%d:收到的选举返回竟然term 比我大", rf.me)
 				rf.findBiggerChan <- 1
+				rf.convert(follower)
 				return
 			}
 			if reply.VoteGranted && reply.Term == rf.currentTerm {
@@ -40,7 +41,7 @@ func (rf *Raft) election() {
 				if voteForMe >= rf.menkan {
 					DPrintf("%d 当选leader", rf.me)
 					rf.voteGrantedChan <- 1
-
+					rf.convert(leader)
 				}
 			}
 

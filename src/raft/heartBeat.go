@@ -19,7 +19,7 @@ func (rf *Raft) heartBeat() {
 
 func (rf *Raft) sendAppendEntry(i int) {
 	rf.mu.Lock()
-	if rf.state != leader || rf.isChange {
+	if rf.state != leader  {
 		rf.mu.Unlock()
 		return
 	}
@@ -47,13 +47,13 @@ func (rf *Raft) sendAppendEntry(i int) {
 	rf.mu.Unlock()
 	ok := rf.sendAppendEntries(i, args, reply)
 	rf.mu.Lock()
-	if ok && rf.state == leader && rf.isChange == false {
+	if ok && rf.state == leader  {
 		if args.PreLogIndex == rf.nextIndex[i]-1 && yourLastMatchIndex == rf.matchIndex[i] && args.Term == rf.currentTerm { //证明传输后信息没有变化
 			if reply.Term > rf.currentTerm {
 				rf.currentTerm = reply.Term
 				rf.persist()
 				rf.findBiggerChan <- 1
-				rf.isChange = true
+				rf.convert(follower)
 				DPrintf("%d :发现 term 更高的node %d,yield！！", rf.me, i)
 			} else {
 				if reply.Success {
@@ -92,6 +92,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 					//处理leader 的commitedindex
 					if rf.matchIndex[i] < rf.commitIndex {
 						rf.heartBeatchs[i].c <- 1
+						DPrintf("%d follower commit<自己，再发一次", rf.me)
 					}
 				} else {
 					//false两种情况：它的Term比我的大被上面解决了，这里只会是prevIndex的Term不匹配
@@ -121,7 +122,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 					}
 					//fmt.Println(rf.me, "减完后 ", i, "的nextIndex 为", rf.nextIndex[i])
 					rf.heartBeatchs[i].c <- 1
-
+					DPrintf("%d返回false，调整后继续发送", rf.me)
 				}
 			}
 		} else {

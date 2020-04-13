@@ -33,8 +33,8 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	if args.Term > rf.currentTerm {
 		//defer rf.conver(follower)
 		if rf.state != follower {
-			rf.isChange = true
 			rf.findBiggerChan <- 1
+			rf.convert(follower)
 		}
 		rf.currentTerm = args.Term
 		rf.persist()

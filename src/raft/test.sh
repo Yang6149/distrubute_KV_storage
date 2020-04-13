@@ -18,9 +18,9 @@ do
 	#go test -race -run TestRejoin2B
 	#time go test -run TestBackup2B
 	#go test -race -run TestFailAgree2B
-	#go test -race -run 2B
-	time go test
+	time go test -run 2B
+	#time go test
 	cat logfile.log > temp/$i
 	rm logfile.log
 done
-rm -rf temp
+#rm -rf temp

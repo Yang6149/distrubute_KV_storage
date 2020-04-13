@@ -27,6 +27,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 			rf.persist()
 		}
 		rf.appendChan <- 1
+		rf.convert(follower)
 		DPrintf("%d：重置ele时间", rf.me)
 		if args.PreLogIndex >= len(rf.log) {
 			//preIndex 越界

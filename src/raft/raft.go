@@ -73,7 +73,6 @@ type Raft struct {
 	sendApply       chan int
 	heartBeatchs    []HBchs
 	// Your data here (2A, 2B, 2C).-------------------------------------
-	isChange bool
 }
 
 // GetState get command .
@@ -169,7 +168,7 @@ func (rf *Raft) readPersist(data []byte) {
 func (rf *Raft) Start(command interface{}) (int, int, bool) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
-	if rf.state != leader || rf.isChange {
+	if rf.state != leader {
 		return -1, -1, false
 	} else {
 		entry := Entry{Term: rf.currentTerm, Command: command}
@@ -242,8 +241,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 			if rf.killed() {
 				rf.mu.Lock()
 				defer rf.mu.Unlock()
-				rf.isChange = true
-				rf.conver(follower)
+				rf.convert(follower)
 				DPrintf("%d当场去世", rf.me)
 				return
 			}
@@ -261,27 +259,19 @@ func Make(peers []*labrpc.ClientEnd, me int,
 				case <-time.After(electionConstTime()):
 					//超时啦，进行选举
 					rf.mu.Lock()
-					rf.conver(candidate)
+					rf.convert(candidate)
 					rf.election()
 					rf.mu.Unlock()
 				}
 			case candidate:
 				select {
 				case <-rf.findBiggerChan:
-					rf.mu.Lock()
-					rf.conver(follower)
-					rf.mu.Unlock()
+
 					//发现了更大地 term ，转为follower
 				case <-rf.appendChan:
 					//candidate 收到有效心跳，转回follower
-					rf.mu.Lock()
-					rf.conver(follower)
-					rf.mu.Unlock()
 				case <-rf.voteGrantedChan:
 					//candidate 收到多数投票结果，升级为 leader
-					rf.mu.Lock()
-					rf.conver(leader)
-					rf.mu.Unlock()
 				case <-time.After(electionConstTime()):
 					//没有投票结果，也没有收到有效append，重新giao
 					rf.mu.Lock()
@@ -292,14 +282,9 @@ func Make(peers []*labrpc.ClientEnd, me int,
 			case leader:
 				select {
 				case <-rf.findBiggerChan:
-					rf.mu.Lock()
-					rf.conver(follower)
-					rf.mu.Unlock()
+
 				case <-rf.appendChan:
 					//收到有效地心跳，转为follower
-					rf.mu.Lock()
-					rf.conver(follower)
-					rf.mu.Unlock()
 				case <-time.After(heartbeatConstTime):
 					// 	//进行一次append
 					// 	rf.mu.Lock()
