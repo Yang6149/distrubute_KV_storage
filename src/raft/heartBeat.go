@@ -19,7 +19,7 @@ func (rf *Raft) heartBeat() {
 
 func (rf *Raft) sendAppendEntry(i int) {
 	rf.mu.Lock()
-	if rf.state != leader  {
+	if rf.state != leader {
 		rf.mu.Unlock()
 		return
 	}
@@ -27,8 +27,6 @@ func (rf *Raft) sendAppendEntry(i int) {
 	//初始化 append args
 	// DPrintf("%d:%d的nextIndex %d", rf.me, i, rf.nextIndex[i])
 	// DPrintf("%d 的len log %d ", rf.me, len(rf.log))
-	DPrintf("%d 初始化 args,log 长度%d，nextIndex i is%d,i is %d", rf.me, len(rf.log), rf.nextIndex[i], i)
-	DPrintf("%d log is %d", rf.me, rf.log)
 	args := &AppendEntriesArgs{
 		Term:         rf.currentTerm,
 		LeaderId:     rf.me,
@@ -37,17 +35,15 @@ func (rf *Raft) sendAppendEntry(i int) {
 		LeaderCommit: rf.commitIndex,
 		Entries:      make([]Entry, 0),
 	}
-	if len(rf.log) > rf.nextIndex[i] {
-		args.Entries = append(args.Entries, rf.log[rf.nextIndex[i]])
-		DPrintf("%d 发送 index %d 的log 给 %d", rf.me, rf.nextIndex[i], i)
-	}
+	args.Entries = rf.log[rf.nextIndex[i]:min(len(rf.log), rf.nextIndex[i]+5)]
+
 	reply := &AppendEntriesReply{}
 	DPrintf("%d append给 %d", rf.me, i)
 	yourLastMatchIndex := rf.matchIndex[i]
 	rf.mu.Unlock()
 	ok := rf.sendAppendEntries(i, args, reply)
 	rf.mu.Lock()
-	if ok && rf.state == leader  {
+	if ok && rf.state == leader {
 		if args.PreLogIndex == rf.nextIndex[i]-1 && yourLastMatchIndex == rf.matchIndex[i] && args.Term == rf.currentTerm { //证明传输后信息没有变化
 			if reply.Term > rf.currentTerm {
 				rf.currentTerm = reply.Term
@@ -71,10 +67,8 @@ func (rf *Raft) sendAppendEntry(i int) {
 							if m == rf.me {
 								continue
 							}
-							DPrintf("%d :matchindex m is %d ,nextIndex m is %d  this follower is %d", rf.me, rf.matchIndex[m], rf.nextIndex[m], m)
 							if rf.matchIndex[m] >= reply.MatchIndex {
 								matchNum++
-								DPrintf("%d the matchNum is %d,the index is %d", rf.me, matchNum, reply.MatchIndex)
 							}
 							if matchNum >= rf.menkan {
 								DPrintf("%d 开始 commit at index %d", rf.me, rf.nextIndex[i])
@@ -91,7 +85,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 					rf.nextIndex[i] = reply.MatchIndex + 1
 					//处理leader 的commitedindex
 					if rf.matchIndex[i] < rf.commitIndex {
-						rf.heartBeatchs[i].c <- 1
+						//rf.heartBeatchs[i].c <- 1
 						DPrintf("%d follower commit<自己，再发一次", rf.me)
 					}
 				} else {
@@ -121,7 +115,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 						DPrintf("%d 警告，returnfalse 后MathIndex和TargetTerm同时不为零", rf.me)
 					}
 					//fmt.Println(rf.me, "减完后 ", i, "的nextIndex 为", rf.nextIndex[i])
-					rf.heartBeatchs[i].c <- 1
+					//rf.heartBeatchs[i].c <- 1
 					DPrintf("%d返回false，调整后继续发送", rf.me)
 				}
 			}

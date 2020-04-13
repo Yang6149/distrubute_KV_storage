@@ -754,6 +754,12 @@ func TestFigure82C(t *testing.T) {
 }
 
 func TestUnreliableAgree2C(t *testing.T) {
+	f, err := os.OpenFile("logfile.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("file open error : %v", err)
+	}
+	defer f.Close()
+	log.SetOutput(f)
 	servers := 5
 	cfg := make_config(t, servers, true)
 	defer cfg.cleanup()

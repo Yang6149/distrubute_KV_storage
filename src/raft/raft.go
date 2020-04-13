@@ -253,7 +253,6 @@ func Make(peers []*labrpc.ClientEnd, me int,
 				//
 				select {
 				case <-rf.findBiggerChan:
-					DPrintf("%d is follower ,find bigger term", rf.me)
 				case <-rf.appendChan:
 					//follower收到有效append，重置超时
 				case <-time.After(electionConstTime()):
@@ -306,16 +305,12 @@ func electionConstTime() time.Duration {
 }
 
 func (rf *Raft) apply() {
-	DPrintf("%d 初始化 apply", rf.me)
 	for {
 		select {
 		case index := <-rf.sendApply:
 			for i := rf.lastApplied + 1; i <= index; i++ {
 				rf.mu.Lock()
-				DPrintf("%d len(rf.log) :%d", rf.me, len(rf.log))
 				command := rf.log[i].Command
-				DPrintf("%d apply at index %d", rf.me, i)
-				DPrintf("%d : %d", rf.me, rf.log)
 				rf.mu.Unlock()
 				msg := ApplyMsg{
 					CommandValid: true,
