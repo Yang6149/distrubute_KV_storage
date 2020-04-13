@@ -30,7 +30,6 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		rf.convert(follower)
 		if args.PreLogIndex >= len(rf.log) {
 			//preIndex 越界
-			DPrintf("%d :因为leader传来的preIndex大于自己的len(log)所以return false", rf.me)
 			reply.Term = rf.currentTerm
 			reply.Success = false
 			reply.MatchIndex = len(rf.log) - 1
@@ -49,7 +48,6 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 					break
 				}
 			}
-			DPrintf("%d :args.PreLogIndex=%d,我的term是%d，argsTerm is %d,index从 %d 跳到了 %d", rf.me, args.PreLogIndex, rf.log[args.PreLogIndex].Term, args.PreLogTerm, args.PreLogIndex, reply.TargetIndex)
 		} else {
 			// index and term is matched
 			reply.Term = rf.currentTerm
@@ -80,7 +78,6 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 				// 	DPrintf("%d 添加一个新log,现在长度为：%d", rf.me, len(rf.log))
 				// }
 				Index := args.PreLogIndex + 1
-				DPrintf("%d args.entry's len is %d ,rf.log.len is %d ", rf.me, len(args.Entries), len(rf.log))
 				for a := range args.Entries {
 					if Index == len(rf.log) {
 						rf.log = append(rf.log, args.Entries[a])
@@ -91,29 +88,24 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 				}
 				rf.persist()
 				reply.MatchIndex = args.PreLogIndex + len(args.Entries)
-				DPrintf("%d ：成功接收一个 entry，matchIndex 为%d ,the entry is ", rf.me, reply.MatchIndex, args.Entries)
 			} else {
 				//just a heartbeat
 				reply.Term = rf.currentTerm
 				reply.Success = true
 				reply.MatchIndex = args.PreLogIndex
-				DPrintf("%d ：just a heartBeat 为%d", rf.me, reply.MatchIndex)
 			}
 			if args.LeaderCommit > rf.commitIndex {
 				//commit all index before args.LeaderCommit
 				newCommitNum := min(args.LeaderCommit, reply.MatchIndex)
 				if newCommitNum > rf.commitIndex {
-					DPrintf("%dcommit index %d", rf.me, newCommitNum)
 					rf.commitIndex = newCommitNum
 					rf.sendApply <- rf.commitIndex
-					DPrintf("%d commit index %d finished", rf.me, rf.commitIndex)
 				}
 			}
 		}
 
 	} else {
 		//我的 Term 更大 返回false
-		DPrintf("%d :因为自己的term比leader %d 更大return false", rf.me, args.LeaderId)
 		reply.Term = rf.currentTerm
 		reply.Success = false
 	}

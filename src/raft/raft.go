@@ -286,9 +286,9 @@ func Make(peers []*labrpc.ClientEnd, me int,
 					//收到有效地心跳，转为follower
 				case <-time.After(heartbeatConstTime):
 					// 	//进行一次append
-					// 	rf.mu.Lock()
-					// 	rf.heartBeat()
-					// 	rf.mu.Unlock()
+					rf.mu.Lock()
+					rf.heartBeat()
+					rf.mu.Unlock()
 				}
 
 			}
@@ -301,13 +301,14 @@ func Make(peers []*labrpc.ClientEnd, me int,
 }
 
 func electionConstTime() time.Duration {
-	return time.Duration(150+rand.Intn(150)) * time.Millisecond
+	return time.Duration(150+rand.Intn(250)) * time.Millisecond
 }
 
 func (rf *Raft) apply() {
 	for {
 		select {
 		case index := <-rf.sendApply:
+			DPrintf("%d apply to %d index", rf.me, index)
 			for i := rf.lastApplied + 1; i <= index; i++ {
 				rf.mu.Lock()
 				command := rf.log[i].Command
@@ -321,6 +322,7 @@ func (rf *Raft) apply() {
 				rf.applyCh <- msg
 				rf.lastApplied = i
 			}
+			DPrintf("%d apply to %d index finished!!", rf.me, index)
 		}
 	}
 }
