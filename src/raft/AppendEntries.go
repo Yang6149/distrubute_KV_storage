@@ -10,10 +10,11 @@ type AppendEntriesArgs struct {
 }
 
 type AppendEntriesReply struct {
-	Term       int
-	Success    bool
-	MatchIndex int
-	TargetTerm int
+	Term        int
+	Success     bool
+	MatchIndex  int
+	TargetTerm  int
+	TargetIndex int
 }
 
 func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
@@ -40,9 +41,16 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 			//index and  term can't match,return false
 			reply.Term = rf.currentTerm
 			reply.Success = false
-			reply.TargetTerm = rf.log[args.PreLogIndex].Term
+			index := args.PreLogIndex - 1
+			for a := index; a >= 0; a-- {
+				if rf.log[a].Term <= args.PreLogTerm {
+					reply.TargetIndex = a
+					reply.TargetTerm = rf.log[a].Term
+					break
+				}
+			}
 			DPrintf("%d :index and term can't match ,return false,my last Command is %d", rf.me, rf.log[args.PreLogIndex].Command)
-			DPrintf("%d :args.PreLogIndex=%d,我的term是%d，argsTerm is %d", rf.me,args.PreLogIndex,rf.log[args.PreLogIndex].Term,args.PreLogTerm)
+			DPrintf("%d :args.PreLogIndex=%d,我的term是%d，argsTerm is %d,index从 %d 跳到了 %d", rf.me, args.PreLogIndex, rf.log[args.PreLogIndex].Term, args.PreLogTerm, args.PreLogIndex, reply.TargetIndex)
 		} else {
 			// index and term is matched
 			reply.Term = rf.currentTerm
@@ -55,7 +63,8 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 					//如果我要 overwrite 的内容和我要写的内容一模一样，就证明有一个线程走在我前面，我退出
 					if args.Entries[0].Term == rf.log[args.PreLogIndex+1].Term {
 						DPrintf("%d我这个是个重复overwrite操作，有个线程在我之前，直接下一个", rf.me)
-
+						reply.MatchIndex = args.PreLogIndex + 1
+						return
 					} else {
 						//if it is overwrite
 						DPrintf("%d 原来的 log 为 %d ", rf.me, rf.log)

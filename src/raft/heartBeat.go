@@ -78,6 +78,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 							}
 							if matchNum >= rf.menkan {
 								DPrintf("%d 开始 commit at index %d", rf.me, rf.nextIndex[i])
+								DPrintf("%d now my term is %d ,and commitEntry is", rf.me, rf.currentTerm, rf.log[rf.nextIndex[i]])
 								rf.commitIndex = rf.nextIndex[i]
 								rf.sendApply <- rf.commitIndex
 								DPrintf("%d 发送 commit at index %d---成功", rf.me, rf.nextIndex[i])
@@ -104,14 +105,14 @@ func (rf *Raft) sendAppendEntry(i int) {
 						DPrintf("%d 直接把%d的nextInt 跳到%d，原来是%d", rf.me, i, reply.MatchIndex+1, rf.nextIndex[i])
 						rf.nextIndex[i] = reply.MatchIndex + 1
 					} else if reply.TargetTerm != 0 {
-						index := args.PreLogIndex - 1
+						index := reply.TargetIndex
 						for a := index; a >= 0; a-- {
 							if rf.log[a].Term <= reply.TargetTerm {
 								rf.nextIndex[i] = a + 1
 								break
 							}
 						}
-						DPrintf("%d 直接把%d的nextInt 跳到%d，原来是%d,跳到<=index:%d并且term<=reply.preTerm-1.term：%d的最后一个", rf.me, i, rf.nextIndex[i], args.PreLogIndex, index, rf.log[index].Term)
+						DPrintf("%d 直接把%d的nextInt 跳到%d，原来是%d,跳到<=index:%d并且term<=reply.preTerm-1.term：%d的最后一个", rf.me, i, rf.nextIndex[i], args.PreLogIndex+1, index, rf.log[index].Term)
 					} else {
 						rf.nextIndex[i]--
 					}
@@ -123,6 +124,8 @@ func (rf *Raft) sendAppendEntry(i int) {
 
 				}
 			}
+		} else {
+			DPrintf("%d heartbeat get modified reply F**K %d!", rf.me, i)
 		}
 	} else {
 		//发送 rpc 失败了
