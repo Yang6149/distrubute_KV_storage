@@ -79,7 +79,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 				// 	rf.persist()
 				// 	DPrintf("%d 添加一个新log,现在长度为：%d", rf.me, len(rf.log))
 				// }
-				if args.PreLogIndex+len(rf.log) > rf.commitIndex {
+				if args.PreLogIndex+len(args.Entries) > rf.commitIndex {
 					Index := args.PreLogIndex + 1
 					for a := range args.Entries {
 						if Index == len(rf.log) {
