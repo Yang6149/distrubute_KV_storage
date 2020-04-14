@@ -86,6 +86,8 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 					}
 					Index++
 				}
+				rf.log = rf.log[:Index]
+
 				rf.persist()
 				reply.MatchIndex = args.PreLogIndex + len(args.Entries)
 			} else {
@@ -102,6 +104,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 					rf.sendApply <- rf.commitIndex
 				}
 			}
+			DPrintf("%d :commit index is %d 现在的log 是%d", rf.me, rf.commitIndex, rf.log)
 		}
 
 	} else {

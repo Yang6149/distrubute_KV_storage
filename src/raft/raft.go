@@ -174,7 +174,7 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 		entry := Entry{Term: rf.currentTerm, Command: command}
 		rf.log = append(rf.log, entry) //向log 中加入client 最新的request
 		rf.persist()
-		DPrintf("%d get command from Start at index %d", rf.me, len(rf.log)-1)
+		DPrintf("%d get command from Start at index %d %d", rf.me, len(rf.log)-1, command)
 		return len(rf.log) - 1, rf.currentTerm, true
 
 	}
@@ -318,11 +318,15 @@ func (rf *Raft) apply() {
 					Command:      command,
 					CommandIndex: i,
 				}
+				if msg.CommandIndex != i {
+					DPrintf("%d msg : %d,i=%d", rf.me, msg, i)
+				}
 
 				rf.applyCh <- msg
 				rf.lastApplied = i
 			}
 			DPrintf("%d apply to %d index finished!!", rf.me, index)
+			DPrintf("%d already apply log", rf.me, rf.log[:index+1])
 		}
 	}
 }

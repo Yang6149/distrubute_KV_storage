@@ -13,13 +13,13 @@ do
     echo $i
 	#go test -race -run TestFailNoAgree2B
 	#go test -race -run TestFailAgree2B
-	go test -run TestUnreliableAgree2C
+	#go test -run TestBasicAgree2B
 	#go test -run TestFigure8Unreliable2C
 	#go test -race -run TestRejoin2B
 	#time go test -run TestBackup2B
 	#go test -race -run TestFailAgree2B
 	#time go test -run 2B
-	#time go test
+	time go test -run TestReliableChurn2C
 	cat logfile.log > temp/$i
 	rm logfile.log
 done

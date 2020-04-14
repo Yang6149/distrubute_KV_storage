@@ -25,6 +25,7 @@ func (rf *Raft) convert(state int) {
 			rf.nextIndex[a] = len(rf.log)
 		}
 		rf.matchIndex = make([]int, len(rf.peers))
+		rf.heartBeat()
 		//go rf.heartBeatInit()
 	}
 }

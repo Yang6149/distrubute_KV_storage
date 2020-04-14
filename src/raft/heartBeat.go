@@ -35,7 +35,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 		LeaderCommit: rf.commitIndex,
 		Entries:      make([]Entry, 0),
 	}
-	args.Entries = rf.log[rf.nextIndex[i]:min(len(rf.log), rf.nextIndex[i]+5)]
+	args.Entries = rf.log[rf.nextIndex[i]:min(len(rf.log), rf.nextIndex[i]+50)]
 
 	reply := &AppendEntriesReply{}
 	yourLastMatchIndex := rf.matchIndex[i]
@@ -57,8 +57,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 
 					//1. check MatchIndex
 					DPrintf("%d :check->send entries to %d :%d", rf.me, i, args.Entries)
-					DPrintf("%d :get reply MatchIndex is %d", rf.me, reply.MatchIndex)
-					DPrintf("%d 是否能是我的Term ", rf.me, rf.log[reply.MatchIndex].Term == rf.currentTerm)
+					DPrintf("%d :get reply MatchIndex %d is %d", rf.me, i, reply.MatchIndex)
 					if rf.log[reply.MatchIndex].Term == rf.currentTerm && rf.commitIndex < reply.MatchIndex && reply.MatchIndex > myLastMatch {
 						//检测match数量，大于一大半就commit
 						DPrintf("%d 进行检测是否commit,curCommit is %d ", rf.me, rf.matchIndex)
@@ -91,11 +90,13 @@ func (rf *Raft) sendAppendEntry(i int) {
 
 					if reply.MatchIndex != 0 {
 						rf.nextIndex[i] = reply.MatchIndex + 1
+						DPrintf("%d 把 %d 的 退到 %d", rf.me, i ,rf.nextIndex[i])
 					} else if reply.TargetTerm != 0 {
 						index := reply.TargetIndex
 						for a := index; a >= 0; a-- {
 							if rf.log[a].Term <= reply.TargetTerm {
 								rf.nextIndex[i] = a + 1
+								DPrintf("%d 把 %d 的 退到 %d", rf.me, i ,rf.nextIndex[i])
 								break
 							}
 						}

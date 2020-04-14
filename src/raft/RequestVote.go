@@ -49,6 +49,7 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 				DPrintf("%d my lastIndex %d my lastTerm %d,candidate lastIndex and term %d,%d", rf.me, myLastIndex, rf.log[myLastIndex].Term, args.LastLogIndex, args.LastLogTerm)
 				rf.voteFor = args.CandidateId
 				rf.persist()
+				rf.findBiggerChan <- 1
 				DPrintf("%d votefor %d,当前 term %d", rf.me, args.CandidateId, rf.currentTerm)
 				reply.Term = args.Term
 				reply.VoteGranted = true
