@@ -19,7 +19,7 @@ do
 	#time go test -run TestBackup2B
 	#go test -race -run TestFailAgree2B
 	#time go test -run 2B
-	time go test -run TestReliableChurn2C
+	time go test 
 	cat logfile.log > temp/$i
 	rm logfile.log
 done

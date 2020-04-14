@@ -227,7 +227,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.sendApply = make(chan int, 1000)
 	rf.heartBeatchs = make([]HBchs, len(rf.peers))
 	for i := range rf.heartBeatchs {
-		rf.heartBeatchs[i].c = make(chan int, 100)
+		rf.heartBeatchs[i].c = make(chan int, 10)
 	}
 	rf.chanReset()
 	// Your initialization code here (2A, 2B, 2C).-------------------------------
@@ -258,6 +258,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 				case <-time.After(electionConstTime()):
 					//超时啦，进行选举
 					rf.mu.Lock()
+					rf.chanReset()
 					rf.convert(candidate)
 					rf.election()
 					rf.mu.Unlock()
@@ -274,6 +275,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 				case <-time.After(electionConstTime()):
 					//没有投票结果，也没有收到有效append，重新giao
 					rf.mu.Lock()
+					rf.chanReset()
 					rf.election()
 					rf.mu.Unlock()
 				}
@@ -286,17 +288,16 @@ func Make(peers []*labrpc.ClientEnd, me int,
 					//收到有效地心跳，转为follower
 				case <-time.After(heartbeatConstTime):
 					// 	//进行一次append
-					rf.mu.Lock()
-					rf.heartBeat()
-					rf.mu.Unlock()
+					// rf.mu.Lock()
+					// rf.chanReset()
+					// rf.heartBeat()
+					// rf.mu.Unlock()
 				}
 
 			}
 		}
 	}(rf)
-	go func(rf *Raft) {
-		rf.apply()
-	}(rf)
+	go rf.apply()
 	return rf
 }
 
@@ -325,8 +326,6 @@ func (rf *Raft) apply() {
 				rf.applyCh <- msg
 				rf.lastApplied = i
 			}
-			DPrintf("%d apply to %d index finished!!", rf.me, index)
-			DPrintf("%d already apply log", rf.me, rf.log[:index+1])
 		}
 	}
 }

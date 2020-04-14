@@ -26,7 +26,7 @@ func (rf *Raft) convert(state int) {
 		}
 		rf.matchIndex = make([]int, len(rf.peers))
 		rf.heartBeat()
-		//go rf.heartBeatInit()
+		go rf.heartBeatInit()
 	}
 }
 func (rf *Raft) chanReset() {

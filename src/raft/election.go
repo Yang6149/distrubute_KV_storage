@@ -29,7 +29,9 @@ func (rf *Raft) election() {
 			defer rf.mu.Unlock()
 			if reply.Term > rf.currentTerm {
 				DPrintf("%d:收到的选举返回竟然term 比我大", rf.me)
+				DPrintf("%d ele21", rf.me)
 				rf.findBiggerChan <- 1
+				DPrintf("%d ele24", rf.me)
 				rf.convert(follower)
 				return
 			}
@@ -40,7 +42,9 @@ func (rf *Raft) election() {
 				}
 				if voteForMe >= rf.menkan {
 					DPrintf("%d 当选leader", rf.me)
+					DPrintf("%d ele45", rf.me)
 					rf.voteGrantedChan <- 1
+					DPrintf("%d ele45", rf.me)
 					rf.convert(leader)
 				}
 			}

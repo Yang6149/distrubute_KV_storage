@@ -26,7 +26,9 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 			rf.currentTerm = args.Term
 			rf.persist()
 		}
+		DPrintf("%d app29", rf.me)
 		rf.appendChan <- 1
+		DPrintf("%d app31", rf.me)
 		rf.convert(follower)
 		if args.PreLogIndex >= len(rf.log) {
 			//preIndex 越界
@@ -77,19 +79,21 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 				// 	rf.persist()
 				// 	DPrintf("%d 添加一个新log,现在长度为：%d", rf.me, len(rf.log))
 				// }
-				Index := args.PreLogIndex + 1
-				for a := range args.Entries {
-					if Index == len(rf.log) {
-						rf.log = append(rf.log, args.Entries[a])
-					} else {
-						rf.log[Index] = args.Entries[a]
+				if args.PreLogIndex+len(rf.log) > rf.commitIndex {
+					Index := args.PreLogIndex + 1
+					for a := range args.Entries {
+						if Index == len(rf.log) {
+							rf.log = append(rf.log, args.Entries[a])
+						} else {
+							rf.log[Index] = args.Entries[a]
+						}
+						Index++
 					}
-					Index++
-				}
-				rf.log = rf.log[:Index]
+					rf.log = rf.log[:Index]
 
-				rf.persist()
-				reply.MatchIndex = args.PreLogIndex + len(args.Entries)
+					rf.persist()
+				}
+				reply.MatchIndex = max(args.PreLogIndex+len(args.Entries), rf.commitIndex)
 			} else {
 				//just a heartbeat
 				reply.Term = rf.currentTerm
@@ -101,7 +105,9 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 				newCommitNum := min(args.LeaderCommit, reply.MatchIndex)
 				if newCommitNum > rf.commitIndex {
 					rf.commitIndex = newCommitNum
+					DPrintf("%d app104", rf.me)
 					rf.sendApply <- rf.commitIndex
+					DPrintf("%d app106", rf.me)
 				}
 			}
 			DPrintf("%d :commit index is %d 现在的log 是%d", rf.me, rf.commitIndex, rf.log)
