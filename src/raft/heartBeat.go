@@ -47,9 +47,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 			if reply.Term > rf.currentTerm {
 				rf.currentTerm = reply.Term
 				rf.persist()
-				DPrintf("%d hb50", rf.me)
 				rf.findBiggerChan <- 1
-				DPrintf("%d hb52", rf.me)
 				rf.convert(follower)
 			} else {
 				if reply.Success {
@@ -58,11 +56,8 @@ func (rf *Raft) sendAppendEntry(i int) {
 					rf.matchIndex[i] = reply.MatchIndex
 
 					//1. check MatchIndex
-					DPrintf("%d :check->send entries to %d :%d", rf.me, i, args.Entries)
-					DPrintf("%d :get reply MatchIndex %d is %d", rf.me, i, reply.MatchIndex)
 					if rf.log[reply.MatchIndex].Term == rf.currentTerm && rf.commitIndex < reply.MatchIndex && reply.MatchIndex > myLastMatch {
 						//检测match数量，大于一大半就commit
-						DPrintf("%d 进行检测是否commit,curCommit is %d ", rf.me, rf.matchIndex)
 						matchNum := 1
 						for m := range rf.matchIndex {
 							if m == rf.me {
@@ -73,9 +68,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 							}
 							if matchNum >= rf.menkan {
 								rf.commitIndex = rf.matchIndex[i]
-								DPrintf("%d hb76", rf.me)
 								rf.sendApply <- rf.commitIndex
-								DPrintf("%d hb78", rf.me)
 								break
 							}
 						}
@@ -84,9 +77,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 					rf.nextIndex[i] = reply.MatchIndex + 1
 					//处理leader 的commitedindex
 					if rf.matchIndex[i] < rf.commitIndex {
-						DPrintf("%d hb87", rf.me)
 						rf.heartBeatchs[i].c <- 1
-						DPrintf("%d hb89", rf.me)
 					}
 				} else {
 					//false两种情况：它的Term比我的大被上面解决了，这里只会是prevIndex的Term不匹配
@@ -96,13 +87,11 @@ func (rf *Raft) sendAppendEntry(i int) {
 
 					if reply.MatchIndex != 0 {
 						rf.nextIndex[i] = reply.MatchIndex + 1
-						DPrintf("%d 把 %d 的 退到 %d", rf.me, i ,rf.nextIndex[i])
 					} else if reply.TargetTerm != 0 {
 						index := reply.TargetIndex
 						for a := index; a >= 0; a-- {
 							if rf.log[a].Term <= reply.TargetTerm {
 								rf.nextIndex[i] = a + 1
-								DPrintf("%d 把 %d 的 退到 %d", rf.me, i ,rf.nextIndex[i])
 								break
 							}
 						}
@@ -112,9 +101,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 					if reply.TargetTerm != 0 && reply.MatchIndex != 0 {
 					}
 					//fmt.Println(rf.me, "减完后 ", i, "的nextIndex 为", rf.nextIndex[i])
-					DPrintf("%d hb109", rf.me)
 					rf.heartBeatchs[i].c <- 1
-					DPrintf("%d hb111", rf.me)
 				}
 			}
 		} else {

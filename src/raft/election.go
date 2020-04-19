@@ -7,7 +7,6 @@ election 的 timeout
 func (rf *Raft) election() {
 	rf.currentTerm++
 	rf.persist()
-	DPrintf("%d ： 开始竞选 leadrt,当前term为%d", rf.me, rf.currentTerm)
 	voteForMe := 0
 	voteForMe++
 	rf.voteFor = rf.me
@@ -22,16 +21,12 @@ func (rf *Raft) election() {
 			LastLogTerm:  rf.log[len(rf.log)-1].Term,
 		}
 		reply := &RequestVoteReply{}
-		DPrintf("%d ask vote from %d,顺便一说我当前的状态是 %d", rf.me, i, rf.state)
 		go func(i int) {
 			rf.sendRequestVote(i, args, reply)
 			rf.mu.Lock()
 			defer rf.mu.Unlock()
 			if reply.Term > rf.currentTerm {
-				DPrintf("%d:收到的选举返回竟然term 比我大", rf.me)
-				DPrintf("%d ele21", rf.me)
 				rf.findBiggerChan <- 1
-				DPrintf("%d ele24", rf.me)
 				rf.convert(follower)
 				return
 			}
@@ -41,10 +36,7 @@ func (rf *Raft) election() {
 					return
 				}
 				if voteForMe >= rf.menkan {
-					DPrintf("%d 当选leader", rf.me)
-					DPrintf("%d ele45", rf.me)
 					rf.voteGrantedChan <- 1
-					DPrintf("%d ele45", rf.me)
 					rf.convert(leader)
 				}
 			}

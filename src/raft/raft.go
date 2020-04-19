@@ -111,7 +111,6 @@ func (rf *Raft) persist() {
 	e.Encode(rf.log)
 	data := w.Bytes()
 	rf.persister.SaveRaftState(data)
-	DPrintf("%d persist", rf.me)
 }
 
 //
@@ -134,7 +133,6 @@ func (rf *Raft) readPersist(data []byte) {
 	//   rf.xxx = xxx
 	//   rf.yyy = yyy
 	// }
-	DPrintf("%d readPersist", rf.me)
 	r := bytes.NewBuffer(data)
 	d := labgob.NewDecoder(r)
 	var currentTerm int
@@ -143,7 +141,6 @@ func (rf *Raft) readPersist(data []byte) {
 	if d.Decode(&currentTerm) != nil ||
 		d.Decode(&voteFor) != nil ||
 		d.Decode(&log) != nil {
-		DPrintf("%d readPersist error", rf.me)
 	} else {
 		rf.currentTerm = currentTerm
 		rf.voteFor = voteFor
@@ -174,7 +171,6 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 		entry := Entry{Term: rf.currentTerm, Command: command}
 		rf.log = append(rf.log, entry) //向log 中加入client 最新的request
 		rf.persist()
-		DPrintf("%d get command from Start at index %d %d", rf.me, len(rf.log)-1, command)
 		return len(rf.log) - 1, rf.currentTerm, true
 
 	}
@@ -193,7 +189,6 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 //
 func (rf *Raft) Kill() {
 	atomic.StoreInt32(&rf.dead, 1)
-	DPrintf("%d:去死吧！！！！！！！！！！！！！！！！！！！！！！！！！！！%d", rf.me, rf.dead)
 	// Your code here, if desired.
 }
 
@@ -234,15 +229,12 @@ func Make(peers []*labrpc.ClientEnd, me int,
 
 	// initialize from state persisted before a crash
 	rf.readPersist(persister.ReadRaftState())
-	DPrintf("%d start or restart 一次", rf.me)
 	go func(rf *Raft) {
-		DPrintf("%d林克四大头", rf.me)
 		for {
 			if rf.killed() {
 				rf.mu.Lock()
 				defer rf.mu.Unlock()
 				rf.convert(follower)
-				DPrintf("%d当场去世", rf.me)
 				return
 			}
 			rf.mu.Lock()
@@ -309,7 +301,6 @@ func (rf *Raft) apply() {
 	for {
 		select {
 		case index := <-rf.sendApply:
-			DPrintf("%d apply to %d index", rf.me, index)
 			for i := rf.lastApplied + 1; i <= index; i++ {
 				rf.mu.Lock()
 				command := rf.log[i].Command
@@ -319,9 +310,7 @@ func (rf *Raft) apply() {
 					Command:      command,
 					CommandIndex: i,
 				}
-				if msg.CommandIndex != i {
-					DPrintf("%d msg : %d,i=%d", rf.me, msg, i)
-				}
+				
 
 				rf.applyCh <- msg
 				rf.lastApplied = i

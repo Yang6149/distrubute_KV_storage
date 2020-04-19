@@ -26,9 +26,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 			rf.currentTerm = args.Term
 			rf.persist()
 		}
-		DPrintf("%d app29", rf.me)
 		rf.appendChan <- 1
-		DPrintf("%d app31", rf.me)
 		rf.convert(follower)
 		if args.PreLogIndex >= len(rf.log) {
 			//preIndex 越界
@@ -105,12 +103,9 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 				newCommitNum := min(args.LeaderCommit, reply.MatchIndex)
 				if newCommitNum > rf.commitIndex {
 					rf.commitIndex = newCommitNum
-					DPrintf("%d app104", rf.me)
 					rf.sendApply <- rf.commitIndex
-					DPrintf("%d app106", rf.me)
 				}
 			}
-			DPrintf("%d :commit index is %d 现在的log 是%d", rf.me, rf.commitIndex, rf.log)
 		}
 
 	} else {
