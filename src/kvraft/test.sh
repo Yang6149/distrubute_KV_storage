@@ -6,8 +6,8 @@ if [ $# -ne 1 ]; then
 fi
 # export "GOPATH=$(git rev-parse --show-toplevel)"
 # cd "${GOPATH}/src/raft"
-#rm -rf temp
-#mkdir temp
+rm -rf temp
+mkdir temp
 for ((i=0;i<$1;i++))
 do
     echo $i
@@ -23,7 +23,7 @@ do
     #go test -race -run TestPersistPartition3A
     #go test -race -run TestPersistPartitionUnreliable3A
     #go test -race -run TestPersistPartitionUnreliableLinearizable3A
-	#cat logfile.log > temp/$i
-	#rm logfile.log
+	cat logfile.log > temp/$i
+	rm logfile.log
 done
 #rm -rf temp
