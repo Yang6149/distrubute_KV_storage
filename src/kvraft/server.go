@@ -11,7 +11,7 @@ import (
 	"../raft"
 )
 
-const Debug = 1
+const Debug = 0
 
 func DPrintf(format string, a ...interface{}) (n int, err error) {
 	if Debug > 0 {
@@ -24,8 +24,10 @@ type Op struct {
 	// Your definitions here.
 	// Field names must start with capital letters,
 	// otherwise RPC will break.
-	Key   string
-	Value string
+	Key      string
+	Value    string
+	ClientId int64
+	SerialId int
 }
 
 type KVServer struct {
@@ -35,6 +37,8 @@ type KVServer struct {
 	applyCh chan raft.ApplyMsg
 	dead    int32 // set by Kill()
 	data    map[string]string
+	apps    map[int]chan Op
+	dup     map[int64]int
 
 	maxraftstate int // snapshot if log grows this big
 
@@ -47,7 +51,7 @@ func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
 		key := args.Key
 		value := kv.data[key]
 		reply.Value = value
-		if value == "" {
+		if _, ok := kv.data[key]; !ok {
 			reply.Err = ErrNoKey
 			return
 		}
@@ -58,6 +62,11 @@ func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
 }
 
 func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
+	//处理重复put
+	if res, ok := kv.dup[args.ClientId]; ok && res >= args.SerialID {
+		reply.Err = OK
+		return
+	}
 	//handle args
 	key := args.Key
 	value := args.Value
@@ -65,18 +74,21 @@ func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	if op == "Append" {
 		value = kv.data[key] + value
 	}
-	command := Op{key, value}
+	command := Op{key, value, args.ClientId, args.SerialID}
 	//send command
-	_, _, isLeader := kv.rf.Start(command)
+	kv.mu.Lock()
+	index, _, isLeader := kv.rf.Start(command)
 	if !isLeader {
 		reply.Err = ErrWrongLeader
+		kv.mu.Unlock()
 		return
 	}
+	kv.apps[index] = make(chan Op, 1)
+	kv.mu.Unlock()
 	//等待返回数据
 	select {
-	case msg := <-kv.applyCh:
-		command := msg.Command.(Op)
-		kv.data[command.Key] = command.Value
+	case command := <-kv.apps[index]:
+
 		DPrintf("%d apply %d", kv.me, command)
 		reply.Err = OK
 		DPrintf("insert a command %d", command)
@@ -135,17 +147,28 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 	kv.data = make(map[string]string)
 	kv.applyCh = make(chan raft.ApplyMsg)
 	kv.rf = raft.Make(servers, me, persister, kv.applyCh)
+	kv.apps = make(map[int]chan Op)
+	kv.dup = make(map[int64]int)
 	DPrintf("%d :init finished", kv.me)
 	// You may need initialization code here.
-	//go kv.apply()
+	go kv.apply()
 	return kv
 }
 
 func (kv *KVServer) apply() {
 	for {
 		msg := <-kv.applyCh
-		command := msg.Command.(Op)
-		kv.data[command.Key] = command.Value
-		DPrintf("%d apply %d", kv.me, command)
+		//msg.CommandValid is true,otherwise the command is snapshot
+		if msg.CommandValid {
+			command := msg.Command.(Op)
+			index := msg.CommandIndex
+			DPrintf("%d transBack %d", kv.me, command)
+			kv.data[command.Key] = command.Value
+			kv.dup[command.ClientId] = command.SerialId
+			res, ok := kv.apps[index]
+			if ok {
+				res <- command
+			}
+		}
 	}
 }

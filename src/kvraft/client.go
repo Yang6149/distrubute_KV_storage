@@ -11,7 +11,7 @@ import (
 type Clerk struct {
 	servers []*labrpc.ClientEnd
 	me      int64
-	serial  int64
+	serial  int
 	leader  int
 	// You will have to modify this struct.
 }
@@ -49,24 +49,23 @@ func (ck *Clerk) Get(key string) string {
 	args := GetArgs{}
 	args.Key = key
 	num := len(ck.servers)
-	i := 0
+	i := ck.leader
 	for {
 		DPrintf("get loop")
 		reply := GetReply{}
 		ok := ck.servers[i].Call("KVServer.Get", &args, &reply)
-		i++
-		i = i % num
 
 		// You will have to modify this function.
 		if reply.Err == OK && ok {
 			DPrintf("%d :key :(%s) get value (%s)", i, args.Key, reply.Value)
 			DPrintf("get success")
+			ck.leader = i
 			return reply.Value
-		} else if reply.Err == ErrNoKey {
-			//DPrintf("key :(%s) get value (%s)", args.Key, reply.Value)
-		} else if reply.Err == ErrWrongLeader {
-			//DPrintf("key :(%s) get value (%s)", args.Key, reply.Value)
+		} else {
+			DPrintf("key :(%s) get value (%s), Err is %s", args.Key, reply.Value, reply.Err)
 		}
+		i++
+		i = i % num
 		time.Sleep(200 * time.Millisecond)
 	}
 	return ""

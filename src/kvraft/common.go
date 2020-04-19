@@ -15,7 +15,7 @@ type PutAppendArgs struct {
 	Value    string
 	Op       string // "Put" or "Append"
 	ClientId int64
-	SerialID int64
+	SerialID int
 	// You'll have to add definitions here.
 	// Field names must start with capital letters,
 	// otherwise RPC will break.
