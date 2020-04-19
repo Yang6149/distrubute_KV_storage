@@ -1,15 +1,17 @@
 package kvraft
 
 import (
-	"../labgob"
-	"../labrpc"
 	"log"
-	"../raft"
 	"sync"
 	"sync/atomic"
+	"time"
+
+	"../labgob"
+	"../labrpc"
+	"../raft"
 )
 
-const Debug = 0
+const Debug = 1
 
 func DPrintf(format string, a ...interface{}) (n int, err error) {
 	if Debug > 0 {
@@ -18,11 +20,12 @@ func DPrintf(format string, a ...interface{}) (n int, err error) {
 	return
 }
 
-
 type Op struct {
 	// Your definitions here.
 	// Field names must start with capital letters,
 	// otherwise RPC will break.
+	Key   string
+	Value string
 }
 
 type KVServer struct {
@@ -31,22 +34,60 @@ type KVServer struct {
 	rf      *raft.Raft
 	applyCh chan raft.ApplyMsg
 	dead    int32 // set by Kill()
+	data    map[string]string
 
 	maxraftstate int // snapshot if log grows this big
 
 	// Your definitions here.
 }
 
-
 func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
-	// Your code here.
+	_, isLeader := kv.rf.GetState()
+	if isLeader {
+		key := args.Key
+		value := kv.data[key]
+		reply.Value = value
+		if value == "" {
+			reply.Err = ErrNoKey
+			return
+		}
+		reply.Err = OK
+	} else {
+		reply.Err = ErrWrongLeader
+	}
 }
 
 func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
+	//handle args
+	key := args.Key
+	value := args.Value
+	op := args.Op
+	if op == "Append" {
+		value = kv.data[key] + value
+	}
+	command := Op{key, value}
+	//send command
+	_, _, isLeader := kv.rf.Start(command)
+	if !isLeader {
+		reply.Err = ErrWrongLeader
+		return
+	}
+	//等待返回数据
+	select {
+	case msg := <-kv.applyCh:
+		command := msg.Command.(Op)
+		kv.data[command.Key] = command.Value
+		DPrintf("%d apply %d", kv.me, command)
+		reply.Err = OK
+		DPrintf("insert a command %d", command)
+	case <-time.After(500 * time.Millisecond):
+		reply.Err = ErrTimeOut
+	}
+
 	// Your code here.
 }
 
-//
+//s
 // the tester calls Kill() when a KVServer instance won't
 // be needed again. for your convenience, we supply
 // code to set rf.dead (without needing a lock),
@@ -58,6 +99,7 @@ func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 //
 func (kv *KVServer) Kill() {
 	atomic.StoreInt32(&kv.dead, 1)
+	DPrintf("%d :杀死一个 server", kv.me)
 	kv.rf.Kill()
 	// Your code here, if desired.
 }
@@ -90,12 +132,20 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 	kv.me = me
 	kv.maxraftstate = maxraftstate
 
-	// You may need initialization code here.
-
+	kv.data = make(map[string]string)
 	kv.applyCh = make(chan raft.ApplyMsg)
 	kv.rf = raft.Make(servers, me, persister, kv.applyCh)
-
+	DPrintf("%d :init finished", kv.me)
 	// You may need initialization code here.
-
+	//go kv.apply()
 	return kv
+}
+
+func (kv *KVServer) apply() {
+	for {
+		msg := <-kv.applyCh
+		command := msg.Command.(Op)
+		kv.data[command.Key] = command.Value
+		DPrintf("%d apply %d", kv.me, command)
+	}
 }
