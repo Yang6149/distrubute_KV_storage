@@ -11,7 +11,7 @@ import (
 	"../raft"
 )
 
-const Debug = 0
+const Debug = 1
 
 func DPrintf(format string, a ...interface{}) (n int, err error) {
 	if Debug > 0 {
@@ -49,9 +49,11 @@ func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
 	_, isLeader := kv.rf.GetState()
 	if isLeader {
 		key := args.Key
-		value := kv.data[key]
+		kv.mu.Lock()
+		value, ok := kv.data[key]
+		kv.mu.Unlock()
 		reply.Value = value
-		if _, ok := kv.data[key]; !ok {
+		if !ok {
 			reply.Err = ErrNoKey
 			return
 		}
@@ -63,8 +65,10 @@ func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
 
 func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	//处理重复put
+	kv.mu.Lock()
 	if res, ok := kv.dup[args.ClientId]; ok && res >= args.SerialID {
 		reply.Err = OK
+		kv.mu.Unlock()
 		return
 	}
 	//handle args
@@ -76,18 +80,18 @@ func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	}
 	command := Op{key, value, args.ClientId, args.SerialID}
 	//send command
-	kv.mu.Lock()
 	index, _, isLeader := kv.rf.Start(command)
 	if !isLeader {
 		reply.Err = ErrWrongLeader
 		kv.mu.Unlock()
 		return
 	}
-	kv.apps[index] = make(chan Op, 1)
+	ch := make(chan Op, 1)
+	kv.apps[index] = ch
 	kv.mu.Unlock()
 	//等待返回数据
 	select {
-	case command := <-kv.apps[index]:
+	case command := <-ch:
 
 		DPrintf("%d apply %d", kv.me, command)
 		reply.Err = OK
@@ -162,10 +166,12 @@ func (kv *KVServer) apply() {
 		if msg.CommandValid {
 			command := msg.Command.(Op)
 			index := msg.CommandIndex
+			kv.mu.Lock()
 			DPrintf("%d transBack %d", kv.me, command)
 			kv.data[command.Key] = command.Value
 			kv.dup[command.ClientId] = command.SerialId
 			res, ok := kv.apps[index]
+			kv.mu.Unlock()
 			if ok {
 				res <- command
 			}

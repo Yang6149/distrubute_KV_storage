@@ -11,8 +11,8 @@ fi
 for ((i=0;i<$1;i++))
 do
     echo $i
-	go test -race -run TestBasic3A
-    #go test -race -run TestConcurrent3A
+	#go test -race -run TestBasic3A
+    go test -race -run TestConcurrent3A
     #go test -race -run TestUnreliable3A
     #go test -race -run TestUnreliableOneKey3A
     #go test -race -run TestOnePartition3A
@@ -23,7 +23,6 @@ do
     #go test -race -run TestPersistPartition3A
     #go test -race -run TestPersistPartitionUnreliable3A
     #go test -race -run TestPersistPartitionUnreliableLinearizable3A
-	time go test 
 	#cat logfile.log > temp/$i
 	#rm logfile.log
 done
