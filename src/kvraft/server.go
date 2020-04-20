@@ -24,6 +24,7 @@ type Op struct {
 	// Your definitions here.
 	// Field names must start with capital letters,
 	// otherwise RPC will break.
+	Type     string
 	Key      string
 	Value    string
 	ClientId int64
@@ -48,59 +49,57 @@ type KVServer struct {
 func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
 	_, isLeader := kv.rf.GetState()
 	if isLeader {
-		key := args.Key
-		kv.mu.Lock()
-		value, ok := kv.data[key]
-		kv.mu.Unlock()
-		reply.Value = value
-		if !ok {
-			reply.Err = ErrNoKey
-			return
-		}
-		reply.Err = OK
-	} else {
-		reply.Err = ErrWrongLeader
+		op := Op{"Get", args.Key, "", args.ClientId, args.SerialId}
+		reply.Value, reply.Err = kv.start(op)
 	}
 }
 
 func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
-	//处理重复put
-	kv.mu.Lock()
-	if res, ok := kv.dup[args.ClientId]; ok && res >= args.SerialID {
-		reply.Err = OK
-		kv.mu.Unlock()
+	_, isLeader := kv.rf.GetState()
+	if isLeader {
+		op := Op{args.Op, args.Key, args.Value, args.ClientId, args.SerialId}
+		_, Err := kv.start(op)
+		reply.Err = Err
 		return
-	}
-	//handle args
-	key := args.Key
-	value := args.Value
-	op := args.Op
-	if op == "Append" {
-		value = kv.data[key] + value
-	}
-	command := Op{key, value, args.ClientId, args.SerialID}
-	//send command
-	index, _, isLeader := kv.rf.Start(command)
-	if !isLeader {
+	} else {
 		reply.Err = ErrWrongLeader
-		kv.mu.Unlock()
 		return
+	}
+
+}
+
+func (kv *KVServer) start(op Op) (string, Err) {
+	kv.mu.Lock()
+	DPrintf("", op)
+	//检查put重复或是否直接返回get
+	if res, ok := kv.dup[op.ClientId]; ok && res >= op.SerialId {
+		if op.Type == "Get" {
+			defer kv.mu.Unlock()
+			return kv.data[op.Key], OK
+		}
+	}
+	index, _, isLeader := kv.rf.Start(op)
+	if !isLeader {
+		defer kv.mu.Unlock()
+		return "", ErrWrongLeader
 	}
 	ch := make(chan Op, 1)
 	kv.apps[index] = ch
 	kv.mu.Unlock()
-	//等待返回数据
 	select {
-	case command := <-ch:
+	case oop := <-ch:
+		//返回成功
+		if op.ClientId == oop.ClientId && op.SerialId == oop.SerialId {
+			DPrintf("return op ", oop)
+			res := oop.Value
+			return res, OK
+		} else {
+			return "", ErrWrongLeader
+		}
 
-		DPrintf("%d apply %d", kv.me, command)
-		reply.Err = OK
-		DPrintf("insert a command %d", command)
 	case <-time.After(500 * time.Millisecond):
-		reply.Err = ErrTimeOut
+		return "", ErrTimeOut
 	}
-
-	// Your code here.
 }
 
 //s
@@ -161,20 +160,45 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 
 func (kv *KVServer) apply() {
 	for {
+		kv.mu.Lock()
+		st := kv.killed()
+		kv.mu.Unlock()
+		if st {
+			return
+		}
 		msg := <-kv.applyCh
 		//msg.CommandValid is true,otherwise the command is snapshot
 		if msg.CommandValid {
-			command := msg.Command.(Op)
-			index := msg.CommandIndex
 			kv.mu.Lock()
-			DPrintf("%d transBack %d", kv.me, command)
-			kv.data[command.Key] = command.Value
-			kv.dup[command.ClientId] = command.SerialId
-			res, ok := kv.apps[index]
-			kv.mu.Unlock()
-			if ok {
-				res <- command
+			op := msg.Command.(Op)
+			//判断是否重复指令
+			if res, ok := kv.dup[op.ClientId]; !ok || (ok && op.SerialId > res) {
+				switch op.Type {
+				case "Put":
+					kv.data[op.Key] = op.Value
+				case "Append":
+					kv.data[op.Key] = kv.data[op.Key] + op.Value
+					DPrintf("append %d res is ", op.Value, kv.data[op.Key])
+				}
+				kv.dup[op.ClientId] = op.SerialId
+			} else {
+				DPrintf("重复指令")
 			}
+			if op.Type == "Get" {
+				op.Value = kv.data[op.Key]
+			}
+			ch, ok := kv.apps[msg.CommandIndex]
+			if ok {
+				ch <- op
+			}
+			kv.mu.Unlock()
 		}
 	}
+}
+
+func (kv *KVServer) CheckSame(c1 Op, c2 Op) bool {
+	if c1.ClientId == c2.ClientId && c1.SerialId == c2.SerialId {
+		return true
+	}
+	return false
 }

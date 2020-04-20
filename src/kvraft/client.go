@@ -48,6 +48,8 @@ func MakeClerk(servers []*labrpc.ClientEnd) *Clerk {
 func (ck *Clerk) Get(key string) string {
 	args := GetArgs{}
 	args.Key = key
+	args.ClientId = ck.me
+	args.SerialId = ck.serial
 	num := len(ck.servers)
 	i := ck.leader
 	for {
@@ -68,7 +70,6 @@ func (ck *Clerk) Get(key string) string {
 		i = i % num
 		time.Sleep(200 * time.Millisecond)
 	}
-	return ""
 }
 
 //
@@ -90,7 +91,7 @@ func (ck *Clerk) PutAppend(key string, value string, op string) {
 	ck.serial++
 
 	args := PutAppendArgs{}
-	args.SerialID = ck.serial
+	args.SerialId = ck.serial
 	args.ClientId = ck.me
 	args.Key = key
 	args.Value = value
