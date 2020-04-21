@@ -49,6 +49,7 @@ func (ck *Clerk) Get(key string) string {
 	args := GetArgs{}
 	args.Key = key
 	args.ClientId = ck.me
+	ck.serial++
 	args.SerialId = ck.serial
 	num := len(ck.servers)
 	i := ck.leader
