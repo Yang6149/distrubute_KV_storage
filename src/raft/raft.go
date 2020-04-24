@@ -73,6 +73,9 @@ type Raft struct {
 	sendApply       chan int
 	heartBeatchs    []HBchs
 	// Your data here (2A, 2B, 2C).-------------------------------------
+	//3B
+	lastIncludedIndex int
+	lastIncludedTerm  int
 }
 
 // GetState get command .
@@ -171,9 +174,20 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 		entry := Entry{Term: rf.currentTerm, Command: command}
 		rf.log = append(rf.log, entry) //向log 中加入client 最新的request
 		rf.persist()
-		return len(rf.log) - 1, rf.currentTerm, true
+		DPrintf("%d add a command:%d", rf.me, command)
+		return rf.logLen() - 1, rf.currentTerm, true
 
 	}
+}
+
+func (rf *Raft) Discard(index int) {
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+	term := rf.logTerm(index)
+	rf.logDiscard(index)
+	rf.lastIncludedIndex = index
+	rf.lastIncludedTerm = term
+	rf.persist()
 }
 
 //
@@ -221,6 +235,9 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.log[0] = Entry{Term: rf.currentTerm}
 	rf.sendApply = make(chan int, 1000)
 	rf.heartBeatchs = make([]HBchs, len(rf.peers))
+	//3B
+	rf.lastIncludedIndex = -1
+	rf.lastIncludedTerm = 0
 	for i := range rf.heartBeatchs {
 		rf.heartBeatchs[i].c = make(chan int, 10)
 	}
@@ -303,18 +320,35 @@ func (rf *Raft) apply() {
 		case index := <-rf.sendApply:
 			for i := rf.lastApplied + 1; i <= index; i++ {
 				rf.mu.Lock()
-				command := rf.log[i].Command
+				if i <= rf.lastIncludedIndex {
+					DPrintf("%d已经接受snapshot，continue", rf.me)
+					rf.mu.Unlock()
+					continue
+				}
+				command := rf.logGet(i).Command
 				rf.mu.Unlock()
 				msg := ApplyMsg{
 					CommandValid: true,
 					Command:      command,
 					CommandIndex: i,
 				}
-				
 
 				rf.applyCh <- msg
 				rf.lastApplied = i
 			}
 		}
 	}
+}
+
+//3B
+func (rf *Raft) GetStateSize() int {
+	return rf.persister.RaftStateSize()
+}
+
+func (rf *Raft) SaveSnapshot(snapshots []byte) {
+	state := rf.persister.ReadRaftState()
+	rf.persister.SaveStateAndSnapshot(state, snapshots)
+}
+func (rf *Raft) GetSnapshots() []byte {
+	return rf.persister.ReadSnapshot()
 }

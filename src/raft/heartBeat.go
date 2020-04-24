@@ -23,7 +23,13 @@ func (rf *Raft) sendAppendEntry(i int) {
 		rf.mu.Unlock()
 		return
 	}
-
+	if rf.nextIndex[i] <= rf.lastIncludedIndex {
+		//发送 snapshot
+		defer rf.mu.Unlock()
+		DPrintf("%d 发送snapshot,rf.nexi[%d] is %d ,rf.lastIncludedIndex is %d", rf.me, i, rf.nextIndex[i], rf.lastIncludedIndex)
+		go rf.sendInstallSnapshot(i)
+		return
+	}
 	//初始化 append args
 	// DPrintf("%d:%d的nextIndex %d", rf.me, i, rf.nextIndex[i])
 	// DPrintf("%d 的len log %d ", rf.me, len(rf.log))
@@ -31,12 +37,12 @@ func (rf *Raft) sendAppendEntry(i int) {
 		Term:         rf.currentTerm,
 		LeaderId:     rf.me,
 		PreLogIndex:  rf.nextIndex[i] - 1,
-		PreLogTerm:   rf.log[rf.nextIndex[i]-1].Term,
+		PreLogTerm:   rf.logTerm(rf.nextIndex[i] - 1),
 		LeaderCommit: rf.commitIndex,
 		Entries:      make([]Entry, 0),
 	}
-	args.Entries = rf.log[rf.nextIndex[i]:min(len(rf.log), rf.nextIndex[i]+50)]
-
+	args.Entries = rf.logGets(rf.nextIndex[i], min(rf.logLen(), rf.nextIndex[i]+50))
+	DPrintf("%d ：发送给%d agrs %d", rf.me, i, args)
 	reply := &AppendEntriesReply{}
 	yourLastMatchIndex := rf.matchIndex[i]
 	rf.mu.Unlock()
@@ -56,7 +62,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 					rf.matchIndex[i] = reply.MatchIndex
 
 					//1. check MatchIndex
-					if rf.log[reply.MatchIndex].Term == rf.currentTerm && rf.commitIndex < reply.MatchIndex && reply.MatchIndex > myLastMatch {
+					if rf.logTerm(reply.MatchIndex) == rf.currentTerm && rf.commitIndex < reply.MatchIndex && reply.MatchIndex > myLastMatch {
 						//检测match数量，大于一大半就commit
 						matchNum := 1
 						for m := range rf.matchIndex {
@@ -90,7 +96,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 					} else if reply.TargetTerm != 0 {
 						index := reply.TargetIndex
 						for a := index; a >= 0; a-- {
-							if rf.log[a].Term <= reply.TargetTerm {
+							if rf.logGet(a).Term <= reply.TargetTerm {
 								rf.nextIndex[i] = a + 1
 								break
 							}
@@ -142,5 +148,35 @@ func (rf *Raft) heartBeatInit() {
 			continue
 		}
 		go rf.heartBeatForN(i)
+	}
+}
+
+func (rf *Raft) sendInstallSnapshot(i int) {
+	rf.mu.Lock()
+	if rf.state != leader {
+		rf.mu.Unlock()
+		return
+	}
+	args := &InstallSnapshotsArgs{}
+	reply := &InstallSnapshotsReply{}
+	args.Term = rf.currentTerm
+	args.LeaderId = rf.me
+	args.LastIncludedIndex = rf.lastIncludedIndex
+	args.LastIncludedTerm = rf.lastIncludedTerm
+	args.Data = rf.persister.ReadSnapshot()
+	rf.mu.Unlock()
+	ok := rf.sendInstallSnapshots(i, args, reply)
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+	if reply.Term > rf.currentTerm {
+		DPrintf("%d :leader 在 snapshot 中发现更大的 Term", rf.me)
+		rf.currentTerm = reply.Term
+		rf.persist()
+		rf.findBiggerChan <- 1
+		rf.convert(follower)
+	}
+	if ok && reply.Success && args.Term == rf.currentTerm {
+		DPrintf("%d : next[%d] %d->%d", rf.me, i, rf.nextIndex[i], reply.Term+1)
+		rf.nextIndex[i] = reply.MatchIndex + 1
 	}
 }

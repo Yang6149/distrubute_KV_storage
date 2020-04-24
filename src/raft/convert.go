@@ -8,15 +8,15 @@ func (rf *Raft) convert(state int) {
 	switch state {
 	case follower:
 		//rf.chanReset()
-		//DPrintf("%d 转变为 follower", rf.me)
+		DPrintf("%d 转变为 follower", rf.me)
 		rf.voteFor = -1
 	case candidate:
 		//rf.chanReset()
-		//DPrintf("%d 转变为 candidate", rf.me)
+		DPrintf("%d 转变为 candidate", rf.me)
 		rf.voteFor = rf.me
 	case leader:
 		//rf.chanReset()
-		//DPrintf("%d 转变为 leader", rf.me)
+		DPrintf("%d 转变为 leader", rf.me)
 		//初始化 每个follower 的HBchs
 		//初始化 leader 的nextIndex
 		rf.nextIndex = make([]int, len(rf.peers))

@@ -1,6 +1,7 @@
 package kvraft
 
 import (
+	"bytes"
 	"log"
 	"sync"
 	"sync/atomic"
@@ -11,7 +12,7 @@ import (
 	"../raft"
 )
 
-const Debug = 0
+const Debug = 1
 
 func DPrintf(format string, a ...interface{}) (n int, err error) {
 	if Debug > 0 {
@@ -70,7 +71,7 @@ func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 
 func (kv *KVServer) start(op Op) (string, Err) {
 	kv.mu.Lock()
-	DPrintf("", op)
+	DPrintf("%d start %d", kv.me, op)
 	//检查put重复或是否直接返回get
 	if res, ok := kv.dup[op.ClientId]; ok && res >= op.SerialId {
 		if op.Type == "Get" {
@@ -94,10 +95,12 @@ func (kv *KVServer) start(op Op) (string, Err) {
 			res := oop.Value
 			return res, OK
 		} else {
+			DPrintf("%d :wrongleader", kv.me)
 			return "", ErrWrongLeader
 		}
 
 	case <-time.After(500 * time.Millisecond):
+		DPrintf("%d :start timeout", kv.me)
 		return "", ErrTimeOut
 	}
 }
@@ -152,6 +155,8 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 	kv.rf = raft.Make(servers, me, persister, kv.applyCh)
 	kv.apps = make(map[int]chan Op)
 	kv.dup = make(map[int64]int)
+	kv.maxraftstate = maxraftstate
+	kv.LoadSnapshot(kv.rf.GetSnapshots())
 	DPrintf("%d :init finished", kv.me)
 	// You may need initialization code here.
 	go kv.apply()
@@ -191,14 +196,54 @@ func (kv *KVServer) apply() {
 			if ok {
 				ch <- op
 			}
+
+			// 判断是否达到max
+			kv.checkMaxState(msg.CommandIndex)
 			kv.mu.Unlock()
+		}else{
+			
+			
 		}
 	}
 }
 
-func (kv *KVServer) CheckSame(c1 Op, c2 Op) bool {
-	if c1.ClientId == c2.ClientId && c1.SerialId == c2.SerialId {
-		return true
+func (kv *KVServer) checkMaxState(commitIndex int) {
+	if kv.maxraftstate == -1 {
+		return
 	}
-	return false
+	if kv.maxraftstate*9/10 > kv.rf.GetStateSize() {
+		return
+	}
+	kv.SnapshotPersister(commitIndex - 1)
+}
+func (kv *KVServer) encodeSnapshot() []byte {
+	w := new(bytes.Buffer)
+	e := labgob.NewEncoder(w)
+	e.Encode(kv.data)
+	e.Encode(kv.dup)
+	snapshot := w.Bytes()
+	return snapshot
+}
+
+func (kv *KVServer) SnapshotPersister(index int) {
+	kv.rf.SaveSnapshot(kv.encodeSnapshot())
+	kv.rf.Discard(index)
+}
+
+func (kv *KVServer) LoadSnapshot(snapshot []byte) {
+	if snapshot == nil || len(snapshot) < 1 { // bootstrap without any state?
+		return
+	}
+	r := bytes.NewBuffer(snapshot)
+	d := labgob.NewDecoder(r)
+	var data map[string]string
+	var dup map[int64]int
+	if d.Decode(&data) != nil ||
+		d.Decode(&dup) != nil {
+	} else {
+		kv.mu.Lock()
+		defer kv.mu.Unlock()
+		kv.data = data
+		kv.dup = dup
+	}
 }
