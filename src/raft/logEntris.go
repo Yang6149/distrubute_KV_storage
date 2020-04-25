@@ -1,7 +1,5 @@
 package raft
 
-import "fmt"
-
 type Entry struct {
 	Command interface{}
 	Term    int
@@ -28,7 +26,7 @@ func (rf *Raft) logTerm(index int) int {
 	if index == rf.lastIncludedIndex {
 		return rf.lastIncludedTerm
 	}
-	fmt.Println(index, index-rf.lastIncludedIndex-1, len(rf.log))
+	DPrintf("%d ", index-rf.lastIncludedIndex-1)
 	return rf.log[index-rf.lastIncludedIndex-1].Term
 }
 

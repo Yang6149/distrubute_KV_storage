@@ -17,8 +17,8 @@ func (rf *Raft) election() {
 		args := &RequestVoteArgs{
 			CandidateId:  rf.me,
 			Term:         rf.currentTerm,
-			LastLogIndex: len(rf.log) - 1,
-			LastLogTerm:  rf.log[len(rf.log)-1].Term,
+			LastLogIndex: rf.logLen() - 1,
+			LastLogTerm:  rf.logTerm(rf.logLen() - 1),
 		}
 		reply := &RequestVoteReply{}
 		go func(i int) {

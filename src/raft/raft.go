@@ -72,6 +72,7 @@ type Raft struct {
 	applyCh         chan ApplyMsg
 	sendApply       chan int
 	heartBeatchs    []HBchs
+	SnapshotF       chan int
 	// Your data here (2A, 2B, 2C).-------------------------------------
 	//3B
 	lastIncludedIndex int
@@ -183,6 +184,10 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 func (rf *Raft) Discard(index int) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
+	if index+1 >= rf.logLen() {
+		rf.log = make([]Entry, 0)
+		return
+	}
 	term := rf.logTerm(index)
 	rf.logDiscard(index)
 	rf.lastIncludedIndex = index

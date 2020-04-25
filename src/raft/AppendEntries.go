@@ -106,15 +106,29 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 }
 
 func (rf *Raft) InstallSnapshots(args *InstallSnapshotsArgs, reply *InstallSnapshotsReply) {
+	DPrintf("%d unlock接受 snap", rf.me)
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
 	//follower 接收到 snapshot 进行处理
-	if rf.lastIncludedIndex >= args.LastIncludedIndex || rf.currentTerm > args.Term {
+	if max(rf.lastIncludedIndex, rf.commitIndex) >= args.LastIncludedIndex || rf.currentTerm > args.Term {
+		DPrintf("%d mu接受 snap", rf.me)
 		reply.Success = false
 		reply.Term = rf.currentTerm
 	}
+	DPrintf("%d 接受 snap", rf.me)
 	rf.appendChan <- 1
-	rf.SaveSnapshot(args.Data)
+	DPrintf("%d 111", rf.me)
+	rf.SnapshotF = make(chan int, 1)
+	msg := ApplyMsg{false, args.Data, args.LastIncludedIndex}
+	rf.mu.Unlock()
+	rf.applyCh <- msg
+	DPrintf("%d 222", rf.me)
+	a := <-rf.SnapshotF
+	rf.mu.Lock()
+	if a == -1 {
+		return
+	}
+	DPrintf("%d 333", rf.me)
 	rf.lastIncludedIndex = args.LastIncludedIndex
 	rf.lastIncludedTerm = args.LastIncludedTerm
 	rf.commitIndex = max(rf.lastIncludedIndex, rf.commitIndex)
