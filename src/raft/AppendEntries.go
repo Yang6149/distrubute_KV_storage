@@ -57,7 +57,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 			reply.Success = false
 			index := args.PreLogIndex - 1
 			for a := index; a >= 0; a-- {
-				if rf.logTerm(a) <= args.PreLogTerm {
+				if a > rf.lastIncludedIndex && rf.logTerm(a) <= args.PreLogTerm {
 					reply.TargetIndex = a
 					reply.TargetTerm = rf.logTerm(a)
 					break
