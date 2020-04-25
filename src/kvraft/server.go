@@ -42,6 +42,8 @@ type KVServer struct {
 	apps    map[int]chan Op
 	dup     map[int64]int
 
+	lastIncludedIndex int
+
 	maxraftstate int // snapshot if log grows this big
 
 	// Your definitions here.
@@ -200,9 +202,19 @@ func (kv *KVServer) apply() {
 			// 判断是否达到max
 			kv.checkMaxState(msg.CommandIndex)
 			kv.mu.Unlock()
-		}else{
-			
-			
+		} else {
+			DPrintf("server 0000")
+			data := msg.Command.([]byte)
+			index := msg.CommandIndex
+			if index <= kv.lastIncludedIndex {
+				kv.rf.SnapshotF <- -1
+			}
+			kv.LoadSnapshot(data)
+			kv.SnapshotPersister(index)
+			kv.lastIncludedIndex = index
+			DPrintf("server 111")
+			kv.rf.SnapshotF <- 1
+			DPrintf("server 111")
 		}
 	}
 }
