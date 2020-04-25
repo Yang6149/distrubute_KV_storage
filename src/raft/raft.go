@@ -113,6 +113,8 @@ func (rf *Raft) persist() {
 	e.Encode(rf.currentTerm)
 	e.Encode(rf.voteFor)
 	e.Encode(rf.log)
+	e.Encode(rf.lastIncludedIndex)
+	e.Encode(rf.commitIndex)
 	data := w.Bytes()
 	rf.persister.SaveRaftState(data)
 }
@@ -142,13 +144,19 @@ func (rf *Raft) readPersist(data []byte) {
 	var currentTerm int
 	var voteFor int
 	var log []Entry
+	var lastIncludedIndex int
+	var commitIndex int
 	if d.Decode(&currentTerm) != nil ||
 		d.Decode(&voteFor) != nil ||
-		d.Decode(&log) != nil {
+		d.Decode(&log) != nil ||
+		d.Decode(&lastIncludedIndex) != nil ||
+		d.Decode(&commitIndex) != nil {
 	} else {
 		rf.currentTerm = currentTerm
 		rf.voteFor = voteFor
 		rf.log = log
+		rf.lastIncludedIndex = lastIncludedIndex
+		rf.commitIndex = commitIndex
 	}
 }
 
@@ -196,11 +204,14 @@ func (rf *Raft) Discard(index int) {
 	if index+1 >= rf.logLen() {
 		rf.log = make([]Entry, 0)
 		rf.lastIncludedIndex = index
+		rf.commitIndex = max(rf.commitIndex, rf.lastIncludedIndex)
+		rf.persist()
 		return
 	}
 	//term := rf.logTerm(index)
 	rf.logDiscard(index)
 	rf.lastIncludedIndex = index
+	rf.commitIndex = max(rf.commitIndex, rf.lastIncludedIndex)
 	//rf.lastIncludedTerm = term
 	rf.persist()
 }

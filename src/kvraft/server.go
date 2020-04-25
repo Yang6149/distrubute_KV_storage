@@ -12,7 +12,7 @@ import (
 	"../raft"
 )
 
-const Debug = 1
+const Debug = 0
 
 func DPrintf(format string, a ...interface{}) (n int, err error) {
 	if Debug > 0 {
@@ -239,6 +239,7 @@ func (kv *KVServer) encodeSnapshot() []byte {
 	e := labgob.NewEncoder(w)
 	e.Encode(kv.data)
 	e.Encode(kv.dup)
+	e.Encode(kv.lastIncludedIndex)
 	snapshot := w.Bytes()
 	return snapshot
 }
@@ -257,13 +258,16 @@ func (kv *KVServer) LoadSnapshot(snapshot []byte) {
 	d := labgob.NewDecoder(r)
 	var data map[string]string
 	var dup map[int64]int
+	var lastIncludedIndex int
 	if d.Decode(&data) != nil ||
-		d.Decode(&dup) != nil {
+		d.Decode(&dup) != nil ||
+		d.Decode(&lastIncludedIndex) != nil {
 	} else {
 		kv.mu.Lock()
 		defer kv.mu.Unlock()
 		DPrintf("load 之前：%d:之后：%d", kv.data, data)
 		kv.data = data
 		kv.dup = dup
+		kv.lastIncludedIndex = lastIncludedIndex
 	}
 }

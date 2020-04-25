@@ -1,6 +1,5 @@
 package raft
 
-
 type AppendEntriesArgs struct {
 	Term         int
 	LeaderId     int
@@ -132,11 +131,12 @@ func (rf *Raft) InstallSnapshots(args *InstallSnapshotsArgs, reply *InstallSnaps
 		return
 	}
 	DPrintf("%d 333", rf.me)
-	rf.lastIncludedIndex = max(args.LastIncludedIndex,rf.lastIncludedIndex)
+	rf.lastIncludedIndex = max(args.LastIncludedIndex, rf.lastIncludedIndex)
 	rf.commitIndex = max(rf.lastIncludedIndex, rf.commitIndex)
 	reply.Success = true
 	reply.MatchIndex = rf.lastIncludedIndex
 	reply.Term = rf.currentTerm
+	rf.persist()
 }
 
 func (rf *Raft) sendInstallSnapshots(server int, args *InstallSnapshotsArgs, reply *InstallSnapshotsReply) bool {
