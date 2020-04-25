@@ -177,6 +177,9 @@ func (rf *Raft) sendInstallSnapshot(i int) {
 	}
 	if ok && reply.Success && args.Term == rf.currentTerm {
 		DPrintf("%d : next[%d] %d->%d", rf.me, i, rf.nextIndex[i], reply.Term+1)
-		rf.nextIndex[i] = reply.MatchIndex + 1
+	} else {
+		DPrintf("ok : %d ,success : %d, agrs.Term: %d ,rf.curr := %d", ok, reply.Success, args.Term, rf.currentTerm)
 	}
+	rf.nextIndex[i] = max(reply.MatchIndex+1, rf.nextIndex[i])
+
 }

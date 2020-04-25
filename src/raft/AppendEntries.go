@@ -111,9 +111,11 @@ func (rf *Raft) InstallSnapshots(args *InstallSnapshotsArgs, reply *InstallSnaps
 	defer rf.mu.Unlock()
 	//follower 接收到 snapshot 进行处理
 	if max(rf.lastIncludedIndex, rf.commitIndex) >= args.LastIncludedIndex || rf.currentTerm > args.Term {
-		DPrintf("%d mu接受 snap", rf.me)
+		DPrintf("%d mu接受 snap,rf.ll:%d,rf.commit:%d,args.ll:%d", rf.me, rf.lastIncludedIndex, rf.commitIndex, args.LastIncludedIndex)
 		reply.Success = false
 		reply.Term = rf.currentTerm
+		reply.MatchIndex = max(rf.lastIncludedIndex, rf.commitIndex)
+		return
 	}
 	DPrintf("%d 接受 snap", rf.me)
 	rf.appendChan <- 1

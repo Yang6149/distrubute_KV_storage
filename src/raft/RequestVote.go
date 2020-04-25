@@ -29,7 +29,7 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	// Your code here (2A, 2B).----------------------------------------
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
-	myLastIndex := len(rf.log) - 1
+	myLastIndex := rf.logLen() - 1
 	if args.Term > rf.currentTerm {
 		//defer rf.conver(follower)
 		if rf.state != follower {
@@ -46,9 +46,8 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 		// 	reply.VoteGranted = false
 		// 	return
 		// }
-		if args.LastLogTerm >= rf.log[myLastIndex].Term { //这里出问题了，不是commit而是现在有效lastIndex 的term
-			if args.LastLogTerm > rf.log[myLastIndex].Term || args.LastLogIndex >= myLastIndex {
-				DPrintf("%d my lastIndex %d my lastTerm %d,candidate lastIndex and term %d,%d", rf.me, myLastIndex, rf.log[myLastIndex].Term, args.LastLogIndex, args.LastLogTerm)
+		if args.LastLogTerm >= rf.logTerm(myLastIndex) { //这里出问题了，不是commit而是现在有效lastIndex 的term
+			if args.LastLogTerm > rf.logTerm(myLastIndex) || args.LastLogIndex >= myLastIndex {
 				rf.voteFor = args.CandidateId
 				rf.persist()
 				DPrintf("%d qrv54", rf.me)

@@ -26,7 +26,7 @@ func (rf *Raft) logTerm(index int) int {
 	if index == rf.lastIncludedIndex {
 		return rf.lastIncludedTerm
 	}
-	DPrintf("%d ", index-rf.lastIncludedIndex-1)
+	DPrintf("%d  rf.lastIn: %d index: %d", index-rf.lastIncludedIndex-1, rf.lastIncludedIndex, index)
 	return rf.log[index-rf.lastIncludedIndex-1].Term
 }
 
