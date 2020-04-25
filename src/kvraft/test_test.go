@@ -747,11 +747,25 @@ func TestSnapshotRecoverManyClients3B(t *testing.T) {
 }
 
 func TestSnapshotUnreliable3B(t *testing.T) {
+	f, err := os.OpenFile("logfile.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("file open error : %v", err)
+	}
+	defer f.Close()
+	log.SetOutput(f)
+	DPrintf("333333333")
 	// Test: unreliable net, snapshots, many clients (3B) ...
 	GenericTest(t, "3B", 5, true, false, false, 1000)
 }
 
 func TestSnapshotUnreliableRecover3B(t *testing.T) {
+	f, err := os.OpenFile("logfile.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("file open error : %v", err)
+	}
+	defer f.Close()
+	log.SetOutput(f)
+	DPrintf("333333333")
 	// Test: unreliable net, restarts, snapshots, many clients (3B) ...
 	GenericTest(t, "3B", 5, true, true, false, 1000)
 }

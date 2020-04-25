@@ -11,8 +11,9 @@ mkdir temp
 for ((i=0;i<$1;i++))
 do
     echo $i
-    time go test  -run TestSnapshotSize3B
-	#cat logfile.log > temp/$i
-	#rm logfile.log
+	#time go test  -run TestSnapshotUnreliable3B
+    time go test  -run TestSnapshotUnreliableRecover3B
+	cat logfile.log > temp/$i
+	rm logfile.log
 done
 #rm -rf temp

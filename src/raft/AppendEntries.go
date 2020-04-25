@@ -1,6 +1,5 @@
 package raft
 
-import "fmt"
 
 type AppendEntriesArgs struct {
 	Term         int
@@ -79,7 +78,6 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 						}
 						Index++
 					}
-					fmt.Println(rf.me, "raw ", rf.lastIncludedIndex+1, Index)
 					rf.log = rf.logGets(rf.lastIncludedIndex+1, Index)
 
 					rf.persist()
@@ -134,8 +132,7 @@ func (rf *Raft) InstallSnapshots(args *InstallSnapshotsArgs, reply *InstallSnaps
 		return
 	}
 	DPrintf("%d 333", rf.me)
-	rf.lastIncludedIndex = args.LastIncludedIndex
-	rf.lastIncludedTerm = args.LastIncludedTerm
+	rf.lastIncludedIndex = max(args.LastIncludedIndex,rf.lastIncludedIndex)
 	rf.commitIndex = max(rf.lastIncludedIndex, rf.commitIndex)
 	reply.Success = true
 	reply.MatchIndex = rf.lastIncludedIndex

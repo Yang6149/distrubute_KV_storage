@@ -184,6 +184,7 @@ func (kv *KVServer) apply() {
 				case "Put":
 					kv.data[op.Key] = op.Value
 				case "Append":
+					DPrintf("append 之前是", kv.data[op.Key])
 					kv.data[op.Key] = kv.data[op.Key] + op.Value
 					DPrintf("append %d res is ", op.Value, kv.data[op.Key])
 				}
@@ -261,6 +262,7 @@ func (kv *KVServer) LoadSnapshot(snapshot []byte) {
 	} else {
 		kv.mu.Lock()
 		defer kv.mu.Unlock()
+		DPrintf("load 之前：%d:之后：%d", kv.data, data)
 		kv.data = data
 		kv.dup = dup
 	}

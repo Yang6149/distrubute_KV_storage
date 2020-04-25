@@ -2,7 +2,6 @@ package raft
 
 import (
 	"bytes"
-	"fmt"
 	"math/rand"
 	"sync"
 	"sync/atomic"
@@ -191,16 +190,18 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 func (rf *Raft) Discard(index int) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
+	if index <= rf.lastIncludedIndex {
+		return
+	}
 	if index+1 >= rf.logLen() {
-		fmt.Println(rf.me, "discardall", index)
 		rf.log = make([]Entry, 0)
 		rf.lastIncludedIndex = index
 		return
 	}
-	term := rf.logTerm(index)
+	//term := rf.logTerm(index)
 	rf.logDiscard(index)
 	rf.lastIncludedIndex = index
-	rf.lastIncludedTerm = term
+	//rf.lastIncludedTerm = term
 	rf.persist()
 }
 
@@ -253,7 +254,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.lastIncludedIndex = -1
 	rf.lastIncludedTerm = 0
 	for i := range rf.heartBeatchs {
-		rf.heartBeatchs[i].c = make(chan int, 10)
+		rf.heartBeatchs[i].c = make(chan int, 1000)
 	}
 	rf.chanReset()
 	// Your initialization code here (2A, 2B, 2C).-------------------------------

@@ -33,9 +33,7 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	if args.Term > rf.currentTerm {
 		//defer rf.conver(follower)
 		if rf.state != follower {
-			DPrintf("%d qrv36", rf.me)
 			rf.findBiggerChan <- 1
-			DPrintf("%d qrv38", rf.me)
 			rf.convert(follower)
 		}
 		rf.currentTerm = args.Term
@@ -50,9 +48,7 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 			if args.LastLogTerm > rf.logTerm(myLastIndex) || args.LastLogIndex >= myLastIndex {
 				rf.voteFor = args.CandidateId
 				rf.persist()
-				DPrintf("%d qrv54", rf.me)
 				rf.findBiggerChan <- 1
-				DPrintf("%d qrv57", rf.me)
 				DPrintf("%d votefor %d,当前 term %d", rf.me, args.CandidateId, rf.currentTerm)
 				reply.Term = args.Term
 				reply.VoteGranted = true
