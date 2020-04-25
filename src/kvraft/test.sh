@@ -23,7 +23,7 @@ do
     #go test -race -run TestPersistPartition3A
     #go test -race -run TestPersistPartitionUnreliable3A
     #go test  -run TestPersistPartitionUnreliableLinearizable3A
-    time go test  -run 3A
+    time go test  -run TestSnapshotRPC3B
 	#cat logfile.log > temp/$i
 	#rm logfile.log
 done

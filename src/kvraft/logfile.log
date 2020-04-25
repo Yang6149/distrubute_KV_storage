@@ -1,0 +1,912 @@
+2020/04/25 util.go:10: 1 转变为 candidate
+2020/04/25 util.go:10: 0  rf.lastIn: -1 index: 0
+2020/04/25 util.go:10: 0  rf.lastIn: -1 index: 0
+2020/04/25 util.go:10: 0  rf.lastIn: -1 index: 0
+2020/04/25 util.go:10: 0  rf.lastIn: -1 index: 0
+2020/04/25 util.go:10: 0  rf.lastIn: -1 index: 0
+2020/04/25 util.go:10: 2 qrv54
+2020/04/25 util.go:10: 2 qrv57
+2020/04/25 util.go:10: 0  rf.lastIn: -1 index: 0
+2020/04/25 util.go:10: 0 qrv54
+2020/04/25 util.go:10: 0 qrv57
+2020/04/25 util.go:10: 0 votefor 1,当前 term 2
+2020/04/25 util.go:10: 1 转变为 leader
+2020/04/25 util.go:10: 0  rf.lastIn: -1 index: 0
+2020/04/25 util.go:10: 1 ：发送给2 agrs &{2 1 0 1 [] 0}
+2020/04/25 util.go:10: 2 votefor 1,当前 term 2
+2020/04/25 util.go:10: 0  rf.lastIn: -1 index: 0
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 0 1 [] 0}
+2020/04/25 util.go:10: 0  rf.lastIn: -1 index: 0
+2020/04/25 util.go:10: 0  rf.lastIn: -1 index: 0
+2020/04/25 util.go:10: 0  rf.lastIn: -1 index: 0
+2020/04/25 util.go:10: 1 ：发送给2 agrs &{2 1 0 1 [] 0}
+2020/04/25 util.go:10: 0  rf.lastIn: -1 index: 0
+2020/04/25 util.go:10: 0  rf.lastIn: -1 index: 0
+2020/04/25 util.go:10: 0  rf.lastIn: -1 index: 0
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 0 1 [] 0}
+2020/04/25 util.go:10: 0  rf.lastIn: -1 index: 0
+2020/04/25 util.go:10: 0  rf.lastIn: -1 index: 0
+2020/04/25 util.go:10: 0  rf.lastIn: -1 index: 0
+2020/04/25 util.go:10: 0  rf.lastIn: -1 index: 0
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=a) %!d(string=A) 185982447826723845 1}
+2020/04/25 util.go:10: 0  rf.lastIn: -1 index: 0
+2020/04/25 util.go:10: 1 ：发送给2 agrs &{2 1 0 1 [{{%!d(string=Put) %!d(string=a) %!d(string=A) 185982447826723845 1} 2}] 0}
+2020/04/25 util.go:10: 0  rf.lastIn: -1 index: 0
+2020/04/25 util.go:10: 0  rf.lastIn: -1 index: 0
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 0 1 [{{%!d(string=Put) %!d(string=a) %!d(string=A) 185982447826723845 1} 2}] 0}
+2020/04/25 util.go:10: 0  rf.lastIn: -1 index: 0
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1 : index is 1, real is 1
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Get) %!d(string=a) %!d(string=) 185982447826723845 2}
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 1 2 [{{%!d(string=Get) %!d(string=a) %!d(string=) 185982447826723845 2} 2}] 1}
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 2  rf.lastIn: -1 index: 2
+2020/04/25 util.go:10: 1 : index is 2, real is 2
+2020/04/25 util.go:10: 0 : index is 1, real is 1
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1 ：发送给2 agrs &{2 1 1 2 [{{%!d(string=Get) %!d(string=a) %!d(string=) 185982447826723845 2} 2}] 2}
+2020/04/25 util.go:10: 2  rf.lastIn: -1 index: 2
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 2 2 [] 2}
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1 ：发送给2 agrs &{2 1 1 2 [{{%!d(string=Get) %!d(string=a) %!d(string=) 185982447826723845 2} 2}] 2}
+2020/04/25 util.go:10: 2  rf.lastIn: -1 index: 2
+2020/04/25 util.go:10: 2  rf.lastIn: -1 index: 2
+2020/04/25 util.go:10: 0 : index is 2, real is 2
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=0) %!d(string=0) 2930049565040545494 1}
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1 ：发送给2 agrs &{2 1 1 2 [{{%!d(string=Get) %!d(string=a) %!d(string=) 185982447826723845 2} 2} {{%!d(string=Put) %!d(string=0) %!d(string=0) 2930049565040545494 1} 2}] 2}
+2020/04/25 util.go:10: 2  rf.lastIn: -1 index: 2
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 2 2 [{{%!d(string=Put) %!d(string=0) %!d(string=0) 2930049565040545494 1} 2}] 2}
+2020/04/25 util.go:10: 2  rf.lastIn: -1 index: 2
+2020/04/25 util.go:10: 3  rf.lastIn: -1 index: 3
+2020/04/25 util.go:10: 1 : index is 3, real is 3
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=1) %!d(string=1) 2930049565040545494 2}
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1 ：发送给2 agrs &{2 1 1 2 [{{%!d(string=Get) %!d(string=a) %!d(string=) 185982447826723845 2} 2} {{%!d(string=Put) %!d(string=0) %!d(string=0) 2930049565040545494 1} 2} {{%!d(string=Put) %!d(string=1) %!d(string=1) 2930049565040545494 2} 2}] 3}
+2020/04/25 util.go:10: 3  rf.lastIn: -1 index: 3
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 3 2 [{{%!d(string=Put) %!d(string=1) %!d(string=1) 2930049565040545494 2} 2}] 3}
+2020/04/25 util.go:10: 3  rf.lastIn: -1 index: 3
+2020/04/25 util.go:10: 4  rf.lastIn: -1 index: 4
+2020/04/25 util.go:10: 1 : index is 4, real is 4
+2020/04/25 util.go:10: 0 : index is 3, real is 3
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=2) %!d(string=2) 2930049565040545494 3}
+2020/04/25 util.go:10: 4  rf.lastIn: -1 index: 4
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 4 2 [{{%!d(string=Put) %!d(string=2) %!d(string=2) 2930049565040545494 3} 2}] 4}
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1 ：发送给2 agrs &{2 1 1 2 [{{%!d(string=Get) %!d(string=a) %!d(string=) 185982447826723845 2} 2} {{%!d(string=Put) %!d(string=0) %!d(string=0) 2930049565040545494 1} 2} {{%!d(string=Put) %!d(string=1) %!d(string=1) 2930049565040545494 2} 2} {{%!d(string=Put) %!d(string=2) %!d(string=2) 2930049565040545494 3} 2}] 4}
+2020/04/25 util.go:10: 2 转变为 candidate
+2020/04/25 util.go:10: 4  rf.lastIn: -1 index: 4
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 5  rf.lastIn: -1 index: 5
+2020/04/25 util.go:10: 1 : index is 5, real is 5
+2020/04/25 util.go:10: 0 : index is 4, real is 4
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=3) %!d(string=3) 2930049565040545494 4}
+2020/04/25 util.go:10: 5  rf.lastIn: -1 index: 5
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 5 2 [{{%!d(string=Put) %!d(string=3) %!d(string=3) 2930049565040545494 4} 2}] 5}
+2020/04/25 util.go:10: 5  rf.lastIn: -1 index: 5
+2020/04/25 util.go:10: 6  rf.lastIn: -1 index: 6
+2020/04/25 util.go:10: 1 : index is 6, real is 6
+2020/04/25 util.go:10: 0 : index is 5, real is 5
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1 ：发送给2 agrs &{2 1 1 2 [{{%!d(string=Get) %!d(string=a) %!d(string=) 185982447826723845 2} 2} {{%!d(string=Put) %!d(string=0) %!d(string=0) 2930049565040545494 1} 2} {{%!d(string=Put) %!d(string=1) %!d(string=1) 2930049565040545494 2} 2} {{%!d(string=Put) %!d(string=2) %!d(string=2) 2930049565040545494 3} 2} {{%!d(string=Put) %!d(string=3) %!d(string=3) 2930049565040545494 4} 2}] 6}
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=4) %!d(string=4) 2930049565040545494 5}
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1 ：发送给2 agrs &{2 1 1 2 [{{%!d(string=Get) %!d(string=a) %!d(string=) 185982447826723845 2} 2} {{%!d(string=Put) %!d(string=0) %!d(string=0) 2930049565040545494 1} 2} {{%!d(string=Put) %!d(string=1) %!d(string=1) 2930049565040545494 2} 2} {{%!d(string=Put) %!d(string=2) %!d(string=2) 2930049565040545494 3} 2} {{%!d(string=Put) %!d(string=3) %!d(string=3) 2930049565040545494 4} 2} {{%!d(string=Put) %!d(string=4) %!d(string=4) 2930049565040545494 5} 2}] 6}
+2020/04/25 util.go:10: 6  rf.lastIn: -1 index: 6
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 6 2 [{{%!d(string=Put) %!d(string=4) %!d(string=4) 2930049565040545494 5} 2}] 6}
+2020/04/25 util.go:10: 6  rf.lastIn: -1 index: 6
+2020/04/25 util.go:10: 0 : index is 6, real is 6
+2020/04/25 util.go:10: 7  rf.lastIn: -1 index: 7
+2020/04/25 util.go:10: 1 : index is 7, real is 7
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=5) %!d(string=5) 2930049565040545494 6}
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 7  rf.lastIn: -1 index: 7
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 7 2 [{{%!d(string=Put) %!d(string=5) %!d(string=5) 2930049565040545494 6} 2}] 7}
+2020/04/25 util.go:10: 7  rf.lastIn: -1 index: 7
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1 ：发送给2 agrs &{2 1 1 2 [{{%!d(string=Get) %!d(string=a) %!d(string=) 185982447826723845 2} 2} {{%!d(string=Put) %!d(string=0) %!d(string=0) 2930049565040545494 1} 2} {{%!d(string=Put) %!d(string=1) %!d(string=1) 2930049565040545494 2} 2} {{%!d(string=Put) %!d(string=2) %!d(string=2) 2930049565040545494 3} 2} {{%!d(string=Put) %!d(string=3) %!d(string=3) 2930049565040545494 4} 2} {{%!d(string=Put) %!d(string=4) %!d(string=4) 2930049565040545494 5} 2} {{%!d(string=Put) %!d(string=5) %!d(string=5) 2930049565040545494 6} 2}] 7}
+2020/04/25 util.go:10: 0 : index is 7, real is 7
+2020/04/25 util.go:10: 8  rf.lastIn: -1 index: 8
+2020/04/25 util.go:10: 1 : index is 8, real is 8
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=6) %!d(string=6) 2930049565040545494 7}
+2020/04/25 util.go:10: 8  rf.lastIn: -1 index: 8
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 8 2 [{{%!d(string=Put) %!d(string=6) %!d(string=6) 2930049565040545494 7} 2}] 8}
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1 ：发送给2 agrs &{2 1 1 2 [{{%!d(string=Get) %!d(string=a) %!d(string=) 185982447826723845 2} 2} {{%!d(string=Put) %!d(string=0) %!d(string=0) 2930049565040545494 1} 2} {{%!d(string=Put) %!d(string=1) %!d(string=1) 2930049565040545494 2} 2} {{%!d(string=Put) %!d(string=2) %!d(string=2) 2930049565040545494 3} 2} {{%!d(string=Put) %!d(string=3) %!d(string=3) 2930049565040545494 4} 2} {{%!d(string=Put) %!d(string=4) %!d(string=4) 2930049565040545494 5} 2} {{%!d(string=Put) %!d(string=5) %!d(string=5) 2930049565040545494 6} 2} {{%!d(string=Put) %!d(string=6) %!d(string=6) 2930049565040545494 7} 2}] 8}
+2020/04/25 util.go:10: 8  rf.lastIn: -1 index: 8
+2020/04/25 util.go:10: 0 : index is 8, real is 8
+2020/04/25 util.go:10: 9  rf.lastIn: -1 index: 9
+2020/04/25 util.go:10: 1 : index is 9, real is 9
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=7) %!d(string=7) 2930049565040545494 8}
+2020/04/25 util.go:10: 9  rf.lastIn: -1 index: 9
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 9 2 [{{%!d(string=Put) %!d(string=7) %!d(string=7) 2930049565040545494 8} 2}] 9}
+2020/04/25 util.go:10: 9  rf.lastIn: -1 index: 9
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1 ：发送给2 agrs &{2 1 1 2 [{{%!d(string=Get) %!d(string=a) %!d(string=) 185982447826723845 2} 2} {{%!d(string=Put) %!d(string=0) %!d(string=0) 2930049565040545494 1} 2} {{%!d(string=Put) %!d(string=1) %!d(string=1) 2930049565040545494 2} 2} {{%!d(string=Put) %!d(string=2) %!d(string=2) 2930049565040545494 3} 2} {{%!d(string=Put) %!d(string=3) %!d(string=3) 2930049565040545494 4} 2} {{%!d(string=Put) %!d(string=4) %!d(string=4) 2930049565040545494 5} 2} {{%!d(string=Put) %!d(string=5) %!d(string=5) 2930049565040545494 6} 2} {{%!d(string=Put) %!d(string=6) %!d(string=6) 2930049565040545494 7} 2} {{%!d(string=Put) %!d(string=7) %!d(string=7) 2930049565040545494 8} 2}] 9}
+2020/04/25 util.go:10: 0 : index is 9, real is 9
+2020/04/25 util.go:10: 10  rf.lastIn: -1 index: 10
+2020/04/25 util.go:10: 1 : index is 10, real is 10
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=8) %!d(string=8) 2930049565040545494 9}
+2020/04/25 util.go:10: 10  rf.lastIn: -1 index: 10
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 10 2 [{{%!d(string=Put) %!d(string=8) %!d(string=8) 2930049565040545494 9} 2}] 10}
+2020/04/25 util.go:10: 10  rf.lastIn: -1 index: 10
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 0 : index is 10, real is 10
+2020/04/25 util.go:10: 1 ：发送给2 agrs &{2 1 1 2 [{{%!d(string=Get) %!d(string=a) %!d(string=) 185982447826723845 2} 2} {{%!d(string=Put) %!d(string=0) %!d(string=0) 2930049565040545494 1} 2} {{%!d(string=Put) %!d(string=1) %!d(string=1) 2930049565040545494 2} 2} {{%!d(string=Put) %!d(string=2) %!d(string=2) 2930049565040545494 3} 2} {{%!d(string=Put) %!d(string=3) %!d(string=3) 2930049565040545494 4} 2} {{%!d(string=Put) %!d(string=4) %!d(string=4) 2930049565040545494 5} 2} {{%!d(string=Put) %!d(string=5) %!d(string=5) 2930049565040545494 6} 2} {{%!d(string=Put) %!d(string=6) %!d(string=6) 2930049565040545494 7} 2} {{%!d(string=Put) %!d(string=7) %!d(string=7) 2930049565040545494 8} 2} {{%!d(string=Put) %!d(string=8) %!d(string=8) 2930049565040545494 9} 2}] 10}
+2020/04/25 util.go:10: 9  rf.lastIn: -1 index: 9
+2020/04/25 util.go:10: 11  rf.lastIn: -1 index: 11
+2020/04/25 util.go:10: 1 : index is 11, real is 11
+2020/04/25 util.go:10: 10  rf.lastIn: -1 index: 10
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=9) %!d(string=9) 2930049565040545494 10}
+2020/04/25 util.go:10: 0  rf.lastIn: 10 index: 11
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 11 2 [{{%!d(string=Put) %!d(string=9) %!d(string=9) 2930049565040545494 10} 2}] 11}
+2020/04/25 util.go:10: 1  rf.lastIn: 9 index: 11
+2020/04/25 util.go:10: 1  rf.lastIn: 10 index: 12
+2020/04/25 util.go:10: 1 : index is 12, real is 1
+2020/04/25 util.go:10: 0 : index is 11, real is 1
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 10
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=10) %!d(string=10) 2930049565040545494 11}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 10
+2020/04/25 util.go:10: 1  rf.lastIn: 10 index: 12
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 12 2 [{{%!d(string=Put) %!d(string=10) %!d(string=10) 2930049565040545494 11} 2}] 12}
+2020/04/25 util.go:10: 2  rf.lastIn: 9 index: 12
+2020/04/25 util.go:10: 0 : index is 12, real is 2
+2020/04/25 util.go:10: 2  rf.lastIn: 10 index: 13
+2020/04/25 util.go:10: 1 : index is 13, real is 2
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=11) %!d(string=11) 2930049565040545494 12}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 10
+2020/04/25 util.go:10: 2  rf.lastIn: 10 index: 13
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 13 2 [{{%!d(string=Put) %!d(string=11) %!d(string=11) 2930049565040545494 12} 2}] 13}
+2020/04/25 util.go:10: 3  rf.lastIn: 9 index: 13
+2020/04/25 util.go:10: 3  rf.lastIn: 10 index: 14
+2020/04/25 util.go:10: 1 : index is 14, real is 3
+2020/04/25 util.go:10: 0 : index is 13, real is 3
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=12) %!d(string=12) 2930049565040545494 13}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 3  rf.lastIn: 10 index: 14
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 14 2 [{{%!d(string=Put) %!d(string=12) %!d(string=12) 2930049565040545494 13} 2}] 14}
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 10
+2020/04/25 util.go:10: 4  rf.lastIn: 9 index: 14
+2020/04/25 util.go:10: 4  rf.lastIn: 10 index: 15
+2020/04/25 util.go:10: 1 : index is 15, real is 4
+2020/04/25 util.go:10: 0 : index is 14, real is 4
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=13) %!d(string=13) 2930049565040545494 14}
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 10
+2020/04/25 util.go:10: 4  rf.lastIn: 10 index: 15
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 15 2 [{{%!d(string=Put) %!d(string=13) %!d(string=13) 2930049565040545494 14} 2}] 15}
+2020/04/25 util.go:10: 5  rf.lastIn: 9 index: 15
+2020/04/25 util.go:10: 5  rf.lastIn: 10 index: 16
+2020/04/25 util.go:10: 1 : index is 16, real is 5
+2020/04/25 util.go:10: 0 : index is 15, real is 5
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=14) %!d(string=14) 2930049565040545494 15}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 10
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 5  rf.lastIn: 10 index: 16
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 16 2 [{{%!d(string=Put) %!d(string=14) %!d(string=14) 2930049565040545494 15} 2}] 16}
+2020/04/25 util.go:10: 6  rf.lastIn: 9 index: 16
+2020/04/25 util.go:10: 0 : index is 16, real is 6
+2020/04/25 util.go:10: 6  rf.lastIn: 10 index: 17
+2020/04/25 util.go:10: 1 : index is 17, real is 6
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=15) %!d(string=15) 2930049565040545494 16}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 10
+2020/04/25 util.go:10: 6  rf.lastIn: 10 index: 17
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 17 2 [{{%!d(string=Put) %!d(string=15) %!d(string=15) 2930049565040545494 16} 2}] 17}
+2020/04/25 util.go:10: 7  rf.lastIn: 9 index: 17
+2020/04/25 util.go:10: 7  rf.lastIn: 10 index: 18
+2020/04/25 util.go:10: 1 : index is 18, real is 7
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=16) %!d(string=16) 2930049565040545494 17}
+2020/04/25 util.go:10: 0 : index is 17, real is 7
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 10
+2020/04/25 util.go:10: 7  rf.lastIn: 10 index: 18
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 18 2 [{{%!d(string=Put) %!d(string=16) %!d(string=16) 2930049565040545494 17} 2}] 18}
+2020/04/25 util.go:10: 8  rf.lastIn: 9 index: 18
+2020/04/25 util.go:10: 8  rf.lastIn: 10 index: 19
+2020/04/25 util.go:10: 1 : index is 19, real is 8
+2020/04/25 util.go:10: 0 : index is 18, real is 8
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=17) %!d(string=17) 2930049565040545494 18}
+2020/04/25 util.go:10: 7  rf.lastIn: 9 index: 17
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 10
+2020/04/25 util.go:10: 8  rf.lastIn: 10 index: 19
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 19 2 [{{%!d(string=Put) %!d(string=17) %!d(string=17) 2930049565040545494 18} 2}] 19}
+2020/04/25 util.go:10: 1  rf.lastIn: 17 index: 19
+2020/04/25 util.go:10: 9  rf.lastIn: 10 index: 20
+2020/04/25 util.go:10: 1 : index is 20, real is 9
+2020/04/25 util.go:10: 0 : index is 19, real is 1
+2020/04/25 util.go:10: 8  rf.lastIn: 10 index: 19
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=18) %!d(string=18) 2930049565040545494 19}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 0  rf.lastIn: 19 index: 20
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 20 2 [{{%!d(string=Put) %!d(string=18) %!d(string=18) 2930049565040545494 19} 2}] 20}
+2020/04/25 util.go:10: 2  rf.lastIn: 17 index: 20
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 19
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 0 : index is 20, real is 2
+2020/04/25 util.go:10: 1  rf.lastIn: 19 index: 21
+2020/04/25 util.go:10: 1 : index is 21, real is 1
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=19) %!d(string=19) 2930049565040545494 20}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1  rf.lastIn: 19 index: 21
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 21 2 [{{%!d(string=Put) %!d(string=19) %!d(string=19) 2930049565040545494 20} 2}] 21}
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 19
+2020/04/25 util.go:10: 3  rf.lastIn: 17 index: 21
+2020/04/25 util.go:10: 0 : index is 21, real is 3
+2020/04/25 util.go:10: 2  rf.lastIn: 19 index: 22
+2020/04/25 util.go:10: 1 : index is 22, real is 2
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=20) %!d(string=20) 2930049565040545494 21}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 19
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 2  rf.lastIn: 19 index: 22
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 22 2 [{{%!d(string=Put) %!d(string=20) %!d(string=20) 2930049565040545494 21} 2}] 22}
+2020/04/25 util.go:10: 4  rf.lastIn: 17 index: 22
+2020/04/25 util.go:10: 0 : index is 22, real is 4
+2020/04/25 util.go:10: 3  rf.lastIn: 19 index: 23
+2020/04/25 util.go:10: 1 : index is 23, real is 3
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=21) %!d(string=21) 2930049565040545494 22}
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 19
+2020/04/25 util.go:10: 3  rf.lastIn: 19 index: 23
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 23 2 [{{%!d(string=Put) %!d(string=21) %!d(string=21) 2930049565040545494 22} 2}] 23}
+2020/04/25 util.go:10: 5  rf.lastIn: 17 index: 23
+2020/04/25 util.go:10: 4  rf.lastIn: 19 index: 24
+2020/04/25 util.go:10: 1 : index is 24, real is 4
+2020/04/25 util.go:10: 0 : index is 23, real is 5
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=22) %!d(string=22) 2930049565040545494 23}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 19
+2020/04/25 util.go:10: 4  rf.lastIn: 19 index: 24
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 24 2 [{{%!d(string=Put) %!d(string=22) %!d(string=22) 2930049565040545494 23} 2}] 24}
+2020/04/25 util.go:10: 6  rf.lastIn: 17 index: 24
+2020/04/25 util.go:10: 5  rf.lastIn: 19 index: 25
+2020/04/25 util.go:10: 1 : index is 25, real is 5
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=23) %!d(string=23) 2930049565040545494 24}
+2020/04/25 util.go:10: 0 : index is 24, real is 6
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 19
+2020/04/25 util.go:10: 5  rf.lastIn: 19 index: 25
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 25 2 [{{%!d(string=Put) %!d(string=23) %!d(string=23) 2930049565040545494 24} 2}] 25}
+2020/04/25 util.go:10: 7  rf.lastIn: 17 index: 25
+2020/04/25 util.go:10: 6  rf.lastIn: 19 index: 26
+2020/04/25 util.go:10: 1 : index is 26, real is 6
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=24) %!d(string=24) 2930049565040545494 25}
+2020/04/25 util.go:10: 0 : index is 25, real is 7
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 6  rf.lastIn: 19 index: 26
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 26 2 [{{%!d(string=Put) %!d(string=24) %!d(string=24) 2930049565040545494 25} 2}] 26}
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 19
+2020/04/25 util.go:10: 8  rf.lastIn: 17 index: 26
+2020/04/25 util.go:10: 0 : index is 26, real is 8
+2020/04/25 util.go:10: 7  rf.lastIn: 19 index: 27
+2020/04/25 util.go:10: 7  rf.lastIn: 17 index: 25
+2020/04/25 util.go:10: 1 : index is 27, real is 7
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=25) %!d(string=25) 2930049565040545494 26}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 19
+2020/04/25 util.go:10: 7  rf.lastIn: 19 index: 27
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 27 2 [{{%!d(string=Put) %!d(string=25) %!d(string=25) 2930049565040545494 26} 2}] 27}
+2020/04/25 util.go:10: 1  rf.lastIn: 25 index: 27
+2020/04/25 util.go:10: 0 : index is 27, real is 1
+2020/04/25 util.go:10: 8  rf.lastIn: 19 index: 28
+2020/04/25 util.go:10: 1 : index is 28, real is 8
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=26) %!d(string=26) 2930049565040545494 27}
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 19
+2020/04/25 util.go:10: 8  rf.lastIn: 19 index: 28
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 28 2 [{{%!d(string=Put) %!d(string=26) %!d(string=26) 2930049565040545494 27} 2}] 28}
+2020/04/25 util.go:10: 2  rf.lastIn: 25 index: 28
+2020/04/25 util.go:10: 9  rf.lastIn: 19 index: 29
+2020/04/25 util.go:10: 1 : index is 29, real is 9
+2020/04/25 util.go:10: 8  rf.lastIn: 19 index: 28
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=27) %!d(string=27) 2930049565040545494 28}
+2020/04/25 util.go:10: 0 : index is 28, real is 2
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 0  rf.lastIn: 28 index: 29
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 29 2 [{{%!d(string=Put) %!d(string=27) %!d(string=27) 2930049565040545494 28} 2}] 29}
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 28
+2020/04/25 util.go:10: 3  rf.lastIn: 25 index: 29
+2020/04/25 util.go:10: 0 : index is 29, real is 3
+2020/04/25 util.go:10: 1  rf.lastIn: 28 index: 30
+2020/04/25 util.go:10: 1 : index is 30, real is 1
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=28) %!d(string=28) 2930049565040545494 29}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 28
+2020/04/25 util.go:10: 1  rf.lastIn: 28 index: 30
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 30 2 [{{%!d(string=Put) %!d(string=28) %!d(string=28) 2930049565040545494 29} 2}] 30}
+2020/04/25 util.go:10: 4  rf.lastIn: 25 index: 30
+2020/04/25 util.go:10: 2  rf.lastIn: 28 index: 31
+2020/04/25 util.go:10: 1 : index is 31, real is 2
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=29) %!d(string=29) 2930049565040545494 30}
+2020/04/25 util.go:10: 0 : index is 30, real is 4
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 2  rf.lastIn: 28 index: 31
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 31 2 [{{%!d(string=Put) %!d(string=29) %!d(string=29) 2930049565040545494 30} 2}] 31}
+2020/04/25 util.go:10: 5  rf.lastIn: 25 index: 31
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 28
+2020/04/25 util.go:10: 3  rf.lastIn: 28 index: 32
+2020/04/25 util.go:10: 0 : index is 31, real is 5
+2020/04/25 util.go:10: 1 : index is 32, real is 3
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=30) %!d(string=30) 2930049565040545494 31}
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 28
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 3  rf.lastIn: 28 index: 32
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 32 2 [{{%!d(string=Put) %!d(string=30) %!d(string=30) 2930049565040545494 31} 2}] 32}
+2020/04/25 util.go:10: 6  rf.lastIn: 25 index: 32
+2020/04/25 util.go:10: 4  rf.lastIn: 28 index: 33
+2020/04/25 util.go:10: 1 : index is 33, real is 4
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=31) %!d(string=31) 2930049565040545494 32}
+2020/04/25 util.go:10: 0 : index is 32, real is 6
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 28
+2020/04/25 util.go:10: 4  rf.lastIn: 28 index: 33
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 33 2 [{{%!d(string=Put) %!d(string=31) %!d(string=31) 2930049565040545494 32} 2}] 33}
+2020/04/25 util.go:10: 7  rf.lastIn: 25 index: 33
+2020/04/25 util.go:10: 5  rf.lastIn: 28 index: 34
+2020/04/25 util.go:10: 1 : index is 34, real is 5
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=32) %!d(string=32) 2930049565040545494 33}
+2020/04/25 util.go:10: 0 : index is 33, real is 7
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 5  rf.lastIn: 28 index: 34
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 34 2 [{{%!d(string=Put) %!d(string=32) %!d(string=32) 2930049565040545494 33} 2}] 34}
+2020/04/25 util.go:10: 8  rf.lastIn: 25 index: 34
+2020/04/25 util.go:10: 0 : index is 34, real is 8
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 28
+2020/04/25 util.go:10: 7  rf.lastIn: 25 index: 33
+2020/04/25 util.go:10: 6  rf.lastIn: 28 index: 35
+2020/04/25 util.go:10: 1 : index is 35, real is 6
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=33) %!d(string=33) 2930049565040545494 34}
+2020/04/25 util.go:10: 6  rf.lastIn: 28 index: 35
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 35 2 [{{%!d(string=Put) %!d(string=33) %!d(string=33) 2930049565040545494 34} 2}] 35}
+2020/04/25 util.go:10: 1  rf.lastIn: 33 index: 35
+2020/04/25 util.go:10: 0 : index is 35, real is 1
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 28
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 7  rf.lastIn: 28 index: 36
+2020/04/25 util.go:10: 1 : index is 36, real is 7
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=34) %!d(string=34) 2930049565040545494 35}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 28
+2020/04/25 util.go:10: 7  rf.lastIn: 28 index: 36
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 36 2 [{{%!d(string=Put) %!d(string=34) %!d(string=34) 2930049565040545494 35} 2}] 36}
+2020/04/25 util.go:10: 2  rf.lastIn: 33 index: 36
+2020/04/25 util.go:10: 0 : index is 36, real is 2
+2020/04/25 util.go:10: 8  rf.lastIn: 28 index: 37
+2020/04/25 util.go:10: 1 : index is 37, real is 8
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=35) %!d(string=35) 2930049565040545494 36}
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 28
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 8  rf.lastIn: 28 index: 37
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 37 2 [{{%!d(string=Put) %!d(string=35) %!d(string=35) 2930049565040545494 36} 2}] 37}
+2020/04/25 util.go:10: 3  rf.lastIn: 33 index: 37
+2020/04/25 util.go:10: 9  rf.lastIn: 28 index: 38
+2020/04/25 util.go:10: 1 : index is 38, real is 9
+2020/04/25 util.go:10: 8  rf.lastIn: 28 index: 37
+2020/04/25 util.go:10: 0 : index is 37, real is 3
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=36) %!d(string=36) 2930049565040545494 37}
+2020/04/25 util.go:10: 0  rf.lastIn: 37 index: 38
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 38 2 [{{%!d(string=Put) %!d(string=36) %!d(string=36) 2930049565040545494 37} 2}] 38}
+2020/04/25 util.go:10: 4  rf.lastIn: 33 index: 38
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 37
+2020/04/25 util.go:10: 1  rf.lastIn: 37 index: 39
+2020/04/25 util.go:10: 1 : index is 39, real is 1
+2020/04/25 util.go:10: 0 : index is 38, real is 4
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=37) %!d(string=37) 2930049565040545494 38}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1  rf.lastIn: 37 index: 39
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 39 2 [{{%!d(string=Put) %!d(string=37) %!d(string=37) 2930049565040545494 38} 2}] 39}
+2020/04/25 util.go:10: 5  rf.lastIn: 33 index: 39
+2020/04/25 util.go:10: 2  rf.lastIn: 37 index: 40
+2020/04/25 util.go:10: 1 : index is 40, real is 2
+2020/04/25 util.go:10: 0 : index is 39, real is 5
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 37
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=38) %!d(string=38) 2930049565040545494 39}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 2  rf.lastIn: 37 index: 40
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 40 2 [{{%!d(string=Put) %!d(string=38) %!d(string=38) 2930049565040545494 39} 2}] 40}
+2020/04/25 util.go:10: 6  rf.lastIn: 33 index: 40
+2020/04/25 util.go:10: 3  rf.lastIn: 37 index: 41
+2020/04/25 util.go:10: 1 : index is 41, real is 3
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=39) %!d(string=39) 2930049565040545494 40}
+2020/04/25 util.go:10: 0 : index is 40, real is 6
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 37
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 3  rf.lastIn: 37 index: 41
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 41 2 [{{%!d(string=Put) %!d(string=39) %!d(string=39) 2930049565040545494 40} 2}] 41}
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 37
+2020/04/25 util.go:10: 7  rf.lastIn: 33 index: 41
+2020/04/25 util.go:10: 0 : index is 41, real is 7
+2020/04/25 util.go:10: 4  rf.lastIn: 37 index: 42
+2020/04/25 util.go:10: 1 : index is 42, real is 4
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=40) %!d(string=40) 2930049565040545494 41}
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 37
+2020/04/25 util.go:10: 4  rf.lastIn: 37 index: 42
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 42 2 [{{%!d(string=Put) %!d(string=40) %!d(string=40) 2930049565040545494 41} 2}] 42}
+2020/04/25 util.go:10: 8  rf.lastIn: 33 index: 42
+2020/04/25 util.go:10: 5  rf.lastIn: 37 index: 43
+2020/04/25 util.go:10: 1 : index is 43, real is 5
+2020/04/25 util.go:10: 0 : index is 42, real is 8
+2020/04/25 util.go:10: 7  rf.lastIn: 33 index: 41
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=41) %!d(string=41) 2930049565040545494 42}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 5  rf.lastIn: 37 index: 43
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 43 2 [{{%!d(string=Put) %!d(string=41) %!d(string=41) 2930049565040545494 42} 2}] 43}
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 37
+2020/04/25 util.go:10: 1  rf.lastIn: 41 index: 43
+2020/04/25 util.go:10: 6  rf.lastIn: 37 index: 44
+2020/04/25 util.go:10: 1 : index is 44, real is 6
+2020/04/25 util.go:10: 0 : index is 43, real is 1
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=42) %!d(string=42) 2930049565040545494 43}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 37
+2020/04/25 util.go:10: 6  rf.lastIn: 37 index: 44
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 44 2 [{{%!d(string=Put) %!d(string=42) %!d(string=42) 2930049565040545494 43} 2}] 44}
+2020/04/25 util.go:10: 2  rf.lastIn: 41 index: 44
+2020/04/25 util.go:10: 0 : index is 44, real is 2
+2020/04/25 util.go:10: 7  rf.lastIn: 37 index: 45
+2020/04/25 util.go:10: 1 : index is 45, real is 7
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=43) %!d(string=43) 2930049565040545494 44}
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 7  rf.lastIn: 37 index: 45
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 45 2 [{{%!d(string=Put) %!d(string=43) %!d(string=43) 2930049565040545494 44} 2}] 45}
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 37
+2020/04/25 util.go:10: 3  rf.lastIn: 41 index: 45
+2020/04/25 util.go:10: 0 : index is 45, real is 3
+2020/04/25 util.go:10: 8  rf.lastIn: 37 index: 46
+2020/04/25 util.go:10: 1 : index is 46, real is 8
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=44) %!d(string=44) 2930049565040545494 45}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 37
+2020/04/25 util.go:10: 8  rf.lastIn: 37 index: 46
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 46 2 [{{%!d(string=Put) %!d(string=44) %!d(string=44) 2930049565040545494 45} 2}] 46}
+2020/04/25 util.go:10: 4  rf.lastIn: 41 index: 46
+2020/04/25 util.go:10: 9  rf.lastIn: 37 index: 47
+2020/04/25 util.go:10: 1 : index is 47, real is 9
+2020/04/25 util.go:10: 8  rf.lastIn: 37 index: 46
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=45) %!d(string=45) 2930049565040545494 46}
+2020/04/25 util.go:10: 0 : index is 46, real is 4
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 0  rf.lastIn: 46 index: 47
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 47 2 [{{%!d(string=Put) %!d(string=45) %!d(string=45) 2930049565040545494 46} 2}] 47}
+2020/04/25 util.go:10: 5  rf.lastIn: 41 index: 47
+2020/04/25 util.go:10: 1  rf.lastIn: 46 index: 48
+2020/04/25 util.go:10: 1 : index is 48, real is 1
+2020/04/25 util.go:10: 0 : index is 47, real is 5
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=46) %!d(string=46) 2930049565040545494 47}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 1  rf.lastIn: 46 index: 48
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 48 2 [{{%!d(string=Put) %!d(string=46) %!d(string=46) 2930049565040545494 47} 2}] 48}
+2020/04/25 util.go:10: 6  rf.lastIn: 41 index: 48
+2020/04/25 util.go:10: 2  rf.lastIn: 46 index: 49
+2020/04/25 util.go:10: 1 : index is 49, real is 2
+2020/04/25 util.go:10: 0 : index is 48, real is 6
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=47) %!d(string=47) 2930049565040545494 48}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 2  rf.lastIn: 46 index: 49
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 49 2 [{{%!d(string=Put) %!d(string=47) %!d(string=47) 2930049565040545494 48} 2}] 49}
+2020/04/25 util.go:10: 7  rf.lastIn: 41 index: 49
+2020/04/25 util.go:10: 0 : index is 49, real is 7
+2020/04/25 util.go:10: 3  rf.lastIn: 46 index: 50
+2020/04/25 util.go:10: 1 : index is 50, real is 3
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=48) %!d(string=48) 2930049565040545494 49}
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 3  rf.lastIn: 46 index: 50
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 50 2 [{{%!d(string=Put) %!d(string=48) %!d(string=48) 2930049565040545494 49} 2}] 50}
+2020/04/25 util.go:10: 8  rf.lastIn: 41 index: 50
+2020/04/25 util.go:10: 0 : index is 50, real is 8
+2020/04/25 util.go:10: 4  rf.lastIn: 46 index: 51
+2020/04/25 util.go:10: 1 : index is 51, real is 4
+2020/04/25 util.go:10: 7  rf.lastIn: 41 index: 49
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=49) %!d(string=49) 2930049565040545494 50}
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 4  rf.lastIn: 46 index: 51
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 51 2 [{{%!d(string=Put) %!d(string=49) %!d(string=49) 2930049565040545494 50} 2}] 51}
+2020/04/25 util.go:10: 1  rf.lastIn: 49 index: 51
+2020/04/25 util.go:10: 0 : index is 51, real is 1
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: 1 : index is 52, real is 5
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 52 2 [] 52}
+2020/04/25 util.go:10: 2  rf.lastIn: 49 index: 52
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 0 : index is 52, real is 2
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 52 2 [] 52}
+2020/04/25 util.go:10: 2  rf.lastIn: 49 index: 52
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 52 2 [] 52}
+2020/04/25 util.go:10: 2  rf.lastIn: 49 index: 52
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 52 2 [] 52}
+2020/04/25 util.go:10: 2  rf.lastIn: 49 index: 52
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 52 2 [] 52}
+2020/04/25 util.go:10: 2  rf.lastIn: 49 index: 52
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 52 2 [] 52}
+2020/04/25 util.go:10: 2  rf.lastIn: 49 index: 52
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 52 2 [] 52}
+2020/04/25 util.go:10: 2  rf.lastIn: 49 index: 52
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 52 2 [] 52}
+2020/04/25 util.go:10: 2  rf.lastIn: 49 index: 52
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 52 2 [] 52}
+2020/04/25 util.go:10: 2  rf.lastIn: 49 index: 52
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 52 2 [] 52}
+2020/04/25 util.go:10: 2  rf.lastIn: 49 index: 52
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 52 2 [] 52}
+2020/04/25 util.go:10: 2  rf.lastIn: 49 index: 52
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 52 2 [] 52}
+2020/04/25 util.go:10: 2  rf.lastIn: 49 index: 52
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 52 2 [] 52}
+2020/04/25 util.go:10: 2  rf.lastIn: 49 index: 52
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 52 2 [] 52}
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 2  rf.lastIn: 49 index: 52
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 52 2 [] 52}
+2020/04/25 util.go:10: 2  rf.lastIn: 49 index: 52
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 52 2 [] 52}
+2020/04/25 util.go:10: 2  rf.lastIn: 49 index: 52
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=b) %!d(string=B) 2930049565040545494 51}
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 5  rf.lastIn: 46 index: 52
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 52 2 [{{%!d(string=Put) %!d(string=b) %!d(string=B) 2930049565040545494 51} 2}] 52}
+2020/04/25 util.go:10: 2  rf.lastIn: 49 index: 52
+2020/04/25 util.go:10: 6  rf.lastIn: 46 index: 53
+2020/04/25 util.go:10: 1 : index is 53, real is 6
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 6  rf.lastIn: 46 index: 53
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 53 2 [] 53}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 6  rf.lastIn: 46 index: 53
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 53 2 [] 53}
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 6  rf.lastIn: 46 index: 53
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 53 2 [] 53}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 6  rf.lastIn: 46 index: 53
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 53 2 [] 53}
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 3  rf.lastIn: 49 index: 53
+2020/04/25 util.go:10: 3  rf.lastIn: 49 index: 53
+2020/04/25 util.go:10: 0 candicate 2的up-to-data害没自己的 last大
+2020/04/25 util.go:10: 0 拒绝，现在我的 term is %!(EXTRA int=17)
+2020/04/25 util.go:10: 0 转变为 candidate
+2020/04/25 util.go:10: 3  rf.lastIn: 49 index: 53
+2020/04/25 util.go:10: 3  rf.lastIn: 49 index: 53
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 2 qrv36
+2020/04/25 util.go:10: 2 qrv38
+2020/04/25 util.go:10: 2 转变为 follower
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 1  rf.lastIn: -1 index: 1
+2020/04/25 util.go:10: 2 qrv54
+2020/04/25 util.go:10: 2 qrv57
+2020/04/25 util.go:10: 2 votefor 0,当前 term 18
+2020/04/25 util.go:10: 0 转变为 leader
+2020/04/25 util.go:10: 0 发送snapshot,rf.nexi[2] is 4 ,rf.lastIncludedIndex is 49
+2020/04/25 util.go:10: 2 unlock接受 snap
+2020/04/25 util.go:10: 2 接受 snap
+2020/04/25 util.go:10: 2 111
+2020/04/25 util.go:10: 2 222
+2020/04/25 util.go:10: 0 发送snapshot,rf.nexi[1] is 4 ,rf.lastIncludedIndex is 49
+2020/04/25 util.go:10: 0 发送snapshot,rf.nexi[1] is 4 ,rf.lastIncludedIndex is 49
+2020/04/25 util.go:10: 0 发送snapshot,rf.nexi[2] is 4 ,rf.lastIncludedIndex is 49
+2020/04/25 util.go:10: 2 unlock接受 snap
+2020/04/25 util.go:10: 2 333
+2020/04/25 util.go:10: 0 : next[2] 4->19
+2020/04/25 util.go:10: 2 mu接受 snap,rf.ll:49,rf.commit:49,args.ll:49
+2020/04/25 util.go:10: ok : %!d(bool=true) ,success : %!d(bool=false), agrs.Term: 18 ,rf.curr := 18
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 6  rf.lastIn: 46 index: 53
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 53 2 [] 53}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 18 ,rf.curr := 18
+2020/04/25 util.go:10: 0 发送snapshot,rf.nexi[1] is 4 ,rf.lastIncludedIndex is 49
+2020/04/25 util.go:10: 0 ：发送给2 agrs &{18 0 49 2 [{{%!d(string=Put) %!d(string=47) %!d(string=47) 2930049565040545494 48} 2} {{%!d(string=Put) %!d(string=48) %!d(string=48) 2930049565040545494 49} 2} {{%!d(string=Put) %!d(string=49) %!d(string=49) 2930049565040545494 50} 2} {{%!d(string=Put) %!d(string=b) %!d(string=B) 2930049565040545494 51} 2}] 52}
+2020/04/25 util.go:10: 3  rf.lastIn: 49 index: 53
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2已经接受snapshot，continue
+2020/04/25 util.go:10: 2 : index is 50, real is 0
+2020/04/25 util.go:10: 2 : index is 51, real is 1
+2020/04/25 util.go:10: 2 : index is 52, real is 2
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 18 ,rf.curr := 18
+2020/04/25 util.go:10: 0 add a command:{%!d(string=Put) %!d(string=c) %!d(string=C) 454314494105491736 1}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 6  rf.lastIn: 46 index: 53
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 53 2 [] 53}
+2020/04/25 util.go:10: 0 发送snapshot,rf.nexi[1] is 4 ,rf.lastIncludedIndex is 49
+2020/04/25 util.go:10: 3  rf.lastIn: 49 index: 53
+2020/04/25 util.go:10: 0 ：发送给2 agrs &{18 0 53 2 [{{%!d(string=Put) %!d(string=c) %!d(string=C) 454314494105491736 1} 18}] 52}
+2020/04/25 util.go:10: 3  rf.lastIn: 49 index: 53
+2020/04/25 util.go:10: 4  rf.lastIn: 49 index: 54
+2020/04/25 util.go:10: 0 : index is 53, real is 3
+2020/04/25 util.go:10: 0 : index is 54, real is 4
+2020/04/25 util.go:10: 0 add a command:{%!d(string=Put) %!d(string=d) %!d(string=D) 454314494105491736 2}
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 18 ,rf.curr := 18
+2020/04/25 util.go:10: 6  rf.lastIn: 46 index: 53
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 53 2 [] 53}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 18 ,rf.curr := 18
+2020/04/25 util.go:10: 0 发送snapshot,rf.nexi[1] is 4 ,rf.lastIncludedIndex is 49
+2020/04/25 util.go:10: 4  rf.lastIn: 49 index: 54
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 0 ：发送给2 agrs &{18 0 54 18 [{{%!d(string=Put) %!d(string=d) %!d(string=D) 454314494105491736 2} 18}] 54}
+2020/04/25 util.go:10: 4  rf.lastIn: 49 index: 54
+2020/04/25 util.go:10: 5  rf.lastIn: 49 index: 55
+2020/04/25 util.go:10: 0 : index is 55, real is 5
+2020/04/25 util.go:10: 2 : index is 53, real is 3
+2020/04/25 util.go:10: 2 : index is 54, real is 4
+2020/04/25 util.go:10: 0 add a command:{%!d(string=Get) %!d(string=a) %!d(string=) 454314494105491736 3}
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 6  rf.lastIn: 46 index: 53
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 53 2 [] 53}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 5  rf.lastIn: 49 index: 55
+2020/04/25 util.go:10: 0 ：发送给2 agrs &{18 0 55 18 [{{%!d(string=Get) %!d(string=a) %!d(string=) 454314494105491736 3} 18}] 55}
+2020/04/25 util.go:10: 5  rf.lastIn: 49 index: 55
+2020/04/25 util.go:10: 6  rf.lastIn: 49 index: 56
+2020/04/25 util.go:10: 0 : index is 56, real is 6
+2020/04/25 util.go:10: 0 发送snapshot,rf.nexi[1] is 4 ,rf.lastIncludedIndex is 49
+2020/04/25 util.go:10: 2 : index is 55, real is 5
+2020/04/25 util.go:10: 0 add a command:{%!d(string=Get) %!d(string=b) %!d(string=) 454314494105491736 4}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 18 ,rf.curr := 18
+2020/04/25 util.go:10: 6  rf.lastIn: 46 index: 53
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 53 2 [] 53}
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 18 ,rf.curr := 18
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 0 发送snapshot,rf.nexi[1] is 4 ,rf.lastIncludedIndex is 49
+2020/04/25 util.go:10: 6  rf.lastIn: 49 index: 56
+2020/04/25 util.go:10: 0 ：发送给2 agrs &{18 0 56 18 [{{%!d(string=Get) %!d(string=b) %!d(string=) 454314494105491736 4} 18}] 56}
+2020/04/25 util.go:10: 6  rf.lastIn: 49 index: 56
+2020/04/25 util.go:10: 7  rf.lastIn: 49 index: 57
+2020/04/25 util.go:10: 0 : index is 57, real is 7
+2020/04/25 util.go:10: 0 add a command:{%!d(string=Get) %!d(string=1) %!d(string=) 454314494105491736 5}
+2020/04/25 util.go:10: 2 : index is 56, real is 6
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 6  rf.lastIn: 46 index: 53
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 53 2 [] 53}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 18 ,rf.curr := 18
+2020/04/25 util.go:10: 7  rf.lastIn: 49 index: 57
+2020/04/25 util.go:10: 0 ：发送给2 agrs &{18 0 57 18 [{{%!d(string=Get) %!d(string=1) %!d(string=) 454314494105491736 5} 18}] 57}
+2020/04/25 util.go:10: 0 发送snapshot,rf.nexi[1] is 4 ,rf.lastIncludedIndex is 49
+2020/04/25 util.go:10: 7  rf.lastIn: 49 index: 57
+2020/04/25 util.go:10: 8  rf.lastIn: 49 index: 58
+2020/04/25 util.go:10: 0 : index is 58, real is 8
+2020/04/25 util.go:10: 0 add a command:{%!d(string=Get) %!d(string=49) %!d(string=) 454314494105491736 6}
+2020/04/25 util.go:10: 2 : index is 57, real is 7
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 18 ,rf.curr := 18
+2020/04/25 util.go:10: 6  rf.lastIn: 46 index: 53
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 53 2 [] 53}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 8  rf.lastIn: 49 index: 58
+2020/04/25 util.go:10: 0 ：发送给2 agrs &{18 0 58 18 [{{%!d(string=Get) %!d(string=49) %!d(string=) 454314494105491736 6} 18}] 58}
+2020/04/25 util.go:10: 0 发送snapshot,rf.nexi[1] is 4 ,rf.lastIncludedIndex is 49
+2020/04/25 util.go:10: 8  rf.lastIn: 49 index: 58
+2020/04/25 util.go:10: 2 : index is 58, real is 8
+2020/04/25 util.go:10: 9  rf.lastIn: 49 index: 59
+2020/04/25 util.go:10: 0 : index is 59, real is 9
+2020/04/25 util.go:10: 1 add a command:{%!d(string=Put) %!d(string=e) %!d(string=E) 185982447826723845 3}
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 18 ,rf.curr := 18
+2020/04/25 util.go:10: ok : %!d(bool=false) ,success : %!d(bool=false), agrs.Term: 2 ,rf.curr := 2
+2020/04/25 util.go:10: 1 发送snapshot,rf.nexi[2] is 2 ,rf.lastIncludedIndex is 46
+2020/04/25 util.go:10: 6  rf.lastIn: 46 index: 53
+2020/04/25 util.go:10: 1 ：发送给0 agrs &{2 1 53 2 [{{%!d(string=Put) %!d(string=e) %!d(string=E) 185982447826723845 3} 2}] 53}
+2020/04/25 util.go:10: 1 转变为 follower
+2020/04/25 util.go:10: 0 发送snapshot,rf.nexi[1] is 4 ,rf.lastIncludedIndex is 49
+2020/04/25 util.go:10: 9  rf.lastIn: 49 index: 59
+2020/04/25 util.go:10: 0 ：发送给2 agrs &{18 0 59 18 [] 59}
+2020/04/25 util.go:10: 9  rf.lastIn: 49 index: 59
+2020/04/25 util.go:10: 1 unlock接受 snap
+2020/04/25 util.go:10: 1 mu接受 snap,rf.ll:46,rf.commit:53,args.ll:49
+2020/04/25 util.go:10: 9  rf.lastIn: 49 index: 59
+2020/04/25 util.go:10: ok : %!d(bool=true) ,success : %!d(bool=false), agrs.Term: 18 ,rf.curr := 18
+2020/04/25 util.go:10: 2 : index is 59, real is 9
+2020/04/25 util.go:10: 3  rf.lastIn: 49 index: 53
+2020/04/25 util.go:10: 0 ：发送给1 agrs &{18 0 53 2 [{{%!d(string=Put) %!d(string=c) %!d(string=C) 454314494105491736 1} 18} {{%!d(string=Put) %!d(string=d) %!d(string=D) 454314494105491736 2} 18} {{%!d(string=Get) %!d(string=a) %!d(string=) 454314494105491736 3} 18} {{%!d(string=Get) %!d(string=b) %!d(string=) 454314494105491736 4} 18} {{%!d(string=Get) %!d(string=1) %!d(string=) 454314494105491736 5} 18} {{%!d(string=Get) %!d(string=49) %!d(string=) 454314494105491736 6} 18}] 59}
+2020/04/25 util.go:10: 9  rf.lastIn: 49 index: 59
+2020/04/25 util.go:10: 0 ：发送给2 agrs &{18 0 59 18 [] 59}
+2020/04/25 util.go:10: 9  rf.lastIn: 49 index: 59
+2020/04/25 util.go:10: 9  rf.lastIn: 49 index: 59
+2020/04/25 util.go:10: 6  rf.lastIn: 46 index: 53
+2020/04/25 util.go:10: 9  rf.lastIn: 49 index: 59
+2020/04/25 util.go:10: 1 : index is 54, real is 7
+2020/04/25 util.go:10: 1 : index is 55, real is 8
+2020/04/25 util.go:10: 6  rf.lastIn: 46 index: 53
+2020/04/25 util.go:10: 1 : index is 56, real is 2
+2020/04/25 util.go:10: 1 : index is 57, real is 3
+2020/04/25 util.go:10: 1 : index is 58, real is 4
+2020/04/25 util.go:10: 1 : index is 59, real is 5
+2020/04/25 util.go:10: 0 add a command:{%!d(string=Put) %!d(string=e) %!d(string=E) 185982447826723845 3}
+2020/04/25 util.go:10: 9  rf.lastIn: 49 index: 59
+2020/04/25 util.go:10: 0 ：发送给2 agrs &{18 0 59 18 [{{%!d(string=Put) %!d(string=e) %!d(string=E) 185982447826723845 3} 18}] 59}
+2020/04/25 util.go:10: 9  rf.lastIn: 49 index: 59
+2020/04/25 util.go:10: 9  rf.lastIn: 49 index: 59
+2020/04/25 util.go:10: 0 ：发送给1 agrs &{18 0 59 18 [{{%!d(string=Put) %!d(string=e) %!d(string=E) 185982447826723845 3} 18}] 59}
+2020/04/25 util.go:10: 10  rf.lastIn: 49 index: 60
+2020/04/25 util.go:10: 0 : index is 60, real is 10
+2020/04/25 util.go:10: 5  rf.lastIn: 53 index: 59
+2020/04/25 util.go:10: 9  rf.lastIn: 49 index: 59
+2020/04/25 util.go:10: 0  rf.lastIn: 59 index: 60
+2020/04/25 util.go:10: 0 add a command:{%!d(string=Get) %!d(string=c) %!d(string=) 185982447826723845 4}
+2020/04/25 util.go:10: 0  rf.lastIn: 59 index: 60
+2020/04/25 util.go:10: 0 ：发送给1 agrs &{18 0 60 18 [{{%!d(string=Get) %!d(string=c) %!d(string=) 185982447826723845 4} 18}] 60}
+2020/04/25 util.go:10: 0  rf.lastIn: 59 index: 60
+2020/04/25 util.go:10: 0 ：发送给2 agrs &{18 0 60 18 [{{%!d(string=Get) %!d(string=c) %!d(string=) 185982447826723845 4} 18}] 60}
+2020/04/25 util.go:10: 10  rf.lastIn: 49 index: 60
+2020/04/25 util.go:10: 1  rf.lastIn: 59 index: 61
+2020/04/25 util.go:10: 0 : index is 61, real is 1
+2020/04/25 util.go:10: 6  rf.lastIn: 53 index: 60
+2020/04/25 util.go:10: 1  rf.lastIn: 59 index: 61
+2020/04/25 util.go:10: 0 add a command:{%!d(string=Get) %!d(string=e) %!d(string=) 185982447826723845 5}
+2020/04/25 util.go:10: 1 : index is 60, real is 6
+2020/04/25 util.go:10: 2 : index is 60, real is 10
+2020/04/25 util.go:10: 9  rf.lastIn: 49 index: 59
+2020/04/25 util.go:10: 1  rf.lastIn: 59 index: 61
+2020/04/25 util.go:10: 0 ：发送给1 agrs &{18 0 61 18 [{{%!d(string=Get) %!d(string=e) %!d(string=) 185982447826723845 5} 18}] 61}
+2020/04/25 util.go:10: 7  rf.lastIn: 53 index: 61
+2020/04/25 util.go:10: 1  rf.lastIn: 59 index: 61
+2020/04/25 util.go:10: 0 ：发送给2 agrs &{18 0 61 18 [{{%!d(string=Get) %!d(string=e) %!d(string=) 185982447826723845 5} 18}] 61}
+2020/04/25 util.go:10: 1  rf.lastIn: 59 index: 61
+2020/04/25 util.go:10: 2  rf.lastIn: 59 index: 62
+2020/04/25 util.go:10: 0 : index is 62, real is 2
+2020/04/25 util.go:10: 2  rf.lastIn: 59 index: 62
+2020/04/25 util.go:10: 1 : index is 61, real is 7
+2020/04/25 util.go:10: 2 : index is 61, real is 1
+2020/04/25 util.go:10: 0 add a command:{%!d(string=Get) %!d(string=1) %!d(string=) 185982447826723845 6}
+2020/04/25 util.go:10: 2  rf.lastIn: 59 index: 62
+2020/04/25 util.go:10: 0 ：发送给1 agrs &{18 0 62 18 [{{%!d(string=Get) %!d(string=1) %!d(string=) 185982447826723845 6} 18}] 62}
+2020/04/25 util.go:10: 8  rf.lastIn: 53 index: 62
+2020/04/25 util.go:10: 2  rf.lastIn: 59 index: 62
+2020/04/25 util.go:10: 0 ：发送给2 agrs &{18 0 62 18 [{{%!d(string=Get) %!d(string=1) %!d(string=) 185982447826723845 6} 18}] 62}
+2020/04/25 util.go:10: 2  rf.lastIn: 59 index: 62
+2020/04/25 util.go:10: 3  rf.lastIn: 59 index: 63
+2020/04/25 util.go:10: 0 : index is 63, real is 3
