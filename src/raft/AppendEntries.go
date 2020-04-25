@@ -1,5 +1,7 @@
 package raft
 
+import "fmt"
+
 type AppendEntriesArgs struct {
 	Term         int
 	LeaderId     int
@@ -33,7 +35,7 @@ type InstallSnapshotsReply struct {
 func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
-	if args.Term >= rf.currentTerm {
+	if args.Term >= rf.currentTerm && args.PreLogIndex >= rf.lastIncludedIndex {
 		rf.state = follower
 		if args.Term > rf.currentTerm {
 			rf.currentTerm = args.Term
@@ -77,6 +79,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 						}
 						Index++
 					}
+					fmt.Println(rf.me, "raw ", rf.lastIncludedIndex+1, Index)
 					rf.log = rf.logGets(rf.lastIncludedIndex+1, Index)
 
 					rf.persist()

@@ -45,11 +45,12 @@ func (rf *Raft) sendAppendEntry(i int) {
 	DPrintf("%d ：发送给%d agrs %d", rf.me, i, args)
 	reply := &AppendEntriesReply{}
 	yourLastMatchIndex := rf.matchIndex[i]
+	yourLastIncludedIndex := rf.lastIncludedIndex
 	rf.mu.Unlock()
 	ok := rf.sendAppendEntries(i, args, reply)
 	rf.mu.Lock()
 	if ok && rf.state == leader {
-		if args.PreLogIndex == rf.nextIndex[i]-1 && yourLastMatchIndex == rf.matchIndex[i] && args.Term == rf.currentTerm { //证明传输后信息没有变化
+		if yourLastIncludedIndex == rf.lastIncludedIndex && args.PreLogIndex == rf.nextIndex[i]-1 && yourLastMatchIndex == rf.matchIndex[i] && args.Term == rf.currentTerm { //证明传输后信息没有变化
 			if reply.Term > rf.currentTerm {
 				rf.currentTerm = reply.Term
 				rf.persist()
@@ -62,7 +63,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 					rf.matchIndex[i] = reply.MatchIndex
 
 					//1. check MatchIndex
-					if rf.logTerm(reply.MatchIndex) == rf.currentTerm && rf.commitIndex < reply.MatchIndex && reply.MatchIndex > myLastMatch {
+					if reply.MatchIndex > rf.lastIncludedIndex && rf.logTerm(reply.MatchIndex) == rf.currentTerm && rf.commitIndex < reply.MatchIndex && reply.MatchIndex > myLastMatch {
 						//检测match数量，大于一大半就commit
 						matchNum := 1
 						for m := range rf.matchIndex {
@@ -96,7 +97,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 					} else if reply.TargetTerm != 0 {
 						index := reply.TargetIndex
 						for a := index; a >= 0; a-- {
-							if rf.logGet(a).Term <= reply.TargetTerm {
+							if a > rf.lastIncludedIndex && rf.logGet(a).Term <= reply.TargetTerm {
 								rf.nextIndex[i] = a + 1
 								break
 							}

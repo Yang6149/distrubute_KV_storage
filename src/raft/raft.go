@@ -2,6 +2,7 @@ package raft
 
 import (
 	"bytes"
+	"fmt"
 	"math/rand"
 	"sync"
 	"sync/atomic"
@@ -176,6 +177,12 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 		rf.log = append(rf.log, entry) //向log 中加入client 最新的request
 		rf.persist()
 		DPrintf("%d add a command:%d", rf.me, command)
+		for i := range rf.peers {
+			if i == rf.me {
+				continue
+			}
+			rf.heartBeatchs[i].c <- 1
+		}
 		return rf.logLen() - 1, rf.currentTerm, true
 
 	}
@@ -185,7 +192,9 @@ func (rf *Raft) Discard(index int) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
 	if index+1 >= rf.logLen() {
+		fmt.Println(rf.me, "discardall", index)
 		rf.log = make([]Entry, 0)
+		rf.lastIncludedIndex = index
 		return
 	}
 	term := rf.logTerm(index)

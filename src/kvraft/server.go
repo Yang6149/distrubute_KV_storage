@@ -12,7 +12,7 @@ import (
 	"../raft"
 )
 
-const Debug = 0
+const Debug = 1
 
 func DPrintf(format string, a ...interface{}) (n int, err error) {
 	if Debug > 0 {
@@ -214,8 +214,9 @@ func (kv *KVServer) apply() {
 			DPrintf("index :: %d ,rf.ls :%d", index, kv.lastIncludedIndex)
 			kv.LoadSnapshot(data)
 			DPrintf("server %d :lastIndex", kv.lastIncludedIndex)
+			kv.mu.Lock()
 			kv.SnapshotPersister(index)
-			kv.lastIncludedIndex = index
+			kv.mu.Unlock()
 			DPrintf("server 111")
 			kv.rf.SnapshotF <- 1
 			DPrintf("server 111")
@@ -244,6 +245,7 @@ func (kv *KVServer) encodeSnapshot() []byte {
 func (kv *KVServer) SnapshotPersister(index int) {
 	kv.rf.SaveSnapshot(kv.encodeSnapshot())
 	kv.rf.Discard(index)
+	kv.lastIncludedIndex = index
 }
 
 func (kv *KVServer) LoadSnapshot(snapshot []byte) {

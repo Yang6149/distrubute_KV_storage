@@ -690,6 +690,13 @@ func TestSnapshotRPC3B(t *testing.T) {
 // are the snapshots not too huge? 500 bytes is a generous bound for the
 // operations we're doing here.
 func TestSnapshotSize3B(t *testing.T) {
+	f, err := os.OpenFile("logfile.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("file open error : %v", err)
+	}
+	defer f.Close()
+	log.SetOutput(f)
+	DPrintf("2222222222222")
 	const nservers = 3
 	maxraftstate := 1000
 	maxsnapshotstate := 500
@@ -724,6 +731,13 @@ func TestSnapshotSize3B(t *testing.T) {
 
 func TestSnapshotRecover3B(t *testing.T) {
 	// Test: restarts, snapshots, one client (3B) ...
+	f, err := os.OpenFile("logfile.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("file open error : %v", err)
+	}
+	defer f.Close()
+	log.SetOutput(f)
+	DPrintf("333333333")
 	GenericTest(t, "3B", 1, false, true, false, 1000)
 }
 

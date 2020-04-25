@@ -11,19 +11,7 @@ mkdir temp
 for ((i=0;i<$1;i++))
 do
     echo $i
-	#go test -race -run TestBasic3A
-    #go test -race -run TestConcurrent3A
-    #go test -race -run TestUnreliable3A
-    #go test -race -run TestUnreliableOneKey3A
-    #go test -race -run TestOnePartition3A
-    #go test -race -run TestManyPartitionsOneClient3A
-    #go test -race -run TestManyPartitionsManyClients3A
-    #go test -race -run TestPersistOneClient3A
-    #go test -race -run TestPersistConcurrentUnreliable3A
-    #go test -race -run TestPersistPartition3A
-    #go test -race -run TestPersistPartitionUnreliable3A
-    #go test  -run TestPersistPartitionUnreliableLinearizable3A
-    time go test  -run TestSnapshotRPC3B
+    time go test  -run TestSnapshotSize3B
 	#cat logfile.log > temp/$i
 	#rm logfile.log
 done
