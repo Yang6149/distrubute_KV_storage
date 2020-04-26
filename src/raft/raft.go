@@ -183,9 +183,9 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 		entry := Entry{Term: rf.currentTerm, Command: command}
 		rf.log = append(rf.log, entry) //向log 中加入client 最新的request
 		rf.persist()
-		DPrintf("%d add a command:%d", rf.me, command)
+		DPrintf("%d add a command:%d at index %d", rf.me, command, rf.logLen()-1)
 		for i := range rf.peers {
-			if i == rf.me {
+			if i == rf.me || len(rf.heartBeatchs[i].c) > 0 {
 				continue
 			}
 			rf.heartBeatchs[i].c <- 1
@@ -337,7 +337,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 }
 
 func electionConstTime() time.Duration {
-	return time.Duration(150+rand.Intn(250)) * time.Millisecond
+	return time.Duration(150+rand.Intn(150)) * time.Millisecond
 }
 
 func (rf *Raft) apply() {

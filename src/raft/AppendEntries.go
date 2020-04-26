@@ -51,6 +51,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		if rf.logTerm(args.PreLogIndex) != args.PreLogTerm {
 
 			//index and  term can't match,return false
+			DPrintf("%d : last不相同，后退  index%d’Term 自己%d : %d ", rf.me, args.PreLogIndex, rf.logTerm(args.PreLogIndex), args.PreLogTerm)
 			reply.Term = rf.currentTerm
 			reply.Success = false
 			index := args.PreLogIndex - 1
@@ -68,6 +69,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 			if len(args.Entries) > 0 {
 
 				if args.PreLogIndex+len(args.Entries) > rf.commitIndex {
+					DPrintf("%d :接受到 %d", rf.me, args.Entries)
 					Index := args.PreLogIndex + 1
 					for a := range args.Entries {
 						if Index == rf.logLen() {

@@ -46,6 +46,7 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 		// }
 		if args.LastLogTerm >= rf.logTerm(myLastIndex) { //这里出问题了，不是commit而是现在有效lastIndex 的term
 			if args.LastLogTerm > rf.logTerm(myLastIndex) || args.LastLogIndex >= myLastIndex {
+				DPrintf("%d :args:%d,%d,--my:%d,%d", rf.me, args.LastLogTerm, args.LastLogIndex, rf.logTerm(myLastIndex), myLastIndex)
 				rf.voteFor = args.CandidateId
 				rf.persist()
 				rf.findBiggerChan <- 1

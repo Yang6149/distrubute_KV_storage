@@ -11,10 +11,11 @@ mkdir temp
 for ((i=0;i<$1;i++))
 do
     echo $i
-	time go test  -run TestSnapshotRecover3B
+	#time go test 
 	#time go test  -run TestSnapshotRecoverManyClients3B
 	#time go test  -run TestSnapshotUnreliable3B
-    #time go test  -run TestSnapshotUnreliableRecover3B
+    time go test  -run TestPersistPartitionUnreliable3A
+	#time go test  
 	cat logfile.log > temp/$i
 	rm logfile.log
 done

@@ -1,6 +1,8 @@
 package raft
 
-import "time"
+import (
+	"time"
+)
 
 /**
 heartBeat 的 timeout
@@ -84,7 +86,9 @@ func (rf *Raft) sendAppendEntry(i int) {
 					rf.nextIndex[i] = reply.MatchIndex + 1
 					//处理leader 的commitedindex
 					if rf.matchIndex[i] < rf.commitIndex {
-						rf.heartBeatchs[i].c <- 1
+						if len(rf.heartBeatchs[i].c) == 0 {
+							rf.heartBeatchs[i].c <- 1
+						}
 					}
 				} else {
 					//false两种情况：它的Term比我的大被上面解决了，这里只会是prevIndex的Term不匹配
@@ -108,7 +112,9 @@ func (rf *Raft) sendAppendEntry(i int) {
 					if reply.TargetTerm != 0 && reply.MatchIndex != 0 {
 					}
 					//fmt.Println(rf.me, "减完后 ", i, "的nextIndex 为", rf.nextIndex[i])
-					rf.heartBeatchs[i].c <- 1
+					if len(rf.heartBeatchs[i].c) == 0 {
+						rf.heartBeatchs[i].c <- 1
+					}
 				}
 			}
 		} else {

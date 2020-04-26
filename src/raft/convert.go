@@ -21,11 +21,12 @@ func (rf *Raft) convert(state int) {
 		//初始化 leader 的nextIndex
 		rf.nextIndex = make([]int, len(rf.peers))
 		for a := range rf.nextIndex {
-			rf.nextIndex[a] = len(rf.log)
+			rf.nextIndex[a] = rf.logLen()
 		}
 		rf.matchIndex = make([]int, len(rf.peers))
 		rf.heartBeat()
 		go rf.heartBeatInit()
+		DPrintf("%d log=%d,len = %d", rf.me, rf.log, rf.logLen())
 	}
 }
 func (rf *Raft) chanReset() {

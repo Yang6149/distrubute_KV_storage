@@ -12,7 +12,7 @@ import (
 	"../raft"
 )
 
-const Debug = 0
+const Debug = 1
 
 func DPrintf(format string, a ...interface{}) (n int, err error) {
 	if Debug > 0 {
@@ -179,18 +179,20 @@ func (kv *KVServer) apply() {
 			kv.mu.Lock()
 			op := msg.Command.(Op)
 			//判断是否重复指令
+			DPrintf("%d server get Command %d", kv.me, msg)
 			if res, ok := kv.dup[op.ClientId]; !ok || (ok && op.SerialId > res) {
 				switch op.Type {
 				case "Put":
 					kv.data[op.Key] = op.Value
 				case "Append":
-					DPrintf("append 之前是", kv.data[op.Key])
+					DPrintf("%d :append 之前是", kv.me, kv.data[op.Key])
+					DPrintf("%d :index 之前是", kv.me, msg.CommandIndex)
 					kv.data[op.Key] = kv.data[op.Key] + op.Value
-					DPrintf("append %d res is ", op.Value, kv.data[op.Key])
+					DPrintf("%d :append %d res is ", kv.me, op.Value, kv.data[op.Key])
 				}
 				kv.dup[op.ClientId] = op.SerialId
 			} else {
-				DPrintf("重复指令")
+				DPrintf("重复指令 op.ser = %d, dup[i] = %d", op.SerialId, res)
 			}
 			if op.Type == "Get" {
 				op.Value = kv.data[op.Key]
@@ -265,7 +267,8 @@ func (kv *KVServer) LoadSnapshot(snapshot []byte) {
 	} else {
 		kv.mu.Lock()
 		defer kv.mu.Unlock()
-		DPrintf("load 之前：%d:之后：%d", kv.data, data)
+		DPrintf("%d:load 之前：%d", kv.me, kv.data)
+		DPrintf("%d:之后：%d", kv.me, data)
 		kv.data = data
 		kv.dup = dup
 		kv.lastIncludedIndex = lastIncludedIndex
