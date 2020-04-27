@@ -784,5 +784,12 @@ func TestSnapshotUnreliableRecoverConcurrentPartition3B(t *testing.T) {
 
 func TestSnapshotUnreliableRecoverConcurrentPartitionLinearizable3B(t *testing.T) {
 	// Test: unreliable net, restarts, partitions, snapshots, linearizability checks (3B) ...
+	f, err := os.OpenFile("logfile1.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("file open error : %v", err)
+	}
+	defer f.Close()
+	log.SetOutput(f)
+	DPrintf("5444444444")
 	GenericTestLinearizability(t, "3B", 15, 7, true, true, true, 1000)
 }

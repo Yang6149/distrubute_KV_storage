@@ -14,9 +14,12 @@ do
 	#time go test 
 	#time go test  -run TestSnapshotRecoverManyClients3B
 	#time go test  -run TestSnapshotUnreliable3B
-    time go test  -run TestPersistPartitionUnreliable3A
+    time go test  -run TestSnapshotUnreliableRecoverConcurrentPartitionLinearizable3B
+	time go test -run TestSnapshotUnreliableRecoverConcurrentPartition3B
 	#time go test  
-	cat logfile.log > temp/$i
+	cat logfile.log > temp/a$i
+	cat logfile1.log > temp/ba$i
 	rm logfile.log
+	rm logfile1.log
 done
 #rm -rf temp

@@ -20,6 +20,7 @@ const leader = 2
 const follower = 0
 const candidate = 1
 const heartbeatConstTime = 50 * time.Millisecond
+const isDan = false
 
 //
 // as each Raft peer becomes aware that successive log entries are
@@ -184,12 +185,15 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 		rf.log = append(rf.log, entry) //向log 中加入client 最新的request
 		rf.persist()
 		DPrintf("%d add a command:%d at index %d", rf.me, command, rf.logLen()-1)
-		for i := range rf.peers {
-			if i == rf.me || len(rf.heartBeatchs[i].c) > 0 {
-				continue
+		if isDan {
+			for i := range rf.peers {
+				if i == rf.me || len(rf.heartBeatchs[i].c) > 0 {
+					continue
+				}
+				rf.heartBeatchs[i].c <- 1
 			}
-			rf.heartBeatchs[i].c <- 1
 		}
+
 		return rf.logLen() - 1, rf.currentTerm, true
 
 	}

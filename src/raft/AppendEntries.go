@@ -67,22 +67,29 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 			reply.Term = rf.currentTerm
 			reply.Success = true
 			if len(args.Entries) > 0 {
-
-				if args.PreLogIndex+len(args.Entries) > rf.commitIndex {
-					DPrintf("%d :接受到 %d", rf.me, args.Entries)
-					Index := args.PreLogIndex + 1
-					for a := range args.Entries {
-						if Index == rf.logLen() {
-							rf.log = append(rf.log, args.Entries[a])
-						} else {
-							rf.logSet(Index, args.Entries[a])
-						}
-						Index++
+				if index := args.PreLogIndex + len(args.Entries); rf.logLen() > index && args.PreLogIndex+len(args.Entries) > rf.commitIndex && rf.logTerm(index) == args.Entries[len(args.Entries)-1].Term {
+					if len(rf.log) > index+1 {
+						DPrintf("%d 想要覆盖掉正确log", rf.me)
+						DPrintf("%d 之前 entry= %d log= %d ", rf.me, args.Entries, rf.log)
 					}
-					rf.log = rf.logGets(rf.lastIncludedIndex+1, Index)
+				} else {
+					if args.PreLogIndex+len(args.Entries) > rf.commitIndex {
+						DPrintf("%d :接受到 %d", rf.me, args.Entries)
+						Index := args.PreLogIndex + 1
+						for a := range args.Entries {
+							if Index == rf.logLen() {
+								rf.log = append(rf.log, args.Entries[a])
+							} else {
+								rf.logSet(Index, args.Entries[a])
+							}
+							Index++
+						}
+						rf.log = rf.logGets(rf.lastIncludedIndex+1, Index)
 
-					rf.persist()
+						rf.persist()
+					}
 				}
+
 				reply.MatchIndex = max(args.PreLogIndex+len(args.Entries), rf.commitIndex)
 			} else {
 				//just a heartbeat
