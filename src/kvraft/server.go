@@ -76,10 +76,12 @@ func (kv *KVServer) start(op Op) (string, Err) {
 	DPrintf("%d start %d", kv.me, op)
 	//检查put重复或是否直接返回get
 	if res, ok := kv.dup[op.ClientId]; ok && res >= op.SerialId {
+		res := ""
 		if op.Type == "Get" {
-			defer kv.mu.Unlock()
-			return kv.data[op.Key], OK
+			res = kv.data[op.Key]
 		}
+		defer kv.mu.Unlock()
+		return res, OK
 	}
 	index, _, isLeader := kv.rf.Start(op)
 	if !isLeader {
@@ -89,6 +91,11 @@ func (kv *KVServer) start(op Op) (string, Err) {
 	ch := make(chan Op, 1)
 	kv.apps[index] = ch
 	kv.mu.Unlock()
+	defer func() {
+		kv.mu.Lock()
+		delete(kv.apps, index)
+		kv.mu.Unlock()
+	}()
 	select {
 	case oop := <-ch:
 		//返回成功

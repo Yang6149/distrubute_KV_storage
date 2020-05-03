@@ -1,12 +1,12 @@
 package shardmaster
 
 import (
+	"fmt"
 	"sync"
 	"testing"
 )
 
 // import "time"
-import "fmt"
 
 func check(t *testing.T, groups []int, ck *Clerk) {
 	c := ck.Query(-1)
@@ -95,12 +95,12 @@ func TestBasic(t *testing.T) {
 	ck.Join(map[int][]string{gid1: []string{"x", "y", "z"}})
 	check(t, []int{gid1}, ck)
 	cfa[1] = ck.Query(-1)
-
+	DPrintf("111111111111111111111")
 	var gid2 int = 2
 	ck.Join(map[int][]string{gid2: []string{"a", "b", "c"}})
 	check(t, []int{gid1, gid2}, ck)
 	cfa[2] = ck.Query(-1)
-
+	DPrintf("22222222222222222222")
 	cfx := ck.Query(-1)
 	sa1 := cfx.Groups[gid1]
 	if len(sa1) != 3 || sa1[0] != "x" || sa1[1] != "y" || sa1[2] != "z" {
@@ -110,28 +110,35 @@ func TestBasic(t *testing.T) {
 	if len(sa2) != 3 || sa2[0] != "a" || sa2[1] != "b" || sa2[2] != "c" {
 		t.Fatalf("wrong servers for gid %v: %v\n", gid2, sa2)
 	}
+	DPrintf("333333333333333333")
+	fmt.Println("Join success")
 
 	ck.Leave([]int{gid1})
 	check(t, []int{gid2}, ck)
 	cfa[4] = ck.Query(-1)
-
+	DPrintf("4444444444444444444")
 	ck.Leave([]int{gid2})
 	cfa[5] = ck.Query(-1)
 
 	fmt.Printf("  ... Passed\n")
 
 	fmt.Printf("Test: Historical queries ...\n")
-
+	DPrintf("cfa = %d", cfa)
 	for s := 0; s < nservers; s++ {
 		cfg.ShutdownServer(s)
+		DPrintf("shutdown %d", s)
 		for i := 0; i < len(cfa); i++ {
+			DPrintf("Num is %d", cfa[i].Num)
 			c := ck.Query(cfa[i].Num)
+			DPrintf("new is %d", c)
+			DPrintf("old is %d", cfa[i])
 			check_same_config(t, c, cfa[i])
 		}
 		cfg.StartServer(s)
 		cfg.ConnectAll()
+		DPrintf("结束 %d", s)
 	}
-
+	DPrintf("55555555555555555555555555555")
 	fmt.Printf("  ... Passed\n")
 
 	fmt.Printf("Test: Move ...\n")

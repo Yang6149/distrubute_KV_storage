@@ -23,19 +23,23 @@ const NShards = 10
 // A configuration -- an assignment of shards to groups.
 // Please don't change this.
 type Config struct {
-	Num    int              // config number
+	Num    int              // config 版本号
 	Shards [NShards]int     // shard -> gid
 	Groups map[int][]string // gid -> servers[]
 }
 
 const (
 	OK = "OK"
+	DupCommand = "DupCommand"
+	ErrTimeOut = "ErrTimeOut"
 )
 
 type Err string
 
 type JoinArgs struct {
 	Servers map[int][]string // new GID -> servers mappings
+	ClientId	int64
+	SerialId	int
 }
 
 type JoinReply struct {
@@ -45,6 +49,8 @@ type JoinReply struct {
 
 type LeaveArgs struct {
 	GIDs []int
+	ClientId	int64
+	SerialId	int
 }
 
 type LeaveReply struct {
@@ -55,6 +61,8 @@ type LeaveReply struct {
 type MoveArgs struct {
 	Shard int
 	GID   int
+	ClientId	int64
+	SerialId	int
 }
 
 type MoveReply struct {
@@ -64,6 +72,8 @@ type MoveReply struct {
 
 type QueryArgs struct {
 	Num int // desired config number
+	ClientId	int64
+	SerialId	int
 }
 
 type QueryReply struct {
