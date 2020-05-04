@@ -1,7 +1,6 @@
 package shardmaster
 
 import (
-	"fmt"
 	"sort"
 	"sync"
 	"sync/atomic"
@@ -124,7 +123,7 @@ func (sm *ShardMaster) start(op Op) (bool, Err, Config) { //wrongLeader , Err
 	sm.mu.Lock()
 	resConfig := Config{}
 	if !sm.checkDup(op.ClientId, op.SerialId) { //重复了
-		fmt.Println("dup!!!")
+		DPrintf("dup!!!")
 		DPrintf("%d : op", sm.me, op)
 		if op.Type == Query {
 			num := op.Num

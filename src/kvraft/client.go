@@ -60,7 +60,7 @@ func (ck *Clerk) Get(key string) string {
 
 		// You will have to modify this function.
 		if reply.Err == OK && ok {
-			DPrintf("key :(%s) get value (%s)",  args.Key, reply.Value)
+			DPrintf("key :(%s) get value (%s)", args.Key, reply.Value)
 			DPrintf("get success")
 			ck.leader = i
 			return reply.Value

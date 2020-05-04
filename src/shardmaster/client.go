@@ -38,6 +38,7 @@ func MakeClerk(servers []*labrpc.ClientEnd) *Clerk {
 }
 
 func (ck *Clerk) Query(num int) Config {
+	//如果多个client 同时发起命令还想保持线性化结果，就不能注释掉下一行
 	//ck.serialId++
 	args := &QueryArgs{Num: num}
 	// Your code here.
