@@ -2,6 +2,7 @@ package shardmaster
 
 import (
 	"fmt"
+	"sort"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -85,6 +86,21 @@ func (sm *ShardMaster) Leave(args *LeaveArgs, reply *LeaveReply) {
 }
 
 func (sm *ShardMaster) Move(args *MoveArgs, reply *MoveReply) {
+	if _, isLeader := sm.rf.GetState(); !isLeader {
+		reply.WrongLeader = true
+		return
+	}
+	op := Op{}
+	op.Type = Move
+	op.GID = args.GID
+	op.Shard = args.Shard
+	op.SerialId = args.SerialId
+	op.ClientId = args.ClientId
+
+	wrongLeader, err, _ := sm.start(op)
+	reply.WrongLeader = wrongLeader
+	reply.Err = err
+	return
 }
 
 func (sm *ShardMaster) Query(args *QueryArgs, reply *QueryReply) {
@@ -109,7 +125,17 @@ func (sm *ShardMaster) start(op Op) (bool, Err, Config) { //wrongLeader , Err
 	resConfig := Config{}
 	if !sm.checkDup(op.ClientId, op.SerialId) { //重复了
 		fmt.Println("dup!!!")
-		return false, DupCommand, resConfig
+		DPrintf("%d : op", sm.me, op)
+		if op.Type == Query {
+			num := op.Num
+			if num < 0 || num >= len(sm.configs)-1 {
+				op.Config = sm.configs[len(sm.configs)-1]
+			} else {
+				op.Config = sm.configs[num]
+			}
+		}
+		sm.mu.Unlock()
+		return false, DupCommand, op.Config
 	}
 	index, _, isLeader := sm.rf.Start(op)
 	if !isLeader {
@@ -129,6 +155,8 @@ func (sm *ShardMaster) start(op Op) (bool, Err, Config) { //wrongLeader , Err
 		//返回成功
 		if op.ClientId == oop.ClientId && op.SerialId == oop.SerialId {
 			DPrintf("return op ", oop)
+			sm.mu.Lock()
+			defer sm.mu.Unlock()
 			sm.dup[op.ClientId] = op.SerialId
 			return false, "", oop.Config
 		} else {
@@ -237,6 +265,11 @@ func (sm *ShardMaster) apply() {
 				sm.configs = append(sm.configs, op.Config)
 				DPrintf("%d : leave config", sm.me)
 			case Move:
+				gid := op.GID
+				shard := op.Shard
+				op.Config.Shards[shard] = gid
+				sm.configs = append(sm.configs, op.Config)
+				DPrintf("%d : move config", sm.me)
 				//args := op.Args.(MoveArgs)
 			case Query:
 				num := op.Num
@@ -280,6 +313,7 @@ func (sm *ShardMaster) copyConfig(newConfig *Config, oldConfig *Config) {
 }
 
 func (sm *ShardMaster) loadBalance(config *Config) {
+	DPrintf("%d rebalanced", sm.me)
 	GNum := len(config.Groups)
 	if GNum <= 0 {
 		return
@@ -289,6 +323,8 @@ func (sm *ShardMaster) loadBalance(config *Config) {
 	for k, _ := range config.Groups {
 		temp = append(temp, k)
 	}
+	sort.Ints(temp)
+
 	cur := 0
 	for i := 0; i < NShards; i++ {
 		config.Shards[i] = temp[cur]

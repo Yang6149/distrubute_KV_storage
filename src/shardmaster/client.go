@@ -38,7 +38,7 @@ func MakeClerk(servers []*labrpc.ClientEnd) *Clerk {
 }
 
 func (ck *Clerk) Query(num int) Config {
-	ck.serialId++
+	//ck.serialId++
 	args := &QueryArgs{Num: num}
 	// Your code here.
 	args.Num = num
