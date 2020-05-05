@@ -3,6 +3,7 @@ package shardkv
 // import "../shardmaster"
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"sync"
 	"sync/atomic"
@@ -11,6 +12,7 @@ import (
 	"../labgob"
 	"../labrpc"
 	"../raft"
+	"../shardmaster"
 )
 
 const Debug = 0
@@ -32,6 +34,14 @@ type Op struct {
 	ClientId int64
 	SerialId int
 }
+type MigrateArgs struct {
+	Shard int
+}
+type MigrateReply struct {
+	Data map[string]string
+	dup  map[int64]int
+	Err  Err
+}
 
 type ShardKV struct {
 	mu           sync.Mutex
@@ -42,7 +52,8 @@ type ShardKV struct {
 	gid          int
 	masters      []*labrpc.ClientEnd
 	maxraftstate int // snapshot if log grows this big
-
+	sm           *shardmaster.Clerk
+	config       shardmaster.Config
 	// Your definitions here.
 	dead int32 // set by Kill()
 	data map[string]string
@@ -78,6 +89,15 @@ func (kv *ShardKV) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 func (kv *ShardKV) start(op Op) (string, Err) {
 	kv.mu.Lock()
 	DPrintf("%d start %d", kv.me, op)
+	//判断是否改变了配置而拒绝请求
+	shard := key2shard(op.Key)
+	gid := kv.config.Shards[shard]
+	fmt.Println("gid :", gid)
+	fmt.Println("kv.gid :", kv.gid)
+	if gid != kv.gid {
+		defer kv.mu.Unlock()
+		return "", ErrWrongGroup
+	}
 	//检查put重复或是否直接返回get
 	if res, ok := kv.dup[op.ClientId]; ok && res >= op.SerialId {
 		res := ""
@@ -180,6 +200,7 @@ func StartServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister,
 
 	// Use something like this to talk to the shardmaster:
 	// kv.mck = shardmaster.MakeClerk(kv.masters)
+	kv.sm = shardmaster.MakeClerk(kv.masters)
 
 	kv.applyCh = make(chan raft.ApplyMsg)
 	kv.rf = raft.Make(servers, me, persister, kv.applyCh)
@@ -192,7 +213,7 @@ func StartServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister,
 	DPrintf("%d :init finished", kv.me)
 	// You may need initialization code here.
 	go kv.apply()
-
+	go kv.fetchLatestConfig()
 	return kv
 }
 
@@ -304,4 +325,84 @@ func (kv *ShardKV) LoadSnapshot(snapshot []byte) {
 		kv.dup = dup
 		kv.lastIncludedIndex = lastIncludedIndex
 	}
+}
+
+func (kv *ShardKV) fetchLatestConfig() {
+	for {
+		select {
+		case <-time.After(50 * time.Millisecond):
+			config := kv.sm.Query(-1)
+			if !check_same_config(config, kv.config) {
+				mmap := make(map[int]int)
+				for i := 0; i < shardmaster.NShards; i++ {
+					if kv.config.Shards[i] != kv.me && config.Shards[i] == kv.me {
+						//send rpc for shard[i] to kv.config.Shards[i] to get data
+						mmap[kv.config.Shards[i]] = 1
+					}
+				}
+				kv.config = config
+				for k, _ := range mmap {
+					//send rpc to others
+					if servers, ok := kv.config.Groups[k]; ok {
+						for si := 0; si < len(servers); si++ {
+							srv := kv.make_end(servers[si])
+							var args MigrateArgs
+							var reply MigrateReply
+							ok := kv.sendMigrateArgs(srv, &args, &reply)
+							if ok && reply.Err == "" {
+								//update state
+
+							} else {
+								DPrintf("%d : migrateReply = %d", kv.me, reply.Err)
+							}
+							// ... not ok, or ErrWrongLeader
+						}
+					}
+				}
+			}
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
+}
+
+func check_same_config(c1 shardmaster.Config, c2 shardmaster.Config) bool {
+	if c1.Num != c2.Num {
+		return false
+	}
+	if c1.Shards != c2.Shards {
+		return false
+	}
+	if len(c1.Groups) != len(c2.Groups) {
+		return false
+	}
+	for gid, sa := range c1.Groups {
+		sa1, ok := c2.Groups[gid]
+		if ok == false || len(sa1) != len(sa) {
+			return false
+		}
+		if ok && len(sa1) == len(sa) {
+			for j := 0; j < len(sa); j++ {
+				if sa[j] != sa1[j] {
+					return false
+				}
+			}
+		}
+	}
+	return true
+}
+
+func copyMap(m map[string]string) map[string]string {
+	n := make(map[string]string)
+	for k, v := range m {
+		n[k] = v
+	}
+	return n
+}
+
+func (kv *ShardKV) sendMigrateArgs(cli *labrpc.ClientEnd, args *MigrateArgs, reply *MigrateReply) bool {
+	ok := cli.Call("ShardKV.Get", &args, &reply)
+	return ok
+}
+
+func (kv *ShardKV) MigrateReply(args *MigrateArgs, reply *MigrateReply) {
 }
