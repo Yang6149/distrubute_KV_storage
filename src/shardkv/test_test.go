@@ -1,15 +1,18 @@
 package shardkv
 
-import "../porcupine"
-import "../models"
-import "testing"
-import "strconv"
-import "time"
-import "fmt"
-import "sync/atomic"
-import "sync"
-import "math/rand"
-import "io/ioutil"
+import (
+	"fmt"
+	"io/ioutil"
+	"math/rand"
+	"strconv"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	"../models"
+	"../porcupine"
+)
 
 const linearizabilityCheckTimeout = 1 * time.Second
 
@@ -96,7 +99,7 @@ func TestJoinLeave(t *testing.T) {
 	ck := cfg.makeClient()
 
 	cfg.join(0)
-
+	fmt.Println("join gid=0 的group")
 	n := 10
 	ka := make([]string, n)
 	va := make([]string, n)
@@ -110,18 +113,22 @@ func TestJoinLeave(t *testing.T) {
 	}
 
 	cfg.join(1)
-
+	fmt.Println("join gid=1 的group")
 	for i := 0; i < n; i++ {
+		fmt.Println(" join 之后check success  1111 at", i)
 		check(t, ck, ka[i], va[i])
+		fmt.Println(" join 之后check success at ", i)
 		x := randstring(5)
 		ck.Append(ka[i], x)
 		va[i] += x
 	}
 
 	cfg.leave(0)
-
+	fmt.Println("leave gid=0 的group")
 	for i := 0; i < n; i++ {
+		fmt.Println(" leave 之后check success  1111 at", i)
 		check(t, ck, ka[i], va[i])
+		fmt.Println(" leave 之后check success at ", i)
 		x := randstring(5)
 		ck.Append(ka[i], x)
 		va[i] += x
@@ -134,7 +141,9 @@ func TestJoinLeave(t *testing.T) {
 	cfg.ShutdownGroup(0)
 
 	for i := 0; i < n; i++ {
+		fmt.Println(" last 之后check success  1111 at", i)
 		check(t, ck, ka[i], va[i])
+		fmt.Println(" last 之后check success at ", i)
 	}
 
 	fmt.Printf("  ... Passed\n")

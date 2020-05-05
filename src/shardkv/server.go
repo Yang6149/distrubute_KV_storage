@@ -15,7 +15,7 @@ import (
 	"../shardmaster"
 )
 
-const Debug = 0
+const Debug = 1
 
 func DPrintf(format string, a ...interface{}) (n int, err error) {
 	if Debug > 0 {
@@ -35,11 +35,12 @@ type Op struct {
 	SerialId int
 }
 type MigrateArgs struct {
-	Shard int
+	Shard     int
+	ConfigNum int
 }
 type MigrateReply struct {
 	Data map[string]string
-	dup  map[int64]int
+	Dup  map[int64]int
 	Err  Err
 }
 
@@ -88,12 +89,9 @@ func (kv *ShardKV) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 
 func (kv *ShardKV) start(op Op) (string, Err) {
 	kv.mu.Lock()
-	DPrintf("%d start %d", kv.me, op)
 	//判断是否改变了配置而拒绝请求
 	shard := key2shard(op.Key)
 	gid := kv.config.Shards[shard]
-	fmt.Println("gid :", gid)
-	fmt.Println("kv.gid :", kv.gid)
 	if gid != kv.gid {
 		defer kv.mu.Unlock()
 		return "", ErrWrongGroup
@@ -124,16 +122,13 @@ func (kv *ShardKV) start(op Op) (string, Err) {
 	case oop := <-ch:
 		//返回成功
 		if op.ClientId == oop.ClientId && op.SerialId == oop.SerialId {
-			DPrintf("return op ", oop)
 			res := oop.Value
 			return res, OK
 		} else {
-			DPrintf("%d :wrongleader", kv.me)
 			return "", ErrWrongLeader
 		}
 
 	case <-time.After(500 * time.Millisecond):
-		DPrintf("%d :start timeout", kv.me)
 		return "", ErrTimeOut
 	}
 }
@@ -146,7 +141,7 @@ func (kv *ShardKV) start(op Op) (string, Err) {
 //
 func (kv *ShardKV) Kill() {
 	atomic.StoreInt32(&kv.dead, 1)
-	DPrintf("%d :杀死一个 server", kv.me)
+	DPrintf("%d %d :杀死一个 server", kv.gid, kv.me)
 	kv.rf.Kill()
 	// Your code here, if desired.
 }
@@ -231,20 +226,15 @@ func (kv *ShardKV) apply() {
 			kv.mu.Lock()
 			op := msg.Command.(Op)
 			//判断是否重复指令
-			DPrintf("%d server get Command %d", kv.me, msg)
 			if res, ok := kv.dup[op.ClientId]; !ok || (ok && op.SerialId > res) {
 				switch op.Type {
 				case "Put":
 					kv.data[op.Key] = op.Value
 				case "Append":
-					DPrintf("%d :append 之前是", kv.me, kv.data[op.Key])
-					DPrintf("%d :index 之前是", kv.me, msg.CommandIndex)
 					kv.data[op.Key] = kv.data[op.Key] + op.Value
-					DPrintf("%d :append %d res is ", kv.me, op.Value, kv.data[op.Key])
 				}
 				kv.dup[op.ClientId] = op.SerialId
 			} else {
-				DPrintf("重复指令 op.ser = %d, dup[i] = %d", op.SerialId, res)
 			}
 			if op.Type == "Get" {
 				op.Value = kv.data[op.Key]
@@ -258,23 +248,17 @@ func (kv *ShardKV) apply() {
 			kv.checkMaxState(msg.CommandIndex)
 			kv.mu.Unlock()
 		} else {
-			DPrintf("server 0000")
 			data := msg.Command.([]byte)
 			index := msg.CommandIndex
 			if index <= kv.lastIncludedIndex {
-				DPrintf("server ::: %d - %d", index, kv.lastIncludedIndex)
 				kv.rf.SnapshotF <- -1
 				continue
 			}
-			DPrintf("index :: %d ,rf.ls :%d", index, kv.lastIncludedIndex)
 			kv.LoadSnapshot(data)
-			DPrintf("server %d :lastIndex", kv.lastIncludedIndex)
 			kv.mu.Lock()
 			kv.SnapshotPersister(index)
 			kv.mu.Unlock()
-			DPrintf("server 111")
 			kv.rf.SnapshotF <- 1
-			DPrintf("server 111")
 		}
 	}
 }
@@ -319,8 +303,6 @@ func (kv *ShardKV) LoadSnapshot(snapshot []byte) {
 	} else {
 		kv.mu.Lock()
 		defer kv.mu.Unlock()
-		DPrintf("%d:load 之前：%d", kv.me, kv.data)
-		DPrintf("%d:之后：%d", kv.me, data)
 		kv.data = data
 		kv.dup = dup
 		kv.lastIncludedIndex = lastIncludedIndex
@@ -331,68 +313,72 @@ func (kv *ShardKV) fetchLatestConfig() {
 	for {
 		select {
 		case <-time.After(50 * time.Millisecond):
+			kv.mu.Lock()
 			config := kv.sm.Query(-1)
-			if !check_same_config(config, kv.config) {
-				mmap := make(map[int]int)
+			if !kv.check_same_config(config, kv.config) {
 				for i := 0; i < shardmaster.NShards; i++ {
-					if kv.config.Shards[i] != kv.me && config.Shards[i] == kv.me {
+					if kv.config.Shards[i] != kv.gid && config.Shards[i] == kv.gid {
 						//send rpc for shard[i] to kv.config.Shards[i] to get data
-						mmap[kv.config.Shards[i]] = 1
-					}
-				}
-				kv.config = config
-				for k, _ := range mmap {
-					//send rpc to others
-					if servers, ok := kv.config.Groups[k]; ok {
-						for si := 0; si < len(servers); si++ {
-							srv := kv.make_end(servers[si])
-							var args MigrateArgs
-							var reply MigrateReply
-							ok := kv.sendMigrateArgs(srv, &args, &reply)
-							if ok && reply.Err == "" {
-								//update state
-
-							} else {
-								DPrintf("%d : migrateReply = %d", kv.me, reply.Err)
+						fmt.Println("不一样 ask data")
+						//send rpc to others
+						if servers, ok := kv.config.Groups[kv.config.Shards[i]]; ok {
+							for si := 0; si < len(servers); si++ {
+								srv := kv.make_end(servers[si])
+								var args MigrateArgs
+								args.Shard = i
+								args.ConfigNum = kv.config.Num
+								var reply MigrateReply
+								ok := kv.sendMigrateArgs(srv, &args, &reply)
+								if ok && reply.Err == "" {
+									//update state
+									DPrintf("%d %d 需要 %d 的数据 reply %d", kv.gid, kv.me, kv.config.Shards[i], reply.Data)
+									kv.updateDataAndDup(reply.Data, reply.Dup)
+								} else {
+									//需要处理 由于Num 引起的问题
+								}
+								// ... not ok, or ErrWrongLeader
 							}
-							// ... not ok, or ErrWrongLeader
 						}
 					}
 				}
+
+				kv.config = config
+			} else {
+				//DPrintf("%d %d 没变哟", kv.gid, kv.me)
 			}
+			kv.mu.Unlock()
 		}
 		time.Sleep(100 * time.Millisecond)
 	}
 }
 
-func check_same_config(c1 shardmaster.Config, c2 shardmaster.Config) bool {
+func (kv *ShardKV) check_same_config(c1 shardmaster.Config, c2 shardmaster.Config) bool {
 	if c1.Num != c2.Num {
+
 		return false
 	}
 	if c1.Shards != c2.Shards {
+		fmt.Println("是因为shards")
 		return false
 	}
 	if len(c1.Groups) != len(c2.Groups) {
+		fmt.Println("是因为len-groups")
 		return false
-	}
-	for gid, sa := range c1.Groups {
-		sa1, ok := c2.Groups[gid]
-		if ok == false || len(sa1) != len(sa) {
-			return false
-		}
-		if ok && len(sa1) == len(sa) {
-			for j := 0; j < len(sa); j++ {
-				if sa[j] != sa1[j] {
-					return false
-				}
-			}
-		}
 	}
 	return true
 }
 
-func copyMap(m map[string]string) map[string]string {
+func copyData(shard int, m map[string]string) map[string]string {
 	n := make(map[string]string)
+	for k, v := range m {
+		if key2shard(k) == shard {
+			n[k] = v
+		}
+	}
+	return n
+}
+func copyMapForDup(m map[int64]int) map[int64]int {
+	n := make(map[int64]int)
 	for k, v := range m {
 		n[k] = v
 	}
@@ -400,9 +386,32 @@ func copyMap(m map[string]string) map[string]string {
 }
 
 func (kv *ShardKV) sendMigrateArgs(cli *labrpc.ClientEnd, args *MigrateArgs, reply *MigrateReply) bool {
-	ok := cli.Call("ShardKV.Get", &args, &reply)
+	ok := cli.Call("ShardKV.MigrateReply", args, reply)
 	return ok
 }
 
 func (kv *ShardKV) MigrateReply(args *MigrateArgs, reply *MigrateReply) {
+	_, isLeader := kv.rf.GetState()
+	if !isLeader {
+		reply.Err = ErrWrongLeader
+		return
+	}
+	if args.ConfigNum > kv.config.Num {
+		reply.Err = "sorry I have not updated"
+	}
+	dup := copyMapForDup(kv.dup)
+	data := copyData(args.Shard, kv.data)
+	reply.Data = data
+	reply.Dup = dup
+}
+
+func (kv *ShardKV) updateDataAndDup(data map[string]string, dup map[int64]int) {
+
+	for k, v := range data {
+		kv.data[k] = v
+	}
+	for k, v := range dup {
+		kv.dup[k] = v
+	}
+
 }
