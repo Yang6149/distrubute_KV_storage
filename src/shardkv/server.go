@@ -34,14 +34,21 @@ type Op struct {
 	ClientId int64
 	SerialId int
 }
+
+type Shard struct {
+	Id   int
+	Data map[string]string
+	Dup  map[int64]int
+	//Version id
+	Avaliable bool
+}
+
 type MigrateArgs struct {
-	Shard     int
+	Shard     Shard
 	ConfigNum int
 }
 type MigrateReply struct {
-	Data map[string]string
-	Dup  map[int64]int
-	Err  Err
+	Err Err
 }
 
 type ShardKV struct {
@@ -56,10 +63,9 @@ type ShardKV struct {
 	sm           *shardmaster.Clerk
 	config       shardmaster.Config
 	// Your definitions here.
-	dead int32 // set by Kill()
-	data map[string]string
-	apps map[int]chan Op
-	dup  map[int64]int
+	dead   int32 // set by Kill()
+	apps   map[int]chan Op
+	shards map[int]Shard
 
 	lastIncludedIndex int
 }
@@ -78,7 +84,8 @@ func (kv *ShardKV) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	_, isLeader := kv.rf.GetState()
 	if isLeader {
 		op := Op{args.Op, args.Key, args.Value, args.ClientId, args.SerialId}
-		_, Err := kv.start(op)
+		res, Err := kv.start(op)
+		fmt.Println(kv.gid, res, "this is res value")
 		reply.Err = Err
 		return
 	} else {
@@ -92,15 +99,17 @@ func (kv *ShardKV) start(op Op) (string, Err) {
 	//判断是否改变了配置而拒绝请求
 	shard := key2shard(op.Key)
 	gid := kv.config.Shards[shard]
-	if gid != kv.gid {
+	if s, ok := kv.shards[shard]; gid != kv.gid || !ok || !s.Avaliable {
+		//gid 对不上、不存在该 shard、存在但是不可用状态
 		defer kv.mu.Unlock()
 		return "", ErrWrongGroup
 	}
 	//检查put重复或是否直接返回get
-	if res, ok := kv.dup[op.ClientId]; ok && res >= op.SerialId {
+	shardId := key2shard(op.Key)
+	if res, ok := kv.shards[shardId].Dup[op.ClientId]; ok && res >= op.SerialId {
 		res := ""
 		if op.Type == "Get" {
-			res = kv.data[op.Key]
+			res = kv.shards[shardId].Data[op.Key]
 		}
 		defer kv.mu.Unlock()
 		return res, OK
@@ -200,9 +209,8 @@ func StartServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister,
 	kv.applyCh = make(chan raft.ApplyMsg)
 	kv.rf = raft.Make(servers, me, persister, kv.applyCh)
 
-	kv.data = make(map[string]string)
 	kv.apps = make(map[int]chan Op)
-	kv.dup = make(map[int64]int)
+	kv.shards = make(map[int]Shard)
 	kv.maxraftstate = maxraftstate
 	kv.LoadSnapshot(kv.rf.GetSnapshots())
 	DPrintf("%d :init finished", kv.me)
@@ -210,6 +218,15 @@ func StartServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister,
 	go kv.apply()
 	go kv.fetchLatestConfig()
 	return kv
+}
+
+func (kv *ShardKV) initShard() {
+	for i := 0; i < shardmaster.NShards; i++ {
+		res := Shard{}
+		res.Data = make(map[string]string)
+		res.Dup = make(map[int64]int)
+		kv.shards[i] = res
+	}
 }
 
 func (kv *ShardKV) apply() {
@@ -226,18 +243,20 @@ func (kv *ShardKV) apply() {
 			kv.mu.Lock()
 			op := msg.Command.(Op)
 			//判断是否重复指令
-			if res, ok := kv.dup[op.ClientId]; !ok || (ok && op.SerialId > res) {
+			shardId := key2shard(op.Key)
+			if res, ok := kv.shards[shardId].Dup[op.ClientId]; !ok || (ok && op.SerialId > res) {
 				switch op.Type {
 				case "Put":
-					kv.data[op.Key] = op.Value
+					kv.shards[shardId].Data[op.Key] = op.Value
 				case "Append":
-					kv.data[op.Key] = kv.data[op.Key] + op.Value
+					kv.shards[shardId].Data[op.Key] = kv.shards[shardId].Data[op.Key] + op.Value
+					op.Value = kv.shards[shardId].Data[op.Key]
 				}
-				kv.dup[op.ClientId] = op.SerialId
+				kv.shards[shardId].Dup[op.ClientId] = op.SerialId
 			} else {
 			}
 			if op.Type == "Get" {
-				op.Value = kv.data[op.Key]
+				op.Value = kv.shards[shardId].Data[op.Key]
 			}
 			ch, ok := kv.apps[msg.CommandIndex]
 			if ok {
@@ -275,8 +294,7 @@ func (kv *ShardKV) checkMaxState(commitIndex int) {
 func (kv *ShardKV) encodeSnapshot() []byte {
 	w := new(bytes.Buffer)
 	e := labgob.NewEncoder(w)
-	e.Encode(kv.data)
-	e.Encode(kv.dup)
+	e.Encode(kv.shards)
 	e.Encode(kv.lastIncludedIndex)
 	snapshot := w.Bytes()
 	return snapshot
@@ -294,17 +312,14 @@ func (kv *ShardKV) LoadSnapshot(snapshot []byte) {
 	}
 	r := bytes.NewBuffer(snapshot)
 	d := labgob.NewDecoder(r)
-	var data map[string]string
-	var dup map[int64]int
+	var shards map[int]Shard
 	var lastIncludedIndex int
-	if d.Decode(&data) != nil ||
-		d.Decode(&dup) != nil ||
+	if d.Decode(&shards) != nil ||
 		d.Decode(&lastIncludedIndex) != nil {
 	} else {
 		kv.mu.Lock()
 		defer kv.mu.Unlock()
-		kv.data = data
-		kv.dup = dup
+		kv.shards = shards
 		kv.lastIncludedIndex = lastIncludedIndex
 	}
 }
@@ -317,31 +332,52 @@ func (kv *ShardKV) fetchLatestConfig() {
 			config := kv.sm.Query(-1)
 			if !kv.check_same_config(config, kv.config) {
 				for i := 0; i < shardmaster.NShards; i++ {
+					if kv.config.Shards[i] == kv.gid && config.Shards[i] != kv.gid {
+						//老的shard 上是我，新的 shard 是别人，所以要传给别人数据
+						//send rpc(data) to config.Shards[i]
+						shard, _ := kv.shards[i]
+						shard.Avaliable = false
+						go kv.sendMigration(config.Shards[i], i)
+					}
 					if kv.config.Shards[i] != kv.gid && config.Shards[i] == kv.gid {
-						//send rpc for shard[i] to kv.config.Shards[i] to get data
-						fmt.Println("不一样 ask data")
-						//send rpc to others
-						if servers, ok := kv.config.Groups[kv.config.Shards[i]]; ok {
-							for si := 0; si < len(servers); si++ {
-								srv := kv.make_end(servers[si])
-								var args MigrateArgs
-								args.Shard = i
-								args.ConfigNum = kv.config.Num
-								var reply MigrateReply
-								ok := kv.sendMigrateArgs(srv, &args, &reply)
-								if ok && reply.Err == "" {
-									//update state
-									DPrintf("%d %d 需要 %d 的数据 reply %d", kv.gid, kv.me, kv.config.Shards[i], reply.Data)
-									kv.updateDataAndDup(reply.Data, reply.Dup)
-								} else {
-									//需要处理 由于Num 引起的问题
-								}
-								// ... not ok, or ErrWrongLeader
-							}
+						//老的shard 上是别人，新的 shard 是我，所以要接受数据
+
+					}
+				}
+				// for i := 0; i < shardmaster.NShards; i++ {
+				// 	if kv.config.Shards[i] != kv.gid && config.Shards[i] == kv.gid {
+				// 		//send rpc for shard[i] to kv.config.Shards[i] to get data
+				// 		fmt.Println("不一样 ask data")
+				// 		//send rpc to others
+				// 		if servers, ok := kv.config.Groups[kv.config.Shards[i]]; ok {
+				// 			for si := 0; si < len(servers); si++ {
+				// 				srv := kv.make_end(servers[si])
+				// 				var args MigrateArgs
+				// 				args.Shard = i
+				// 				args.ConfigNum = kv.config.Num
+				// 				var reply MigrateReply
+				// 				ok := kv.sendMigrateArgs(srv, &args, &reply)
+				// 				if ok && reply.Err == "" {
+				// 					//update state
+				// 					DPrintf("%d %d 需要 %d 的数据 reply %d", kv.gid, kv.me, kv.config.Shards[i], reply.Data)
+				// 					kv.updateDataAndDup(reply.Data, reply.Dup)
+				// 				} else {
+				// 					//需要处理 由于Num 引起的问题
+				// 				}
+				// 				// ... not ok, or ErrWrongLeader
+				// 			}
+				// 		}
+				// 	}
+				// }
+				DPrintf("%d %d 改变config", kv.gid, kv.me)
+				if kv.config.Num == 0 {
+					for i := 0; i < shardmaster.NShards; i++ {
+						if config.Shards[i] == kv.gid {
+							shard := kv.shards[i]
+							shard.Avaliable = true
 						}
 					}
 				}
-
 				kv.config = config
 			} else {
 				//DPrintf("%d %d 没变哟", kv.gid, kv.me)
@@ -396,22 +432,51 @@ func (kv *ShardKV) MigrateReply(args *MigrateArgs, reply *MigrateReply) {
 		reply.Err = ErrWrongLeader
 		return
 	}
-	if args.ConfigNum > kv.config.Num {
+	if args.ConfigNum < kv.config.Num {
 		reply.Err = "sorry I have not updated"
+		return
 	}
-	dup := copyMapForDup(kv.dup)
-	data := copyData(args.Shard, kv.data)
-	reply.Data = data
-	reply.Dup = dup
+	args.Shard.Avaliable = true
+	kv.shards[args.Shard.Id] = args.Shard
+	reply.Err = OK
 }
 
-func (kv *ShardKV) updateDataAndDup(data map[string]string, dup map[int64]int) {
+// func (kv *ShardKV) updateDataAndDup(data map[string]string, dup map[int64]int) {
 
-	for k, v := range data {
-		kv.data[k] = v
-	}
-	for k, v := range dup {
-		kv.dup[k] = v
-	}
+// }
 
+func (kv *ShardKV) sendMigration(gid int, shard int) {
+	if _, isLeader := kv.rf.GetState(); !isLeader {
+		return
+	}
+	if servers, ok := kv.config.Groups[gid]; ok {
+		for si := 0; si < len(servers); si++ {
+			srv := kv.make_end(servers[si])
+			var args MigrateArgs
+			args.Shard = kv.copyOfShard(shard)
+			args.ConfigNum = kv.config.Num
+
+			var reply MigrateReply
+			ok := kv.sendMigrateArgs(srv, &args, &reply)
+			if ok && reply.Err == OK {
+				//成功发送Migration ，开始删除
+				//delete shard[i]
+			} else {
+				go kv.sendMigration(gid, shard)
+			}
+			// ... not ok, or ErrWrongLeader
+		}
+	}
+}
+
+func (kv *ShardKV) copyOfShard(i int) Shard {
+	res := Shard{}
+	for k, v := range kv.shards[i].Data {
+		res.Data[k] = v
+	}
+	for k, v := range kv.shards[i].Dup {
+		res.Dup[k] = v
+	}
+	res.Id = kv.shards[i].Id
+	return res
 }

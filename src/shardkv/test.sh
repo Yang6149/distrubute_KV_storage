@@ -12,5 +12,6 @@ for ((i=0;i<$1;i++))
 do
     echo $i
 	time go test -run TestJoinLeave
+	#time go test -run TestStaticShards
 done
 #rm -rf temp

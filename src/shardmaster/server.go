@@ -141,6 +141,7 @@ func (sm *ShardMaster) start(op Op) (bool, Err, Config) { //wrongLeader , Err
 		defer sm.mu.Unlock()
 		return true, "", resConfig
 	}
+	DPrintf("%d 发送了 %d", sm.me, op)
 	ch := make(chan Op, 1)
 	sm.apps[index] = ch
 	sm.mu.Unlock()
@@ -156,7 +157,7 @@ func (sm *ShardMaster) start(op Op) (bool, Err, Config) { //wrongLeader , Err
 			DPrintf("return op ", oop)
 			sm.mu.Lock()
 			defer sm.mu.Unlock()
-			sm.dup[op.ClientId] = op.SerialId
+			//sm.dup[op.ClientId] = op.SerialId
 			return false, "", oop.Config
 		} else {
 			DPrintf("%d :wrongleader", sm.me)
@@ -212,6 +213,7 @@ func StartServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister)
 	sm.dup = make(map[int64]int)
 	// Your code here.
 	go sm.apply()
+	DPrintf("%d init", me)
 	return sm
 }
 
@@ -241,9 +243,8 @@ func (sm *ShardMaster) apply() {
 		op := msg.Command.(Op)
 		op.Config = sm.initConfig()
 		sm.copyConfig(&op.Config, &sm.configs[len(sm.configs)-1])
-		op.Config.Num++
 		if sm.checkDup(op.ClientId, op.SerialId) {
-
+			op.Config.Num++
 			switch op.Type {
 			case Join:
 
@@ -270,21 +271,24 @@ func (sm *ShardMaster) apply() {
 				sm.configs = append(sm.configs, op.Config)
 				DPrintf("%d : move config", sm.me)
 				//args := op.Args.(MoveArgs)
-			case Query:
-				num := op.Num
-				if num < 0 || num >= len(sm.configs)-1 {
-					op.Config = sm.configs[len(sm.configs)-1]
-				} else {
-					op.Config = sm.configs[num]
-				}
+				
 			}
+			sm.dup[op.ClientId] = op.SerialId
 
-			ch, ok := sm.apps[msg.CommandIndex]
-			if ok {
-				ch <- op
-			}
-			sm.mu.Unlock()
 		}
+		if op.Type==Query{
+			num := op.Num
+			if num < 0 || num >= len(sm.configs)-1 {
+				op.Config = sm.configs[len(sm.configs)-1]
+			} else {
+				op.Config = sm.configs[num]
+			}
+		}
+		ch, ok := sm.apps[msg.CommandIndex]
+		if ok {
+			ch <- op
+		}
+		sm.mu.Unlock()
 	}
 }
 

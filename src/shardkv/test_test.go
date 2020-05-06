@@ -48,6 +48,14 @@ func TestStaticShards(t *testing.T) {
 	for i := 0; i < n; i++ {
 		check(t, ck, ka[i], va[i])
 	}
+	for i := 0; i < n; i++ {
+		v := randstring(20)
+		ck.Append(ka[i], v)
+		va[i] += v
+	}
+	for i := 0; i < n; i++ {
+		check(t, ck, ka[i], va[i])
+	}
 
 	// make sure that the data really is sharded by
 	// shutting down one shard and checking that some
@@ -122,9 +130,9 @@ func TestJoinLeave(t *testing.T) {
 		ck.Append(ka[i], x)
 		va[i] += x
 	}
-
 	cfg.leave(0)
-	fmt.Println("leave gid=0 的group")
+	//time.Sleep(1000 * time.Millisecond)
+	fmt.Println("leave gid=100 的group")
 	for i := 0; i < n; i++ {
 		fmt.Println(" leave 之后check success  1111 at", i)
 		check(t, ck, ka[i], va[i])
@@ -132,6 +140,9 @@ func TestJoinLeave(t *testing.T) {
 		x := randstring(5)
 		ck.Append(ka[i], x)
 		va[i] += x
+		res := ck.Get(ka[i])
+		fmt.Println(ka[i], "  ", res, " : ", va[i])
+		fmt.Println("****************************")
 	}
 
 	// allow time for shards to transfer.

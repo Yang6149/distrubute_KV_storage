@@ -10,6 +10,7 @@ package shardkv
 
 import (
 	"crypto/rand"
+	"fmt"
 	"math/big"
 	"time"
 
@@ -93,6 +94,7 @@ func (ck *Clerk) Get(key string) string {
 				var reply GetReply
 				ok := srv.Call("ShardKV.Get", &args, &reply)
 				if ok && (reply.Err == OK || reply.Err == ErrNoKey) {
+					fmt.Println(gid, "get res = ", reply.Value)
 					return reply.Value
 				}
 				if ok && (reply.Err == ErrWrongGroup) {

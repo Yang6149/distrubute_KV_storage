@@ -328,6 +328,7 @@ func (cfg *config) leavem(gis []int) {
 		gids = append(gids, cfg.groups[g].gid)
 	}
 	cfg.mck.Leave(gids)
+	fmt.Println("leave 了 ",gids)
 }
 
 var ncpu_once sync.Once
