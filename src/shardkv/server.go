@@ -301,9 +301,23 @@ func (kv *ShardKV) apply() {
 							shard.Version = config.Num
 						}
 					}
+					if kv.config.Num == 0 {
+						for i, _ := range config.Shards {
+							if config.Shards[i] == kv.gid {
+								shard := Shard{}
+								shard.Id = i
+								shard.Data = make(map[string]string)
+								shard.Dup = make(map[int64]int)
+								shard.Version = config.Num
+								kv.shards[i] = shard
+							}
+						}
+					}
 
 					kv.config = config
 					DPrintf("%d %d 更新 config%d ", kv.gid, kv.me, config)
+				} else {
+					DPrintf("ignore 小于当前 config 的 config")
 				}
 				ch, ok := kv.appsforConfig[msg.CommandIndex]
 				if ok {
@@ -409,7 +423,6 @@ func (kv *ShardKV) fetchLatestConfig() {
 			kv.mu.Lock()
 			config := kv.sm.Query(-1)
 			if !kv.check_same_config(config, kv.config) {
-
 				index, _, _ := kv.rf.Start(config)
 				ch := make(chan shardmaster.Config, 1)
 				kv.appsforConfig[index] = ch
@@ -523,6 +536,9 @@ func (kv *ShardKV) sendMigration(gid int, shard int) {
 			if ok && reply.Err == OK {
 				//成功发送Migration ，开始删除
 				//delete shard[i]
+				if kv.gid == 102 {
+					fmt.Println("99999999999999999999999999999999999999999", gid)
+				}
 				gc := GC{}
 				gc.Shard = shard
 				gc.Version = shardVersion

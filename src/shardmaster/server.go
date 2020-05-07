@@ -123,8 +123,8 @@ func (sm *ShardMaster) start(op Op) (bool, Err, Config) { //wrongLeader , Err
 	sm.mu.Lock()
 	resConfig := Config{}
 	if !sm.checkDup(op.ClientId, op.SerialId) { //重复了
-		DPrintf("dup!!!")
-		DPrintf("%d : op", sm.me, op)
+		// DPrintf("dup!!!")
+		// DPrintf("%d : op", sm.me, op)
 		if op.Type == Query {
 			num := op.Num
 			if num < 0 || num >= len(sm.configs)-1 {
@@ -271,12 +271,12 @@ func (sm *ShardMaster) apply() {
 				sm.configs = append(sm.configs, op.Config)
 				DPrintf("%d : move config", sm.me)
 				//args := op.Args.(MoveArgs)
-				
+
 			}
 			sm.dup[op.ClientId] = op.SerialId
 
 		}
-		if op.Type==Query{
+		if op.Type == Query {
 			num := op.Num
 			if num < 0 || num >= len(sm.configs)-1 {
 				op.Config = sm.configs[len(sm.configs)-1]
