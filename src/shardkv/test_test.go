@@ -41,6 +41,7 @@ func TestStaticShards(t *testing.T) {
 	ka := make([]string, n)
 	va := make([]string, n)
 	for i := 0; i < n; i++ {
+		fmt.Println("1+", i)
 		ka[i] = strconv.Itoa(i) // ensure multiple shards
 		va[i] = randstring(20)
 		ck.Put(ka[i], va[i])
