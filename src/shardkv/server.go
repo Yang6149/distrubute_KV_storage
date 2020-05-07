@@ -73,6 +73,7 @@ type ShardKV struct {
 	appsforGC     map[int]chan GC
 	shards        map[int]Shard
 
+	impleConfig       int
 	GCch              chan GC
 	lastIncludedIndex int
 }
@@ -107,6 +108,7 @@ func (kv *ShardKV) start(op Op) (string, Err) {
 	//判断是否改变了配置而拒绝请求
 	shard := key2shard(op.Key)
 	gid := kv.config.Shards[shard]
+
 	if s, ok := kv.shards[shard]; gid != kv.gid || !ok || s.Version != kv.config.Num {
 		//gid 对不上、不存在该 shard、存在但是不可用状态
 		defer kv.mu.Unlock()
@@ -224,11 +226,11 @@ func StartServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister,
 	kv.appsforShard = make(map[int]chan Shard)
 	kv.GCch = make(chan GC, 100)
 	kv.shards = make(map[int]Shard)
-	kv.initShard()
+	//kv.initShard()
 	kv.maxraftstate = maxraftstate
 	kv.LoadSnapshot(kv.rf.GetSnapshots())
-	DPrintf("%d :init finished", kv.me)
-
+	DPrintf("%d %d :init finished", kv.gid, kv.me)
+	DPrintf("%d %d :config-", kv.gid, kv.me, kv.config)
 	//labgob init
 	labgob.Register(MigrateArgs{})
 	labgob.Register(Shard{})
@@ -294,14 +296,19 @@ func (kv *ShardKV) apply() {
 			case shardmaster.Config:
 				config := command
 				if config.Num > kv.config.Num {
+					kv.impleConfig = config.Num
 					//为那些没有改变shard 的 version 进行同步
 					for i := 0; i < shardmaster.NShards; i++ {
 						if config.Shards[i] == kv.gid && kv.config.Shards[i] == kv.gid {
 							shard := kv.shards[i]
 							shard.Version = config.Num
+							kv.shards[i] = shard
+							DPrintf("改变后 %d",kv.shards[i].Version )
+							DPrintf("%d %d 没改变 shard ，单纯升级 shard version shard[%d]->%d ", kv.gid,kv.me,i,config.Num)
 						}
 					}
 					if kv.config.Num == 0 {
+						temp := make([]int, 0)
 						for i, _ := range config.Shards {
 							if config.Shards[i] == kv.gid {
 								shard := Shard{}
@@ -310,8 +317,10 @@ func (kv *ShardKV) apply() {
 								shard.Dup = make(map[int64]int)
 								shard.Version = config.Num
 								kv.shards[i] = shard
+								temp = append(temp, i)
 							}
 						}
+						DPrintf("%d %d 初始化 %d ", kv.gid, kv.me, temp)
 					}
 
 					kv.config = config
@@ -327,6 +336,9 @@ func (kv *ShardKV) apply() {
 				shard := command
 				if shard.Version > kv.shards[shard.Id].Version {
 					kv.shards[shard.Id] = shard
+					if shard.Data==nil{
+						DPrintf("dadadadadadadadadada")
+					}
 					DPrintf("%d %d 更新 shard%d ", kv.gid, kv.me, shard)
 					// for k, _ := range kv.shards {
 					// 	if kv.shards[k].Version == 0 {
@@ -421,7 +433,7 @@ func (kv *ShardKV) fetchLatestConfig() {
 		select {
 		case <-time.After(50 * time.Millisecond):
 			kv.mu.Lock()
-			config := kv.sm.Query(-1)
+			config := kv.sm.Query(kv.impleConfig + 1)
 			if !kv.check_same_config(config, kv.config) {
 				index, _, _ := kv.rf.Start(config)
 				ch := make(chan shardmaster.Config, 1)
@@ -488,18 +500,26 @@ func (kv *ShardKV) MigrateReply(args *MigrateArgs, reply *MigrateReply) {
 		reply.Err = ErrWrongLeader
 		return
 	}
+	kv.mu.Lock()
 	if args.ConfigNum < kv.config.Num {
 		reply.Err = "stale Shard"
+		defer kv.mu.Unlock()
 		return
 	}
 	if shard, ok := kv.shards[args.Shard.Id]; ok && shard.Version == args.Shard.Version {
 		//已经拥有该shard ，判断重复直接返回确认。
 		reply.Err = OK
+		defer kv.mu.Unlock()
 		return
+	}
+	args.Shard.Version = args.ConfigNum
+	if args.Shard.Data==nil{
+		DPrintf("poipoipoipoipoipoippoipoipoi")
 	}
 	index, _, _ := kv.rf.Start(args.Shard)
 	ch := make(chan Shard, 1)
 	kv.appsforShard[index] = ch
+	kv.mu.Unlock()
 	defer func() {
 		kv.mu.Lock()
 		delete(kv.appsforShard, index)
@@ -523,6 +543,8 @@ func (kv *ShardKV) sendMigration(gid int, shard int) {
 	if _, isLeader := kv.rf.GetState(); !isLeader {
 		return
 	}
+	kv.mu.Lock()
+	defer kv.mu.Unlock()
 	if servers, ok := kv.config.Groups[gid]; ok {
 		for si := 0; si < len(servers); si++ {
 			srv := kv.make_end(servers[si])
@@ -532,13 +554,12 @@ func (kv *ShardKV) sendMigration(gid int, shard int) {
 			args.ConfigNum = kv.config.Num
 
 			var reply MigrateReply
+			kv.mu.Unlock()
 			ok := kv.sendMigrateArgs(srv, &args, &reply)
+			kv.mu.Lock()
 			if ok && reply.Err == OK {
 				//成功发送Migration ，开始删除
 				//delete shard[i]
-				if kv.gid == 102 {
-					fmt.Println("99999999999999999999999999999999999999999", gid)
-				}
 				gc := GC{}
 				gc.Shard = shard
 				gc.Version = shardVersion
@@ -558,6 +579,8 @@ func (kv *ShardKV) sendMigration(gid int, shard int) {
 
 func (kv *ShardKV) copyOfShard(i int) Shard {
 	res := Shard{}
+	res.Data = make(map[string]string)
+	res.Dup = make(map[int64]int)
 	for k, v := range kv.shards[i].Data {
 		res.Data[k] = v
 	}
@@ -577,8 +600,10 @@ func (kv *ShardKV) GC(shard int, version int) Err {
 	if !isLeader {
 		return ErrWrongLeader
 	}
+	kv.mu.Lock()
 	ch := make(chan GC, 1)
 	kv.appsforGC[index] = ch
+	kv.mu.Unlock()
 	defer func() {
 		kv.mu.Lock()
 		delete(kv.appsforGC, index)

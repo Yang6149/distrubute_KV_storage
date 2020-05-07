@@ -43,21 +43,25 @@ func TestStaticShards(t *testing.T) {
 	for i := 0; i < n; i++ {
 		fmt.Println("1+", i)
 		ka[i] = strconv.Itoa(i) // ensure multiple shards
-		va[i] = randstring(20)
+		va[i] = strconv.Itoa(i)
+		fmt.Println("put", ka[i], "->", va[i])
 		ck.Put(ka[i], va[i])
 	}
+	fmt.Println("1111111111111111111111111111111111")
 	for i := 0; i < n; i++ {
 		check(t, ck, ka[i], va[i])
 	}
+	fmt.Println("2222222222222222222222222222222222")
 	for i := 0; i < n; i++ {
-		v := randstring(20)
+		v := strconv.Itoa(i)
 		ck.Append(ka[i], v)
 		va[i] += v
 	}
+	fmt.Println("3333333333333333333333333333333333")
 	for i := 0; i < n; i++ {
 		check(t, ck, ka[i], va[i])
 	}
-
+	fmt.Println("4444444444444444444444444444444444")
 	// make sure that the data really is sharded by
 	// shutting down one shard and checking that some
 	// Get()s don't succeed.
