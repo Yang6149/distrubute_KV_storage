@@ -3,7 +3,6 @@ package shardkv
 // import "../shardmaster"
 import (
 	"bytes"
-	"fmt"
 	"log"
 	"sync"
 	"sync/atomic"
@@ -33,6 +32,7 @@ type Op struct {
 	Value    string
 	ClientId int64
 	SerialId int
+	Err      Err
 }
 
 type Shard struct {
@@ -82,7 +82,7 @@ func (kv *ShardKV) Get(args *GetArgs, reply *GetReply) {
 	// Your code here.
 	_, isLeader := kv.rf.GetState()
 	if isLeader {
-		op := Op{"Get", args.Key, "", args.ClientId, args.SerialId}
+		op := Op{"Get", args.Key, "", args.ClientId, args.SerialId, ""}
 		reply.Value, reply.Err = kv.start(op)
 	}
 }
@@ -91,11 +91,9 @@ func (kv *ShardKV) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	// Your code here.
 	_, isLeader := kv.rf.GetState()
 	if isLeader {
-		op := Op{args.Op, args.Key, args.Value, args.ClientId, args.SerialId}
-		res, Err := kv.start(op)
-		fmt.Println(kv.gid, res, "this is res value")
+		op := Op{args.Op, args.Key, args.Value, args.ClientId, args.SerialId, ""}
+		_, Err := kv.start(op)
 		reply.Err = Err
-		fmt.Println(Err)
 		return
 	} else {
 		reply.Err = ErrWrongLeader
@@ -112,7 +110,7 @@ func (kv *ShardKV) start(op Op) (string, Err) {
 	if s, ok := kv.shards[shard]; gid != kv.gid || !ok || s.Version != kv.config.Num {
 		//gid 对不上、不存在该 shard、存在但是不可用状态
 		defer kv.mu.Unlock()
-		fmt.Println(kv.gid, kv.me, gid != kv.gid, !ok, s.Version != kv.config.Num, s.Version, kv.config.Num)
+		DPrintf("%d %d %d %d", kv.gid, kv.me, gid != kv.gid, !ok, s.Version != kv.config.Num, s.Version, kv.config.Num)
 		return "", ErrWrongGroup
 	}
 	//检查put重复或是否直接返回get
@@ -143,7 +141,7 @@ func (kv *ShardKV) start(op Op) (string, Err) {
 		//返回成功
 		if op.ClientId == oop.ClientId && op.SerialId == oop.SerialId {
 			res := oop.Value
-			return res, OK
+			return res, oop.Err
 		} else {
 			return "", ErrWrongLeader
 		}
@@ -270,22 +268,38 @@ func (kv *ShardKV) apply() {
 			case Op:
 				op := command
 				shardId := key2shard(op.Key)
-				if res, ok := kv.shards[shardId].Dup[op.ClientId]; !ok || (ok && op.SerialId > res) {
-					switch op.Type {
-					case "Put":
-						kv.shards[shardId].Data[op.Key] = op.Value
-						DPrintf("%d %d put %s -> %s ", kv.gid, kv.me, op.Key, op.Value)
-					case "Append":
-						kv.shards[shardId].Data[op.Key] = kv.shards[shardId].Data[op.Key] + op.Value
-						op.Value = kv.shards[shardId].Data[op.Key]
-						DPrintf("%d %d append %s -> %s ", kv.gid, kv.me, op.Key, kv.shards[shardId].Data[op.Key]+op.Value)
+				if shard, ok := kv.shards[shardId]; ok {
+					if shard.Version != kv.config.Num {
+						//该 shard != config.Version,直接返回让 start 超时
+						DPrintf("FUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCK")
+						op.Err = ErrWrongGroup
+					} else {
+						if res, ok := kv.shards[shardId].Dup[op.ClientId]; !ok || (ok && op.SerialId > res) {
+							switch op.Type {
+							case "Put":
+								kv.shards[shardId].Data[op.Key] = op.Value
+								DPrintf("%d %d put %s -> %s ", kv.gid, kv.me, op.Key, op.Value)
+							case "Append":
+								DPrintf("%d %d append %s -> (%s) + (%s) ", kv.gid, kv.me, op.Key, kv.shards[shardId].Data[op.Key], op.Value)
+								kv.shards[shardId].Data[op.Key] = kv.shards[shardId].Data[op.Key] + op.Value
+								op.Value = kv.shards[shardId].Data[op.Key]
+							}
+							if kv.shards[shardId].Dup == nil {
+								DPrintf("出大大大问题")
+							}
+							kv.shards[shardId].Dup[op.ClientId] = op.SerialId
+						} else {
+						}
+						if op.Type == "Get" {
+							op.Value = kv.shards[shardId].Data[op.Key]
+						}
+						op.Err = OK
 					}
-					kv.shards[shardId].Dup[op.ClientId] = op.SerialId
 				} else {
+					//shard 已经被传送走并且被删除了，直接返回，让他超时。
+					DPrintf("shard 已经被传送走并且被删除了	")
 				}
-				if op.Type == "Get" {
-					op.Value = kv.shards[shardId].Data[op.Key]
-				}
+
 				ch, ok := kv.apps[msg.CommandIndex]
 				if ok {
 					ch <- op
@@ -303,8 +317,7 @@ func (kv *ShardKV) apply() {
 							shard := kv.shards[i]
 							shard.Version = config.Num
 							kv.shards[i] = shard
-							DPrintf("改变后 %d",kv.shards[i].Version )
-							DPrintf("%d %d 没改变 shard ，单纯升级 shard version shard[%d]->%d ", kv.gid,kv.me,i,config.Num)
+							DPrintf("%d %d 没改变 shard ，单纯升级 shard version shard[%d]->%d ", kv.gid, kv.me, i, config.Num)
 						}
 					}
 					if kv.config.Num == 0 {
@@ -332,24 +345,21 @@ func (kv *ShardKV) apply() {
 				if ok {
 					ch <- config
 				}
+				kv.checkMaxState(msg.CommandIndex)
 			case Shard:
 				shard := command
 				if shard.Version > kv.shards[shard.Id].Version {
 					kv.shards[shard.Id] = shard
-					if shard.Data==nil{
+					if shard.Data == nil {
 						DPrintf("dadadadadadadadadada")
 					}
 					DPrintf("%d %d 更新 shard%d ", kv.gid, kv.me, shard)
-					// for k, _ := range kv.shards {
-					// 	if kv.shards[k].Version == 0 {
-					// 		fmt.Println("********************************")
-					// 	}
-					// }
 				}
 				ch, ok := kv.appsforShard[msg.CommandIndex]
 				if ok {
 					ch <- shard
 				}
+				kv.checkMaxState(msg.CommandIndex)
 			case GC:
 				gc := command
 				shard, ok := kv.shards[gc.Shard]
@@ -366,6 +376,7 @@ func (kv *ShardKV) apply() {
 				if ok {
 					ch <- gc
 				}
+				kv.checkMaxState(msg.CommandIndex)
 			}
 			kv.mu.Unlock()
 			//判断是否重复指令
@@ -400,6 +411,8 @@ func (kv *ShardKV) encodeSnapshot() []byte {
 	e := labgob.NewEncoder(w)
 	e.Encode(kv.shards)
 	e.Encode(kv.lastIncludedIndex)
+	e.Encode(kv.impleConfig)
+	e.Encode(kv.config)
 	snapshot := w.Bytes()
 	return snapshot
 }
@@ -418,13 +431,19 @@ func (kv *ShardKV) LoadSnapshot(snapshot []byte) {
 	d := labgob.NewDecoder(r)
 	var shards map[int]Shard
 	var lastIncludedIndex int
+	var impleConfig int
+	var config shardmaster.Config
 	if d.Decode(&shards) != nil ||
-		d.Decode(&lastIncludedIndex) != nil {
+		d.Decode(&lastIncludedIndex) != nil ||
+		d.Decode(&impleConfig) != nil ||
+		d.Decode(&config) != nil {
 	} else {
 		kv.mu.Lock()
 		defer kv.mu.Unlock()
 		kv.shards = shards
 		kv.lastIncludedIndex = lastIncludedIndex
+		kv.impleConfig = impleConfig
+		kv.config = config
 	}
 }
 
@@ -432,6 +451,23 @@ func (kv *ShardKV) fetchLatestConfig() {
 	for {
 		select {
 		case <-time.After(50 * time.Millisecond):
+			isContinue := false
+			for i := 0; i < shardmaster.NShards; i++ {
+				shard, ok := kv.shards[i]
+				if kv.config.Shards[i] == kv.gid && (!ok || shard.Version != kv.config.Num) {
+					DPrintf("%d %d 口口口口口口口口口口口口口口口口口口口口口口口 %d ", kv.gid, kv.me, time.Now().UnixNano()/int64(time.Millisecond))
+					if !ok {
+						DPrintf("%d %d 还没这个 shard %d ，所以不要传新的过来", kv.gid, kv.me, i)
+					} else if shard.Version != kv.config.Num {
+						DPrintf("%d %d 还没更新 shard %d ，所以不要传新的过来shard.Version = %d ,kv.config.Num = %d", kv.gid, kv.me, i, shard.Version, kv.config.Num)
+					}
+					isContinue = true
+					break
+				}
+			}
+			if isContinue {
+				continue
+			}
 			kv.mu.Lock()
 			config := kv.sm.Query(kv.impleConfig + 1)
 			if !kv.check_same_config(config, kv.config) {
@@ -513,7 +549,7 @@ func (kv *ShardKV) MigrateReply(args *MigrateArgs, reply *MigrateReply) {
 		return
 	}
 	args.Shard.Version = args.ConfigNum
-	if args.Shard.Data==nil{
+	if args.Shard.Data == nil {
 		DPrintf("poipoipoipoipoipoippoipoipoi")
 	}
 	index, _, _ := kv.rf.Start(args.Shard)
@@ -569,6 +605,7 @@ func (kv *ShardKV) sendMigration(gid int, shard int) {
 				if reply.Err == ErrWrongLeader {
 					continue
 				}
+				time.Sleep(100 * time.Millisecond)
 				DPrintf("%d %d 发送 migration ：%d", kv.gid, kv.me, reply.Err)
 				go kv.sendMigration(gid, shard)
 			}

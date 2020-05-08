@@ -3,7 +3,9 @@ package shardkv
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"math/rand"
+	"os"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -166,6 +168,12 @@ func TestJoinLeave(t *testing.T) {
 }
 
 func TestSnapshot(t *testing.T) {
+	f, err := os.OpenFile("logfile.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("file open error : %v", err)
+	}
+	defer f.Close()
+	log.SetOutput(f)
 	fmt.Printf("Test: snapshots, join, and leave ...\n")
 
 	cfg := make_config(t, 3, false, 1000)
