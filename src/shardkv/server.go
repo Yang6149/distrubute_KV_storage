@@ -16,8 +16,13 @@ import (
 
 const Debug = 1
 
-func DPrintf(format string, a ...interface{}) (n int, err error) {
+func (kv *ShardKV) DPrintf(format string, a ...interface{}) (n int, err error) {
+
 	if Debug > 0 {
+		_, isLeader := kv.rf.GetState()
+		if !isLeader {
+			return
+		}
 		log.Printf(format, a...)
 	}
 	return
@@ -110,7 +115,7 @@ func (kv *ShardKV) start(op Op) (string, Err) {
 	if s, ok := kv.shards[shard]; gid != kv.gid || !ok || s.Version != kv.config.Num {
 		//gid 对不上、不存在该 shard、存在但是不可用状态
 		defer kv.mu.Unlock()
-		DPrintf("%d %d %d %d", kv.gid, kv.me, gid != kv.gid, !ok, s.Version != kv.config.Num, s.Version, kv.config.Num)
+		kv.DPrintf("%d %d %d %d", kv.gid, kv.me, gid != kv.gid, !ok, s.Version != kv.config.Num, s.Version, kv.config.Num)
 		return "", ErrWrongGroup
 	}
 	//检查put重复或是否直接返回get
@@ -159,7 +164,7 @@ func (kv *ShardKV) start(op Op) (string, Err) {
 //
 func (kv *ShardKV) Kill() {
 	atomic.StoreInt32(&kv.dead, 1)
-	DPrintf("%d %d :杀死一个 server", kv.gid, kv.me)
+	kv.DPrintf("%d %d :杀死一个 server", kv.gid, kv.me)
 	kv.rf.Kill()
 	// Your code here, if desired.
 }
@@ -227,8 +232,8 @@ func StartServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister,
 	//kv.initShard()
 	kv.maxraftstate = maxraftstate
 	kv.LoadSnapshot(kv.rf.GetSnapshots())
-	DPrintf("%d %d :init finished", kv.gid, kv.me)
-	DPrintf("%d %d :config-", kv.gid, kv.me, kv.config)
+	kv.DPrintf("%d %d :init finished", kv.gid, kv.me)
+	kv.DPrintf("%d %d :config-", kv.gid, kv.me, kv.config)
 	//labgob init
 	labgob.Register(MigrateArgs{})
 	labgob.Register(Shard{})
@@ -271,21 +276,21 @@ func (kv *ShardKV) apply() {
 				if shard, ok := kv.shards[shardId]; ok {
 					if shard.Version != kv.config.Num {
 						//该 shard != config.Version,直接返回让 start 超时
-						DPrintf("FUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCK")
+						kv.DPrintf("FUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCK")
 						op.Err = ErrWrongGroup
 					} else {
 						if res, ok := kv.shards[shardId].Dup[op.ClientId]; !ok || (ok && op.SerialId > res) {
 							switch op.Type {
 							case "Put":
 								kv.shards[shardId].Data[op.Key] = op.Value
-								DPrintf("%d %d put %s -> %s ", kv.gid, kv.me, op.Key, op.Value)
+								kv.DPrintf("%d %d put %s -> %s ", kv.gid, kv.me, op.Key, op.Value)
 							case "Append":
-								DPrintf("%d %d append %s -> (%s) + (%s) ", kv.gid, kv.me, op.Key, kv.shards[shardId].Data[op.Key], op.Value)
+								kv.DPrintf("%d %d append %s -> (%s) + (%s) ", kv.gid, kv.me, op.Key, kv.shards[shardId].Data[op.Key], op.Value)
 								kv.shards[shardId].Data[op.Key] = kv.shards[shardId].Data[op.Key] + op.Value
 								op.Value = kv.shards[shardId].Data[op.Key]
 							}
 							if kv.shards[shardId].Dup == nil {
-								DPrintf("出大大大问题")
+								kv.DPrintf("出大大大问题")
 							}
 							kv.shards[shardId].Dup[op.ClientId] = op.SerialId
 						} else {
@@ -297,7 +302,7 @@ func (kv *ShardKV) apply() {
 					}
 				} else {
 					//shard 已经被传送走并且被删除了，直接返回，让他超时。
-					DPrintf("shard 已经被传送走并且被删除了	")
+					kv.DPrintf("shard 已经被传送走并且被删除了	")
 				}
 
 				ch, ok := kv.apps[msg.CommandIndex]
@@ -317,7 +322,7 @@ func (kv *ShardKV) apply() {
 							shard := kv.shards[i]
 							shard.Version = config.Num
 							kv.shards[i] = shard
-							DPrintf("%d %d 没改变 shard ，单纯升级 shard version shard[%d]->%d ", kv.gid, kv.me, i, config.Num)
+							kv.DPrintf("%d %d 没改变 shard ，单纯升级 shard version shard[%d]->%d ", kv.gid, kv.me, i, config.Num)
 						}
 					}
 					if kv.config.Num == 0 {
@@ -333,13 +338,13 @@ func (kv *ShardKV) apply() {
 								temp = append(temp, i)
 							}
 						}
-						DPrintf("%d %d 初始化 %d ", kv.gid, kv.me, temp)
+						kv.DPrintf("%d %d 初始化 %d ", kv.gid, kv.me, temp)
 					}
 
 					kv.config = config
-					DPrintf("%d %d 更新 config%d ", kv.gid, kv.me, config)
+					kv.DPrintf("%d %d 更新 config%d ", kv.gid, kv.me, config)
 				} else {
-					DPrintf("ignore 小于当前 config 的 config")
+					kv.DPrintf("ignore 小于当前 config 的 config")
 				}
 				ch, ok := kv.appsforConfig[msg.CommandIndex]
 				if ok {
@@ -351,9 +356,9 @@ func (kv *ShardKV) apply() {
 				if shard.Version > kv.shards[shard.Id].Version {
 					kv.shards[shard.Id] = shard
 					if shard.Data == nil {
-						DPrintf("dadadadadadadadadada")
+						kv.DPrintf("dadadadadadadadadada")
 					}
-					DPrintf("%d %d 更新 shard%d ", kv.gid, kv.me, shard)
+					kv.DPrintf("%d %d 更新 shard%d ", kv.gid, kv.me, shard)
 				}
 				ch, ok := kv.appsforShard[msg.CommandIndex]
 				if ok {
@@ -366,10 +371,10 @@ func (kv *ShardKV) apply() {
 				if ok {
 					//版本正好正确
 					if shard.Version == gc.Version {
-						DPrintf("%d %d gc shard %d ", kv.gid, kv.me, gc.Shard)
+						kv.DPrintf("%d %d gc shard %d ", kv.gid, kv.me, gc.Shard)
 						delete(kv.shards, gc.Shard)
 					} else {
-						DPrintf("%d %d 你想gc%d 版本号为 %d ，我的版本号为 %d", kv.gid, kv.me, gc.Shard, gc.Version, shard.Version)
+						kv.DPrintf("%d %d 你想gc%d 版本号为 %d ，我的版本号为 %d", kv.gid, kv.me, gc.Shard, gc.Version, shard.Version)
 					}
 				}
 				ch, ok := kv.appsforGC[msg.CommandIndex]
@@ -451,16 +456,22 @@ func (kv *ShardKV) fetchLatestConfig() {
 	for {
 		select {
 		case <-time.After(50 * time.Millisecond):
+
 			isContinue := false
 			for i := 0; i < shardmaster.NShards; i++ {
 				shard, ok := kv.shards[i]
-				if kv.config.Shards[i] == kv.gid && (!ok || shard.Version != kv.config.Num) {
-					DPrintf("%d %d 口口口口口口口口口口口口口口口口口口口口口口口 %d ", kv.gid, kv.me, time.Now().UnixNano()/int64(time.Millisecond))
+				if kv.config.Shards[i] == kv.gid && (!ok || shard.Version < kv.config.Num) {
+					kv.DPrintf("%d %d 口口口口口口口口口口口口口口口口口口口口口口口", kv.gid, kv.me)
 					if !ok {
-						DPrintf("%d %d 还没这个 shard %d ，所以不要传新的过来", kv.gid, kv.me, i)
-					} else if shard.Version != kv.config.Num {
-						DPrintf("%d %d 还没更新 shard %d ，所以不要传新的过来shard.Version = %d ,kv.config.Num = %d", kv.gid, kv.me, i, shard.Version, kv.config.Num)
+						kv.DPrintf("%d %d 还没这个 shard %d ，所以不要传新的过来", kv.gid, kv.me, i)
+					} else if shard.Version < kv.config.Num {
+						kv.DPrintf("%d %d 还没更新 shard %d ，所以不要传新的过来shard.Version = %d ,kv.config.Num = %d", kv.gid, kv.me, i, shard.Version, kv.config.Num)
 					}
+					isContinue = true
+					break
+				}
+				if ok && kv.config.Shards[i] != kv.gid {
+					//我还没删除掉不属于我的东西
 					isContinue = true
 					break
 				}
@@ -487,7 +498,7 @@ func (kv *ShardKV) fetchLatestConfig() {
 					//没成功
 				}
 			} else {
-				//DPrintf("%d %d 没变哟", kv.gid, kv.me)
+				//kv.DPrintf("%d %d 没变哟", kv.gid, kv.me)
 			}
 			kv.mu.Unlock()
 		}
@@ -507,6 +518,7 @@ func (kv *ShardKV) detectConfig() {
 					_, ok := kv.shards[i]
 					if kv.config.Shards[i] != kv.gid && ok {
 						//拥有 shard 但config上指示我应该没有，所以我要把它发送给有用的人。再删除掉
+						kv.DPrintf("%d %d 向 %d 发送shard[%d]", kv.gid, kv.me, kv.config.Shards[i], i)
 						go kv.sendMigration(kv.config.Shards[i], i)
 					}
 				}
@@ -532,6 +544,7 @@ func (kv *ShardKV) sendMigrateArgs(cli *labrpc.ClientEnd, args *MigrateArgs, rep
 
 func (kv *ShardKV) MigrateReply(args *MigrateArgs, reply *MigrateReply) {
 	_, isLeader := kv.rf.GetState()
+	args.Shard.Version = args.Shard.Version + 1
 	if !isLeader {
 		reply.Err = ErrWrongLeader
 		return
@@ -548,9 +561,8 @@ func (kv *ShardKV) MigrateReply(args *MigrateArgs, reply *MigrateReply) {
 		defer kv.mu.Unlock()
 		return
 	}
-	args.Shard.Version = args.ConfigNum
 	if args.Shard.Data == nil {
-		DPrintf("poipoipoipoipoipoippoipoipoi")
+		kv.DPrintf("poipoipoipoipoipoippoipoipoi")
 	}
 	index, _, _ := kv.rf.Start(args.Shard)
 	ch := make(chan Shard, 1)
@@ -606,7 +618,7 @@ func (kv *ShardKV) sendMigration(gid int, shard int) {
 					continue
 				}
 				time.Sleep(100 * time.Millisecond)
-				DPrintf("%d %d 发送 migration ：%d", kv.gid, kv.me, reply.Err)
+				kv.DPrintf("%d %d 发送 migration ：%d", kv.gid, kv.me, reply.Err)
 				go kv.sendMigration(gid, shard)
 			}
 			// ... not ok, or ErrWrongLeader
