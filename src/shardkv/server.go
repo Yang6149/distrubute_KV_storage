@@ -28,6 +28,13 @@ func (kv *ShardKV) DPrintf(format string, a ...interface{}) (n int, err error) {
 	}
 	return
 }
+func EPrintf(format string, a ...interface{}) (n int, err error) {
+
+	if Debug > 0 {
+		log.Printf(format, a...)
+	}
+	return
+}
 
 type Op struct {
 	// Your definitions here.
@@ -114,10 +121,10 @@ func (kv *ShardKV) start(op Op) (string, Err) {
 	shard := key2shard(op.Key)
 	gid := kv.config.Shards[shard]
 
-	if s, ok := kv.shards[shard]; gid != kv.gid || !ok || s.Version != kv.config.Num {
+	if s, ok := kv.shards[shard]; gid != kv.gid || !ok || s.Version < kv.config.Num {
 		//gid 对不上、不存在该 shard、存在但是不可用状态
 		defer kv.mu.Unlock()
-		kv.DPrintf("%d %d %d %d", kv.gid, kv.me, gid != kv.gid, !ok, s.Version != kv.config.Num, s.Version, kv.config.Num)
+		kv.DPrintf("%d %d %d %d", kv.gid, kv.me, gid != kv.gid, !ok, s.Version < kv.config.Num, s.Version, kv.config.Num)
 		return "", ErrWrongGroup
 	}
 	//检查put重复或是否直接返回get
@@ -234,8 +241,8 @@ func StartServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister,
 	//kv.initShard()
 	kv.maxraftstate = maxraftstate
 	kv.LoadSnapshot(kv.rf.GetSnapshots())
-	kv.DPrintf("%d %d :init finished", kv.gid, kv.me)
-	kv.DPrintf("%d %d :config-", kv.gid, kv.me, kv.config)
+	EPrintf("%d %d :init finished", kv.gid, kv.me)
+	EPrintf("%d %d :config-", kv.gid, kv.me, kv.config)
 	//labgob init
 	labgob.Register(MigrateArgs{})
 	labgob.Register(Shard{})
@@ -609,6 +616,10 @@ func (kv *ShardKV) sendMigration(gid int, shard int) {
 			srv := kv.make_end(servers[si])
 			var args MigrateArgs
 			args.Shard = kv.copyOfShard(shard)
+			if args.Shard.Id != shard {
+				fmt.Println("逮到了")
+				break
+			}
 			shardVersion := args.Shard.Version
 			args.Shard.Version = kv.config.Num
 			args.ConfigNum = kv.config.Num
@@ -617,7 +628,7 @@ func (kv *ShardKV) sendMigration(gid int, shard int) {
 			kv.mu.Unlock()
 			if gid == 102 && args.Shard.Version == 4 && args.Shard.Id == 0 {
 				fmt.Println("************************")
-				fmt.Println("本来要给",shard)
+				fmt.Println("本来要给", shard)
 				fmt.Println(kv.config)
 				fmt.Println(kv.shards)
 				fmt.Println("************************")
@@ -700,4 +711,27 @@ func (kv *ShardKV) GCDeamon() {
 			kv.GCch <- gc
 		}
 	}
+}
+
+func deepCopyMigrate(args MigrateArgs) MigrateArgs {
+	res := MigrateArgs{}
+	res.ConfigNum = args.ConfigNum
+	res.Gid = args.Gid
+	res.Shard = deepCopyShard(args.Shard)
+	return res
+}
+
+func deepCopyShard(shard Shard) Shard {
+	res := Shard{}
+	res.Id = shard.Id
+	res.Version = shard.Version
+	res.Data = make(map[string]string)
+	res.Dup = make(map[int64]int)
+	for k, v := range shard.Data {
+		res.Data[k] = v
+	}
+	for k, v := range shard.Dup {
+		res.Dup[k] = v
+	}
+	return res
 }
