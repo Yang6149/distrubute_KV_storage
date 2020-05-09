@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"math/rand"
-	"os"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -168,12 +167,7 @@ func TestJoinLeave(t *testing.T) {
 }
 
 func TestSnapshot(t *testing.T) {
-	f, err := os.OpenFile("logfile.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("file open error : %v", err)
-	}
-	defer f.Close()
-	log.SetOutput(f)
+
 	fmt.Printf("Test: snapshots, join, and leave ...\n")
 
 	cfg := make_config(t, 3, false, 1000)
@@ -250,6 +244,7 @@ func TestMissChange(t *testing.T) {
 	ck := cfg.makeClient()
 
 	cfg.join(0)
+	log.Printf("join 100")
 
 	n := 10
 	ka := make([]string, n)
@@ -262,24 +257,24 @@ func TestMissChange(t *testing.T) {
 	for i := 0; i < n; i++ {
 		check(t, ck, ka[i], va[i])
 	}
-
+	log.Printf("put 前10个 success")
 	cfg.join(1)
-
+	log.Printf("join 101")
 	cfg.ShutdownServer(0, 0)
 	cfg.ShutdownServer(1, 0)
 	cfg.ShutdownServer(2, 0)
-
+	log.Printf("shut down 100-0,1,2")
 	cfg.join(2)
 	cfg.leave(1)
 	cfg.leave(0)
-
+	log.Printf("join 102 , leave 101,100")
 	for i := 0; i < n; i++ {
 		check(t, ck, ka[i], va[i])
 		x := randstring(20)
 		ck.Append(ka[i], x)
 		va[i] += x
 	}
-
+	log.Printf("check 前10个而且再append10 个")
 	cfg.join(1)
 
 	for i := 0; i < n; i++ {
@@ -288,11 +283,11 @@ func TestMissChange(t *testing.T) {
 		ck.Append(ka[i], x)
 		va[i] += x
 	}
-
+	log.Printf("check 前10个而且再append10 个")
 	cfg.StartServer(0, 0)
 	cfg.StartServer(1, 0)
 	cfg.StartServer(2, 0)
-
+	log.Printf("restart 100-1,2,3")
 	for i := 0; i < n; i++ {
 		check(t, ck, ka[i], va[i])
 		x := randstring(20)

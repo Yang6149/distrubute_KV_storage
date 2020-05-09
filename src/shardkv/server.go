@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"os"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -34,6 +35,15 @@ func EPrintf(format string, a ...interface{}) (n int, err error) {
 		log.Printf(format, a...)
 	}
 	return
+}
+func init() {
+	fmt.Println("123")
+	f, err := os.OpenFile("logfile.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("file open error : %v", err)
+	}
+	//defer f.Close()
+	log.SetOutput(f)
 }
 
 type Op struct {
@@ -125,6 +135,7 @@ func (kv *ShardKV) start(op Op) (string, Err) {
 		//gid 对不上、不存在该 shard、存在但是不可用状态
 		defer kv.mu.Unlock()
 		kv.DPrintf("%d %d %d %d", kv.gid, kv.me, gid != kv.gid, !ok, s.Version < kv.config.Num, s.Version, kv.config.Num)
+		kv.DPrintf("%d %d %d %d", kv.gid, kv.me, gid, ok)
 		return "", ErrWrongGroup
 	}
 	//检查put重复或是否直接返回get
@@ -485,9 +496,10 @@ func (kv *ShardKV) fetchLatestConfig() {
 					isContinue = true
 					break
 				}
-				if ok && kv.config.Shards[i] != kv.gid {
+				if ok && kv.config.Shards[i] != kv.gid && shard.Version < kv.config.Num {
 					//我还没删除掉不属于我的东西
 					isContinue = true
+					kv.DPrintf("%d %d 还没删除 shard %d ，所以不要传新的过来", kv.gid, kv.me, i)
 					break
 				}
 			}
@@ -495,6 +507,7 @@ func (kv *ShardKV) fetchLatestConfig() {
 				kv.mu.Unlock()
 				continue
 			}
+			kv.DPrintf("%d %d config:%d shard %d ", kv.gid, kv.me, kv.config.Num, kv.shards)
 			config := kv.sm.Query(kv.impleConfig + 1)
 			if !kv.check_same_config(config, kv.config) {
 				index, _, _ := kv.rf.Start(config)

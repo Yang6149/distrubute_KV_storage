@@ -14,7 +14,7 @@ do
 	#time go test -run TestJoinLeave
 	#time go test -run TestStaticShards
 	time go test -run TestSnapshot
-
+	#time go test -run TestMissChange
 
 	cat logfile.log > temp/a$i
 	rm logfile.log
