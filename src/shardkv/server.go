@@ -3,6 +3,7 @@ package shardkv
 // import "../shardmaster"
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"sync"
 	"sync/atomic"
@@ -54,6 +55,7 @@ type GC struct {
 type MigrateArgs struct {
 	Shard     Shard
 	ConfigNum int
+	Gid       int
 }
 type MigrateReply struct {
 	Err Err
@@ -353,7 +355,12 @@ func (kv *ShardKV) apply() {
 				kv.checkMaxState(msg.CommandIndex)
 			case Shard:
 				shard := command
-				if shard.Version > kv.shards[shard.Id].Version {
+				if _, ok := kv.shards[shard.Id]; !ok || shard.Version > kv.shards[shard.Id].Version {
+					if !ok {
+						kv.DPrintf("%d %d 原来无 shard %d", kv.gid, kv.me, shard.Id)
+					} else {
+						kv.DPrintf("%d %d 原来的 shard%d ", kv.gid, kv.me, kv.shards[shard.Id])
+					}
 					kv.shards[shard.Id] = shard
 					if shard.Data == nil {
 						kv.DPrintf("dadadadadadadadadada")
@@ -456,6 +463,7 @@ func (kv *ShardKV) fetchLatestConfig() {
 	for {
 		select {
 		case <-time.After(50 * time.Millisecond):
+			kv.mu.Lock()
 
 			isContinue := false
 			for i := 0; i < shardmaster.NShards; i++ {
@@ -477,9 +485,9 @@ func (kv *ShardKV) fetchLatestConfig() {
 				}
 			}
 			if isContinue {
+				kv.mu.Unlock()
 				continue
 			}
-			kv.mu.Lock()
 			config := kv.sm.Query(kv.impleConfig + 1)
 			if !kv.check_same_config(config, kv.config) {
 				index, _, _ := kv.rf.Start(config)
@@ -515,10 +523,9 @@ func (kv *ShardKV) detectConfig() {
 				kv.mu.Lock()
 				//检查当前 shard 是否发送了
 				for i := 0; i < shardmaster.NShards; i++ {
-					_, ok := kv.shards[i]
-					if kv.config.Shards[i] != kv.gid && ok {
+					shard, ok := kv.shards[i]
+					if kv.config.Shards[i] != kv.gid && ok && shard.Version < kv.config.Num {
 						//拥有 shard 但config上指示我应该没有，所以我要把它发送给有用的人。再删除掉
-						kv.DPrintf("%d %d 向 %d 发送shard[%d]", kv.gid, kv.me, kv.config.Shards[i], i)
 						go kv.sendMigration(kv.config.Shards[i], i)
 					}
 				}
@@ -544,14 +551,13 @@ func (kv *ShardKV) sendMigrateArgs(cli *labrpc.ClientEnd, args *MigrateArgs, rep
 
 func (kv *ShardKV) MigrateReply(args *MigrateArgs, reply *MigrateReply) {
 	_, isLeader := kv.rf.GetState()
-	args.Shard.Version = args.Shard.Version + 1
 	if !isLeader {
 		reply.Err = ErrWrongLeader
 		return
 	}
 	kv.mu.Lock()
 	if args.ConfigNum < kv.config.Num {
-		reply.Err = "stale Shard"
+		reply.Err = OK
 		defer kv.mu.Unlock()
 		return
 	}
@@ -564,6 +570,9 @@ func (kv *ShardKV) MigrateReply(args *MigrateArgs, reply *MigrateReply) {
 	if args.Shard.Data == nil {
 		kv.DPrintf("poipoipoipoipoipoippoipoipoi")
 	}
+	if kv.gid == 102 && args.Shard.Version == 4 && args.Shard.Id == 0 {
+		fmt.Println(args)
+	}
 	index, _, _ := kv.rf.Start(args.Shard)
 	ch := make(chan Shard, 1)
 	kv.appsforShard[index] = ch
@@ -574,7 +583,8 @@ func (kv *ShardKV) MigrateReply(args *MigrateArgs, reply *MigrateReply) {
 		kv.mu.Unlock()
 	}()
 	select {
-	case <-ch:
+	case shard := <-ch:
+		kv.DPrintf("%d %d 接受到 来自 %d 的shard %d", kv.gid, kv.me, args.Gid, shard)
 		reply.Err = OK
 		return
 	case <-time.After(2000 * time.Millisecond):
@@ -593,16 +603,25 @@ func (kv *ShardKV) sendMigration(gid int, shard int) {
 	}
 	kv.mu.Lock()
 	defer kv.mu.Unlock()
+	kv.DPrintf("%d %d 向 %d 发送shard[%d] %d", kv.gid, kv.me, gid, shard, kv.shards[shard])
 	if servers, ok := kv.config.Groups[gid]; ok {
 		for si := 0; si < len(servers); si++ {
 			srv := kv.make_end(servers[si])
 			var args MigrateArgs
 			args.Shard = kv.copyOfShard(shard)
 			shardVersion := args.Shard.Version
+			args.Shard.Version = kv.config.Num
 			args.ConfigNum = kv.config.Num
-
+			args.Gid = kv.gid
 			var reply MigrateReply
 			kv.mu.Unlock()
+			if gid == 102 && args.Shard.Version == 4 && args.Shard.Id == 0 {
+				fmt.Println("************************")
+				fmt.Println("本来要给",shard)
+				fmt.Println(kv.config)
+				fmt.Println(kv.shards)
+				fmt.Println("************************")
+			}
 			ok := kv.sendMigrateArgs(srv, &args, &reply)
 			kv.mu.Lock()
 			if ok && reply.Err == OK {
@@ -617,6 +636,7 @@ func (kv *ShardKV) sendMigration(gid int, shard int) {
 				if reply.Err == ErrWrongLeader {
 					continue
 				}
+
 				time.Sleep(100 * time.Millisecond)
 				kv.DPrintf("%d %d 发送 migration ：%d", kv.gid, kv.me, reply.Err)
 				go kv.sendMigration(gid, shard)
@@ -636,7 +656,11 @@ func (kv *ShardKV) copyOfShard(i int) Shard {
 	for k, v := range kv.shards[i].Dup {
 		res.Dup[k] = v
 	}
-	res.Id = kv.shards[i].Id
+	if shard, ok := kv.shards[i]; ok {
+		res.Id = shard.Id
+	} else {
+		fmt.Println("what the fuck")
+	}
 	res.Version = kv.shards[i].Version
 	return res
 }
