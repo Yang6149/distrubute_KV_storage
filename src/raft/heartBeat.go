@@ -45,7 +45,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 		LeaderCommit: rf.commitIndex,
 		Entries:      make([]Entry, 0),
 	}
-	args.Entries = rf.logGets(rf.nextIndex[i], min(rf.logLen(), rf.nextIndex[i]+50))
+	args.Entries = deepCopyLogs(rf.logGets(rf.nextIndex[i], min(rf.logLen(), rf.nextIndex[i]+50)))
 	DPrintf("%d ：发送给%d agrs %d ", rf.me, i, args)
 	reply := &AppendEntriesReply{}
 	yourLastMatchIndex := rf.matchIndex[i]

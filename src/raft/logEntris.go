@@ -56,3 +56,14 @@ func (rf *Raft) logDiscard(index int) {
 	// }
 
 }
+
+func deepCopyLogs(logs []Entry) []Entry {
+	res := make([]Entry, 0)
+	for i := range logs {
+		Entry := Entry{}
+		Entry.Term = logs[i].Term
+		Entry.Command = logs[i].Command
+		res = append(res, Entry)
+	}
+	return res
+}
