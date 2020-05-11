@@ -37,32 +37,32 @@ func TestStaticShards(t *testing.T) {
 
 	cfg.join(0)
 	cfg.join(1)
-	fmt.Println("join 100 and 101")
+	//fmt.Println("join 100 and 101")
 	n := 10
 	ka := make([]string, n)
 	va := make([]string, n)
 	for i := 0; i < n; i++ {
-		fmt.Println("1+", i)
+		//fmt.Println("1+", i)
 		ka[i] = strconv.Itoa(i) // ensure multiple shards
 		va[i] = strconv.Itoa(i)
-		fmt.Println("put", ka[i], "->", va[i])
+		//fmt.Println("put", ka[i], "->", va[i])
 		ck.Put(ka[i], va[i])
 	}
-	fmt.Println("1111111111111111111111111111111111")
+	//fmt.Println("1111111111111111111111111111111111")
 	for i := 0; i < n; i++ {
 		check(t, ck, ka[i], va[i])
 	}
-	fmt.Println("2222222222222222222222222222222222")
+	//fmt.Println("2222222222222222222222222222222222")
 	for i := 0; i < n; i++ {
 		v := strconv.Itoa(i)
 		ck.Append(ka[i], v)
 		va[i] += v
 	}
-	fmt.Println("3333333333333333333333333333333333")
+	//fmt.Println("3333333333333333333333333333333333")
 	for i := 0; i < n; i++ {
 		check(t, ck, ka[i], va[i])
 	}
-	fmt.Println("4444444444444444444444444444444444")
+	//fmt.Println("4444444444444444444444444444444444")
 	// make sure that the data really is sharded by
 	// shutting down one shard and checking that some
 	// Get()s don't succeed.
@@ -113,7 +113,7 @@ func TestJoinLeave(t *testing.T) {
 	ck := cfg.makeClient()
 
 	cfg.join(0)
-	fmt.Println("join gid=0 的group")
+	//fmt.Println("join gid=0 的group")
 	n := 10
 	ka := make([]string, n)
 	va := make([]string, n)
@@ -127,28 +127,28 @@ func TestJoinLeave(t *testing.T) {
 	}
 
 	cfg.join(1)
-	fmt.Println("join gid=1 的group")
+	//fmt.Println("join gid=1 的group")
 	for i := 0; i < n; i++ {
-		fmt.Println(" join 之后check success  1111 at", i)
+		//fmt.Println(" join 之后check success  1111 at", i)
 		check(t, ck, ka[i], va[i])
-		fmt.Println(" join 之后check success at ", i)
+		//fmt.Println(" join 之后check success at ", i)
 		x := randstring(5)
 		ck.Append(ka[i], x)
 		va[i] += x
 	}
 	cfg.leave(0)
 	//time.Sleep(1000 * time.Millisecond)
-	fmt.Println("leave gid=100 的group")
+	//fmt.Println("leave gid=100 的group")
 	for i := 0; i < n; i++ {
-		fmt.Println(" leave 之后check success  1111 at", i)
+		//fmt.Println(" leave 之后check success  1111 at", i)
 		check(t, ck, ka[i], va[i])
-		fmt.Println(" leave 之后check success at ", i)
+		//fmt.Println(" leave 之后check success at ", i)
 		x := randstring(5)
 		ck.Append(ka[i], x)
 		va[i] += x
-		res := ck.Get(ka[i])
-		fmt.Println(ka[i], "  ", res, " : ", va[i])
-		fmt.Println("****************************")
+		//res := ck.Get(ka[i])
+		//fmt.Println(ka[i], "  ", res, " : ", va[i])
+		//fmt.Println("****************************")
 	}
 
 	// allow time for shards to transfer.
@@ -158,9 +158,9 @@ func TestJoinLeave(t *testing.T) {
 	cfg.ShutdownGroup(0)
 
 	for i := 0; i < n; i++ {
-		fmt.Println(" last 之后check success  1111 at", i)
+		//fmt.Println(" last 之后check success  1111 at", i)
 		check(t, ck, ka[i], va[i])
-		fmt.Println(" last 之后check success at ", i)
+		//fmt.Println(" last 之后check success at ", i)
 	}
 
 	fmt.Printf("  ... Passed\n")

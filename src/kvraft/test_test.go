@@ -792,7 +792,7 @@ func TestSnapshotUnreliableRecoverConcurrentPartition3B(t *testing.T) {
 	defer f.Close()
 	log.SetOutput(f)
 	DPrintf("5444444444")
-	GenericTest(t, "3B", 3, true, true, true, 1000)
+	GenericTest(t, "3B", 3, true, true, false, 1000)
 }
 
 func TestSnapshotUnreliableRecoverConcurrentPartitionLinearizable3B(t *testing.T) {

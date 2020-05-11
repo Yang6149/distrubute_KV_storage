@@ -238,7 +238,7 @@ func (kv *KVServer) checkMaxState(commitIndex int) {
 	if kv.maxraftstate == -1 {
 		return
 	}
-	if kv.maxraftstate*9/10 > kv.rf.GetStateSize() {
+	if kv.maxraftstate*8/10 > kv.rf.GetStateSize() {
 		return
 	}
 	//fmt.Println(kv.me, "主动进行snapshot", commitIndex)

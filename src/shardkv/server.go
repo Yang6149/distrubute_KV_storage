@@ -484,6 +484,10 @@ func (kv *ShardKV) fetchLatestConfig() {
 	for {
 		select {
 		case <-time.After(50 * time.Millisecond):
+			_, isLeader := kv.rf.GetState()
+			if !isLeader {
+				continue
+			}
 			kv.mu.Lock()
 
 			isContinue := false
@@ -515,7 +519,10 @@ func (kv *ShardKV) fetchLatestConfig() {
 			kv.DPrintf("%d %d -config:%d shard %d ", kv.gid, kv.me, kv.config.Num, kv.shards)
 			kv.DPrintf("%d %d newconfig is %d", kv.gid, kv.me, config)
 			if !kv.check_same_config(config, kv.config) {
-				index, _, _ := kv.rf.Start(config)
+				index, _, isleader := kv.rf.Start(config)
+				if !isleader {
+					continue
+				}
 				kv.DPrintf("%d %d Start is %d", kv.gid, kv.me, config)
 				ch := make(chan shardmaster.Config, 1)
 				kv.appsforConfig[index] = ch
@@ -559,7 +566,7 @@ func (kv *ShardKV) detectConfig() {
 			}
 
 		}
-		time.Sleep(100 * time.Millisecond)
+		//time.Sleep(100 * time.Millisecond)
 	}
 }
 
@@ -637,7 +644,7 @@ func (kv *ShardKV) sendMigration(gid int, shard int, shardGCVersion int) {
 			args.Shard = kv.copyOfShard(shard)
 			//判断是否取到了空值，代表已经发送过了，并且gc掉，所以这里判重
 			if args.Shard.Id != shard {
-				fmt.Println("逮到了")
+				//fmt.Println("逮到了")
 				break
 			}
 			//判断是否在连个进程间，shard发生变化  shard[i]=100->101->100,导致想要发送第一个100，结果发送了第二个100的版本，所以这里判重
@@ -704,8 +711,6 @@ func (kv *ShardKV) copyOfShard(i int) Shard {
 	}
 	if shard, ok := kv.shards[i]; ok {
 		res.Id = shard.Id
-	} else {
-		fmt.Println("what the fuck")
 	}
 	res.Version = kv.shards[i].Version
 	return res

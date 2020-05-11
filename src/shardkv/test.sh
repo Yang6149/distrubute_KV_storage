@@ -11,10 +11,15 @@ mkdir temp
 for ((i=0;i<$1;i++))
 do
     echo $i
-	time go test -run TestJoinLeave
-	time go test -run TestStaticShards
-	time go test -run TestSnapshot
-	#time go test -run TestMissChange
+	#time go test -run TestJoinLeave
+	#time go test -run TestStaticShards
+	#time go test -run TestSnapshot
+	time go test -run TestMissChange
+	#time go test -run TestConcurrent1
+	#time go test -run TestConcurrent2
+	#time go test -run TestUnreliable1
+	#time go test -run TestUnreliable2
+	#time go test -run TestUnreliable3
 
 	cat logfile.log > temp/a$i
 	rm logfile.log
