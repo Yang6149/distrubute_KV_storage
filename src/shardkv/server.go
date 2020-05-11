@@ -382,7 +382,7 @@ func (kv *ShardKV) apply() {
 					} else {
 						kv.DPrintf("%d %d 原来的 shard%d ", kv.gid, kv.me, kv.shards[shard.Id])
 					}
-					kv.shards[shard.Id] = shard
+					kv.shards[shard.Id] = deepCopyShard(shard)
 					if shard.Data == nil {
 						kv.DPrintf("dadadadadadadadadada")
 					}
@@ -606,7 +606,8 @@ func (kv *ShardKV) MigrateReply(args *MigrateArgs, reply *MigrateReply) {
 	if kv.gid == 102 && args.Shard.Version == 4 && args.Shard.Id == 0 {
 		fmt.Println(args)
 	}
-	index, _, _ := kv.rf.Start(args.Shard)
+	copyShard := deepCopyShard(args.Shard)
+	index, _, _ := kv.rf.Start(copyShard)
 	ch := make(chan Shard, 1)
 	kv.appsforShard[index] = ch
 	kv.mu.Unlock()
