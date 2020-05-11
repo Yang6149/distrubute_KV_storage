@@ -10,6 +10,9 @@ func (rf *Raft) election() {
 	voteForMe := 0
 	voteForMe++
 	rf.voteFor = rf.me
+	if rf.me == 2 {
+		DPrintf("election")
+	}
 	for i := range rf.peers {
 		if rf.me == i {
 			continue
@@ -22,6 +25,7 @@ func (rf *Raft) election() {
 		}
 		reply := &RequestVoteReply{}
 		go func(i int) {
+			DPrintf("%d 发送election，Term=%d,lastIndex=%d,lastTerm=", rf.me,args.Term, args.LastLogIndex, args.LastLogTerm)
 			rf.sendRequestVote(i, args, reply)
 			rf.mu.Lock()
 			defer rf.mu.Unlock()

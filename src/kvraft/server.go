@@ -241,7 +241,8 @@ func (kv *KVServer) checkMaxState(commitIndex int) {
 	if kv.maxraftstate*9/10 > kv.rf.GetStateSize() {
 		return
 	}
-	kv.SnapshotPersister(commitIndex - 1)
+	//fmt.Println(kv.me, "主动进行snapshot", commitIndex)
+	kv.SnapshotPersister(commitIndex)
 }
 func (kv *KVServer) encodeSnapshot() []byte {
 	w := new(bytes.Buffer)

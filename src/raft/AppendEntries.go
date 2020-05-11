@@ -31,6 +31,9 @@ type InstallSnapshotsReply struct {
 }
 
 func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
+	if rf.me == 2 {
+		DPrintf("unlockappend1")
+	}
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
 	if args.Term >= rf.currentTerm && args.PreLogIndex >= rf.lastIncludedIndex {
@@ -124,6 +127,7 @@ func (rf *Raft) InstallSnapshots(args *InstallSnapshotsArgs, reply *InstallSnaps
 		reply.Success = false
 		reply.Term = rf.currentTerm
 		reply.MatchIndex = max(rf.lastIncludedIndex, rf.commitIndex)
+		//DPrintf("%d reply1 rf.lastIncludedIndex = %d,rf.commitIndex %d", rf.me, rf.lastIncludedIndex, rf.commitIndex)
 		return
 	}
 	DPrintf("%d 接受 snap", rf.me)
@@ -141,6 +145,10 @@ func (rf *Raft) InstallSnapshots(args *InstallSnapshotsArgs, reply *InstallSnaps
 	}
 	DPrintf("%d 333", rf.me)
 	rf.lastIncludedIndex = max(args.LastIncludedIndex, rf.lastIncludedIndex)
+	rf.lastIncludedTerm = args.LastIncludedTerm
+	// if rf.lastIncludedTerm>500{
+	// 	DPrintf("%d 有问题4",rf.me)
+	// }
 	rf.commitIndex = max(rf.lastIncludedIndex, rf.commitIndex)
 	reply.Success = true
 	reply.MatchIndex = rf.lastIncludedIndex

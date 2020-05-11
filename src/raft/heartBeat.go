@@ -1,6 +1,7 @@
 package raft
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -25,6 +26,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 		rf.mu.Unlock()
 		return
 	}
+	DPrintf("%d 想发送rf.next[%d] is %d", rf.me, i, rf.nextIndex[i])
 	if rf.nextIndex[i] <= rf.lastIncludedIndex {
 		//发送 snapshot
 		defer rf.mu.Unlock()
@@ -44,7 +46,7 @@ func (rf *Raft) sendAppendEntry(i int) {
 		Entries:      make([]Entry, 0),
 	}
 	args.Entries = rf.logGets(rf.nextIndex[i], min(rf.logLen(), rf.nextIndex[i]+50))
-	DPrintf("%d ：发送给%d agrs %d", rf.me, i, args)
+	DPrintf("%d ：发送给%d agrs %d ", rf.me, i, args)
 	reply := &AppendEntriesReply{}
 	yourLastMatchIndex := rf.matchIndex[i]
 	yourLastIncludedIndex := rf.lastIncludedIndex
@@ -77,13 +79,22 @@ func (rf *Raft) sendAppendEntry(i int) {
 							}
 							if matchNum >= rf.menkan {
 								rf.commitIndex = rf.matchIndex[i]
+								if rf.lastIncludedIndex > rf.commitIndex {
+									DPrintf("%d lastIncluded 比 commit 大 hb", rf.me)
+								}
 								rf.sendApply <- rf.commitIndex
 								break
 							}
 						}
 
 					}
+					if rf.nextIndex[i]-1-rf.lastIncludedIndex-1 >= len(rf.log) {
+						fmt.Println(rf.log[rf.nextIndex[i]-1-rf.lastIncludedIndex-1])
+					}
 					rf.nextIndex[i] = reply.MatchIndex + 1
+					if rf.nextIndex[i]-1-rf.lastIncludedIndex-1 >= len(rf.log) {
+						fmt.Println(rf.log[rf.nextIndex[i]-1-rf.lastIncludedIndex-1])
+					}
 					//处理leader 的commitedindex
 					if rf.matchIndex[i] < rf.commitIndex {
 						if len(rf.heartBeatchs[i].c) == 0 {
@@ -95,14 +106,20 @@ func (rf *Raft) sendAppendEntry(i int) {
 					//这里要做到秒发
 					//fmt.Println(rf.nextIndex, "leader is :", rf.me, ",send to ", i)
 					//fmt.Println(rf.me, "-- args:", args, "reply:", reply)
-
+					DPrintf("%d 减nextIndex[%d]=%d", rf.me, i, rf.nextIndex[i])
 					if reply.MatchIndex != 0 {
 						rf.nextIndex[i] = reply.MatchIndex + 1
+						if rf.nextIndex[i]-1-rf.lastIncludedIndex >= len(rf.log) {
+							fmt.Println(rf.log[rf.nextIndex[i]-1-rf.lastIncludedIndex])
+						}
 					} else if reply.TargetTerm != 0 {
 						index := reply.TargetIndex
 						for a := index; a >= 0; a-- {
 							if a > rf.lastIncludedIndex && rf.logGet(a).Term <= reply.TargetTerm {
 								rf.nextIndex[i] = a + 1
+								if rf.nextIndex[i]-1-rf.lastIncludedIndex >= len(rf.log) {
+									fmt.Println(rf.log[rf.nextIndex[i]-1-rf.lastIncludedIndex])
+								}
 								break
 							}
 						}
@@ -111,10 +128,10 @@ func (rf *Raft) sendAppendEntry(i int) {
 					}
 					if reply.TargetTerm != 0 && reply.MatchIndex != 0 {
 					}
-					//fmt.Println(rf.me, "减完后 ", i, "的nextIndex 为", rf.nextIndex[i])
 					if len(rf.heartBeatchs[i].c) == 0 {
 						rf.heartBeatchs[i].c <- 1
 					}
+					DPrintf("%d 减完nextIndex[%d]=%d", rf.me, i, rf.nextIndex[i])
 				}
 			}
 		} else {
@@ -175,18 +192,31 @@ func (rf *Raft) sendInstallSnapshot(i int) {
 	ok := rf.sendInstallSnapshots(i, args, reply)
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
+	if rf.state != leader {
+		return
+	}
 	if reply.Term > rf.currentTerm {
 		DPrintf("%d :leader 在 snapshot 中发现更大的 Term", rf.me)
 		rf.currentTerm = reply.Term
 		rf.persist()
 		rf.findBiggerChan <- 1
 		rf.convert(follower)
+		return
 	}
 	if ok && reply.Success && args.Term == rf.currentTerm {
 		DPrintf("%d : next[%d] %d->%d", rf.me, i, rf.nextIndex[i], reply.Term+1)
 	} else {
 		DPrintf("ok : %d ,success : %d, agrs.Term: %d ,rf.curr := %d", ok, reply.Success, args.Term, rf.currentTerm)
 	}
+	if rf.nextIndex[i]-1-rf.lastIncludedIndex-1 >= len(rf.log) {
+		fmt.Println(rf.log[rf.nextIndex[i]-1-rf.lastIncludedIndex-1])
+	}
+	temp := rf.nextIndex[i]
 	rf.nextIndex[i] = max(reply.MatchIndex+1, rf.nextIndex[i])
+	DPrintf("%d rf.nextIndex[%d] = %d", rf.me, i, rf.nextIndex)
+	if rf.nextIndex[i]-1-rf.lastIncludedIndex-1 >= len(rf.log) {
+		DPrintf("%d ------- temp=%d,reply.Match=%d,pre=%d,loglen=%d", rf.me, temp, reply.MatchIndex, rf.nextIndex[i]-1, rf.logLen())
+		fmt.Println(rf.log[rf.nextIndex[i]-1-rf.lastIncludedIndex-1])
+	}
 
 }

@@ -22,11 +22,12 @@ func (rf *Raft) convert(state int) {
 		rf.nextIndex = make([]int, len(rf.peers))
 		for a := range rf.nextIndex {
 			rf.nextIndex[a] = rf.logLen()
+			DPrintf("%d 初始化 nextIndex %d ", rf.me, rf.nextIndex[a])
 		}
 		rf.matchIndex = make([]int, len(rf.peers))
 		rf.heartBeat()
 		go rf.heartBeatInit()
-		DPrintf("%d log=%d,len = %d", rf.me, rf.log, rf.logLen())
+		DPrintf("%d log=%d,len = %d", rf.me, rf.log, rf.logLen(), rf.commitIndex)
 	}
 }
 func (rf *Raft) chanReset() {

@@ -16,7 +16,7 @@ import (
 	"../shardmaster"
 )
 
-const Debug = 1
+const Debug = 0
 
 func (kv *ShardKV) DPrintf(format string, a ...interface{}) (n int, err error) {
 
@@ -437,7 +437,7 @@ func (kv *ShardKV) checkMaxState(commitIndex int) {
 	if kv.maxraftstate*9/10 > kv.rf.GetStateSize() {
 		return
 	}
-	kv.SnapshotPersister(commitIndex - 1)
+	kv.SnapshotPersister(commitIndex)
 }
 func (kv *ShardKV) encodeSnapshot() []byte {
 	w := new(bytes.Buffer)

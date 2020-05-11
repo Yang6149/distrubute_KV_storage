@@ -50,6 +50,8 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 				rf.voteFor = args.CandidateId
 				rf.persist()
 				rf.findBiggerChan <- 1
+				DPrintf("%d tou %d %d ,rf.lastIncludedIndex = %d , agrs.Index = %d ,args.Term = %d", rf.me, rf.commitIndex, rf.logLen(), rf.lastIncludedIndex, args.LastLogIndex, args.LastLogTerm)
+				DPrintf("%d lastlogTerm=%d , lastIndex = %d", rf.me, rf.logTerm(myLastIndex), myLastIndex)
 				DPrintf("%d votefor %d,当前 term %d", rf.me, args.CandidateId, rf.currentTerm)
 				reply.Term = args.Term
 				reply.VoteGranted = true
@@ -64,6 +66,8 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 		}
 		DPrintf("%d candicate %d的up-to-data害没自己的 last大", rf.me, args.CandidateId)
 		DPrintf("%d 拒绝，现在我的 term is ", rf.me, rf.currentTerm)
+		DPrintf("%d args.LastLogTerm =%d rf.logTerm(myLastIndex)=%d", rf.me,args.LastLogTerm , rf.logTerm(myLastIndex))
+		DPrintf("%D args.LastLogIndex =%d myLastIndex=%d", rf.me,args.LastLogIndex , myLastIndex)
 		reply.Term = args.Term
 		reply.VoteGranted = false
 

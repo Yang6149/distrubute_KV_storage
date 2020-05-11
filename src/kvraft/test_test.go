@@ -186,7 +186,7 @@ func GenericTest(t *testing.T, part string, nclients int, unreliable bool, crash
 	}
 	title = title + " (" + part + ")" // 3A or 3B
 
-	const nservers = 5
+	const nservers = 3
 	cfg := make_config(t, nservers, unreliable, maxraftstate)
 	defer cfg.cleanup()
 
@@ -641,19 +641,32 @@ func TestSnapshotRPC3B(t *testing.T) {
 	ck := cfg.makeClient(cfg.All())
 
 	cfg.begin("Test: InstallSnapshot RPC (3B)")
-
 	Put(cfg, ck, "a", "A")
+	log.Printf("put a->A")
 	check(cfg, t, ck, "a", "A")
-
+	log.Printf("check a->A")
+	check(cfg, t, ck, "a", "A")
+	log.Printf("check a->A1")
+	check(cfg, t, ck, "a", "A")
+	log.Printf("check a->A2")
+	check(cfg, t, ck, "a", "A")
+	log.Printf("check a->A3")
+	check(cfg, t, ck, "a", "A")
+	log.Printf("check a->A4")
+	check(cfg, t, ck, "a", "A")
+	log.Printf("check a->A5")
 	// a bunch of puts into the majority partition.
 	cfg.partition([]int{0, 1}, []int{2})
 	{
+		log.Printf("check a->A")
 		ck1 := cfg.makeClient([]int{0, 1})
 		for i := 0; i < 50; i++ {
 			Put(cfg, ck1, strconv.Itoa(i), strconv.Itoa(i))
 		}
+		log.Printf("electionTimeout")
 		time.Sleep(electionTimeout)
 		Put(cfg, ck1, "b", "B")
+		log.Printf("check b->B")
 	}
 
 	// check that the majority partition has thrown away
@@ -779,7 +792,7 @@ func TestSnapshotUnreliableRecoverConcurrentPartition3B(t *testing.T) {
 	defer f.Close()
 	log.SetOutput(f)
 	DPrintf("5444444444")
-	GenericTest(t, "3B", 5, true, true, true, 1000)
+	GenericTest(t, "3B", 3, true, true, true, 1000)
 }
 
 func TestSnapshotUnreliableRecoverConcurrentPartitionLinearizable3B(t *testing.T) {

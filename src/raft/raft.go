@@ -116,6 +116,7 @@ func (rf *Raft) persist() {
 	e.Encode(rf.log)
 	e.Encode(rf.lastIncludedIndex)
 	e.Encode(rf.commitIndex)
+	e.Encode(rf.lastIncludedTerm)
 	data := w.Bytes()
 	rf.persister.SaveRaftState(data)
 }
@@ -146,18 +147,27 @@ func (rf *Raft) readPersist(data []byte) {
 	var voteFor int
 	var log []Entry
 	var lastIncludedIndex int
+	var lastIncludedTerm int
 	var commitIndex int
 	if d.Decode(&currentTerm) != nil ||
 		d.Decode(&voteFor) != nil ||
 		d.Decode(&log) != nil ||
 		d.Decode(&lastIncludedIndex) != nil ||
-		d.Decode(&commitIndex) != nil {
+		d.Decode(&commitIndex) != nil ||
+		d.Decode(&lastIncludedTerm) != nil {
 	} else {
 		rf.currentTerm = currentTerm
 		rf.voteFor = voteFor
 		rf.log = log
 		rf.lastIncludedIndex = lastIncludedIndex
 		rf.commitIndex = commitIndex
+		rf.lastIncludedTerm = lastIncludedTerm
+		if rf.lastIncludedTerm > 500 {
+			DPrintf("%d 有问题1", rf.me)
+			DPrintf("问题是 lastIncludedIndex = %d", lastIncludedIndex)
+			DPrintf("问题是 commitIndex = %d", commitIndex)
+			DPrintf("问题是 lastIncludedTerm = %d", lastIncludedTerm)
+		}
 	}
 }
 
@@ -202,21 +212,58 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 func (rf *Raft) Discard(index int) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
+	DPrintf("%d 调用discard %d", rf.me, index)
+	DPrintf("", rf.nextIndex)
 	if index <= rf.lastIncludedIndex {
+		DPrintf("%d 调用discard 失败%d %d", rf.me, index, rf.lastIncludedIndex)
 		return
 	}
 	if index+1 >= rf.logLen() {
+		DPrintf("%d 调用discard全删 %d", rf.me, index, rf.logLen())
+		//fmt.Println(rf.me, "删掉多的", index)
+		//fmt.Println(rf.me,rf.nextIndex)
+		//如果index+1 > rf.logLen()，说明是传来的snapshot，在appendEntry中会进行统一的状态处理
+		//及使是传来的snapshot，也可能是==的结果，先处理一遍，等下在后面reply中还会再处理一遍，所以这里主要是进行自我snapshot的处理
+		if index+1 == rf.logLen() {
+			rf.lastIncludedTerm = rf.logTerm(index)
+			if rf.lastIncludedTerm > 500 {
+				DPrintf("%d 有问题2", rf.me)
+			}
+			rf.lastIncludedIndex = index
+			rf.commitIndex = max(rf.commitIndex, rf.lastIncludedIndex)
+		}
+		DPrintf("%d Term->%d", rf.me, rf.lastIncludedTerm)
 		rf.log = make([]Entry, 0)
-		rf.lastIncludedIndex = index
-		rf.commitIndex = max(rf.commitIndex, rf.lastIncludedIndex)
 		rf.persist()
 		return
 	}
-	//term := rf.logTerm(index)
+	DPrintf("%d 调用discard正常 %d", rf.me, index)
+	term := rf.logTerm(index)
 	rf.logDiscard(index)
 	rf.lastIncludedIndex = index
 	rf.commitIndex = max(rf.commitIndex, rf.lastIncludedIndex)
-	//rf.lastIncludedTerm = term
+	rf.lastIncludedTerm = term
+	if rf.lastIncludedTerm > 500 {
+		DPrintf("%d 有问题3", rf.me)
+	}
+	// if len(rf.nextIndex) != 0 {
+	// 	for i := range rf.peers {
+	// 		if i == rf.me {
+	// 			continue
+	// 		}
+	// 		if i >= len(rf.nextIndex) {
+	// 			fmt.Println(i, rf.nextIndex)
+	// 			fmt.Println("!!!")
+	// 		}
+	// 		//rf.nextIndex[i]-1=preIndex
+	// 		//pre-lastIncludex-1 = realIndex
+	// 		if rf.nextIndex[i]-1-rf.lastIncludedIndex-1 >= len(rf.log) {
+	// 			fmt.Println("--", rf.nextIndex[i], rf.lastIncludedIndex, len(rf.log))
+	// 			fmt.Println(rf.log[rf.nextIndex[i]-1-rf.lastIncludedIndex-1])
+	// 		}
+	// 	}
+	// }
+
 	rf.persist()
 }
 
@@ -376,6 +423,7 @@ func (rf *Raft) GetStateSize() int {
 }
 
 func (rf *Raft) SaveSnapshot(snapshots []byte) {
+	DPrintf("%d 进行一次 snapshot", rf.me)
 	state := rf.persister.ReadRaftState()
 	rf.persister.SaveStateAndSnapshot(state, snapshots)
 }
