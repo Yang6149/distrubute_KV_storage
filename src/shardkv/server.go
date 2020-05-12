@@ -16,7 +16,9 @@ import (
 	"../shardmaster"
 )
 
-const Debug = 0
+const Debug = 1
+
+var begin int64
 
 func (kv *ShardKV) DPrintf(format string, a ...interface{}) (n int, err error) {
 
@@ -25,6 +27,9 @@ func (kv *ShardKV) DPrintf(format string, a ...interface{}) (n int, err error) {
 		if !isLeader {
 			return
 		}
+		now := time.Now().UnixNano()
+		res := (now - begin) / int64(time.Millisecond)
+		a = append(a, res)
 		log.Printf(format, a...)
 	}
 	return
@@ -37,6 +42,7 @@ func EPrintf(format string, a ...interface{}) (n int, err error) {
 	return
 }
 func init() {
+	begin = time.Now().UnixNano()
 	fmt.Println("123")
 	f, err := os.OpenFile("logfile.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
@@ -286,6 +292,9 @@ func (kv *ShardKV) apply() {
 			return
 		}
 		msg := <-kv.applyCh
+		now := time.Now().UnixNano()
+		res := (now - begin) / int64(time.Millisecond)
+		fmt.Println(kv.gid, kv.me, " 接收到msg=", msg, res)
 		//msg.CommandValid is true,otherwise the command is snapshot
 		kv.DPrintf("%d %d get a command %d", kv.gid, kv.me, msg)
 		if msg.CommandValid {
@@ -335,9 +344,7 @@ func (kv *ShardKV) apply() {
 				kv.checkMaxState(msg.CommandIndex)
 			case shardmaster.Config:
 				config := command
-				kv.DPrintf("%d %d raft返回conifg判断前 is %d", kv.gid, kv.me, config)
 				if config.Num > kv.config.Num {
-					kv.DPrintf("%d %d raft返回conifg判断后 is %d", kv.gid, kv.me, config)
 					kv.impleConfig = config.Num
 					//为那些没有改变shard 的 version 进行同步
 					for i := 0; i < shardmaster.NShards; i++ {
@@ -365,6 +372,9 @@ func (kv *ShardKV) apply() {
 					}
 
 					kv.config = config
+					now := time.Now().UnixNano()
+					res := (now - begin) / int64(time.Millisecond)
+					fmt.Println(kv.gid, kv.me, "更新", config.Num, res)
 					kv.DPrintf("%d %d 更新 config%d ", kv.gid, kv.me, config)
 				} else {
 					kv.DPrintf("%d %d ignore 小于当前 config 的 config，config= %d,my=%d", kv.gid, kv.me, config.Num, kv.config.Num)
@@ -399,7 +409,7 @@ func (kv *ShardKV) apply() {
 				if ok {
 					//版本正好正确
 					if shard.Version == gc.Version {
-						kv.DPrintf("%d %d gc shard %d ,version = %d ", kv.gid, kv.me, gc.Shard, gc.Version)
+						kv.DPrintf("%d %d 更新gc shard %d ,version = %d ", kv.gid, kv.me, gc.Shard, gc.Version)
 						delete(kv.shards, gc.Shard)
 					} else {
 						kv.DPrintf("%d %d 你想gc%d 版本号为 %d ，我的版本号为 %d", kv.gid, kv.me, gc.Shard, gc.Version, shard.Version)
@@ -514,9 +524,7 @@ func (kv *ShardKV) fetchLatestConfig() {
 				kv.mu.Unlock()
 				continue
 			}
-			kv.DPrintf("%d %d +config:%d shard %d ", kv.gid, kv.me, kv.config.Num, kv.shards)
 			config := kv.sm.Query(kv.impleConfig + 1)
-			kv.DPrintf("%d %d -config:%d shard %d ", kv.gid, kv.me, kv.config.Num, kv.shards)
 			kv.DPrintf("%d %d newconfig is %d", kv.gid, kv.me, config)
 			if !kv.check_same_config(config, kv.config) {
 				index, _, isleader := kv.rf.Start(config)
@@ -585,6 +593,7 @@ func (kv *ShardKV) sendMigrateArgs(cli *labrpc.ClientEnd, args *MigrateArgs, rep
 func (kv *ShardKV) MigrateReply(args *MigrateArgs, reply *MigrateReply) {
 	_, isLeader := kv.rf.GetState()
 	if !isLeader {
+		EPrintf("%d %d 返回reply wrong leader", kv.gid, kv.me)
 		reply.Err = ErrWrongLeader
 		return
 	}
@@ -621,7 +630,7 @@ func (kv *ShardKV) MigrateReply(args *MigrateArgs, reply *MigrateReply) {
 		kv.DPrintf("%d %d 接受到 来自 %d 的shard %d", kv.gid, kv.me, args.Gid, shard)
 		reply.Err = OK
 		return
-	case <-time.After(2000 * time.Millisecond):
+	case <-time.After(200 * time.Millisecond):
 		reply.Err = ErrTimeOut
 		return
 	}
@@ -635,68 +644,80 @@ func (kv *ShardKV) sendMigration(gid int, shard int, shardGCVersion int) {
 	if _, isLeader := kv.rf.GetState(); !isLeader {
 		return
 	}
-	kv.mu.Lock()
-	defer kv.mu.Unlock()
-	kv.DPrintf("%d %d 向 %d 发送shard[%d] %d", kv.gid, kv.me, gid, shard, kv.shards[shard])
+
+	//kv.DPrintf("%d %d 向 %d 发送shard[%d] %d", kv.gid, kv.me, gid, shard, kv.shards[shard])
 	if servers, ok := kv.config.Groups[gid]; ok {
 		for si := 0; si < len(servers); si++ {
-			srv := kv.make_end(servers[si])
-			var args MigrateArgs
-			args.Shard = kv.copyOfShard(shard)
-			//判断是否取到了空值，代表已经发送过了，并且gc掉，所以这里判重
-			if args.Shard.Id != shard {
-				//fmt.Println("逮到了")
-				break
-			}
-			//判断是否在连个进程间，shard发生变化  shard[i]=100->101->100,导致想要发送第一个100，结果发送了第二个100的版本，所以这里判重
-			if args.Shard.Version != shardGCVersion {
-				break
-			}
-			args.Shard.Version = kv.config.Num
-			args.ConfigNum = kv.config.Num
-			args.Gid = kv.gid
-			var reply MigrateReply
-			kv.mu.Unlock()
-			if gid == 102 && args.Shard.Version == 4 && args.Shard.Id == 0 {
-				fmt.Println("************************")
-				fmt.Println("本来要给", shard)
-				fmt.Println(kv.config)
-				fmt.Println(kv.shards)
-				fmt.Println("************************")
-			}
-			done := make(chan bool, 1)
-			go func() {
-				ok := kv.sendMigrateArgs(srv, &args, &reply)
-				done <- ok
-			}()
-			kv.mu.Lock()
-			select {
-			case ok := <-done:
-				if ok && reply.Err == OK {
-					//成功发送Migration ，开始删除
-					//delete shard[i]
-					gc := GC{}
-					gc.Shard = shard
-					gc.Version = shardGCVersion
-					kv.DPrintf("%d %d 发送信号量删除 shard%d version %d nowlen=%d", kv.gid, kv.me, gc.Shard, gc.Version, len(kv.GCch))
-
-					kv.GCch <- gc
-
-				} else {
-					if reply.Err == ErrWrongLeader {
-						continue
-					}
-
-					time.Sleep(100 * time.Millisecond)
-					kv.DPrintf("%d %d 发送 migration ：%d", kv.gid, kv.me, reply.Err)
-					//go kv.sendMigration(gid, shard)
-				}
-			case <-time.After(500 * time.Millisecond):
-
-			}
-
+			go kv.sendMigrationForOne(gid, shard, shardGCVersion, si, servers)
 			// ... not ok, or ErrWrongLeader
 		}
+	}
+}
+
+func (kv *ShardKV) sendMigrationForOne(gid int, shard int, shardGCVersion int, si int, servers []string) {
+	kv.mu.Lock()
+	kv.DPrintf("%d %d 获得锁", kv.gid, kv.me)
+	srv := kv.make_end(servers[si])
+	var args MigrateArgs
+	args.Shard = kv.copyOfShard(shard)
+	//判断是否取到了空值，代表已经发送过了，并且gc掉，所以这里判重
+	if args.Shard.Id != shard {
+		//fmt.Println("逮到了")
+		kv.mu.Unlock()
+		return
+	}
+	//判断是否在连个进程间，shard发生变化  shard[i]=100->101->100,导致想要发送第一个100，结果发送了第二个100的版本，所以这里判重
+	if args.Shard.Version != shardGCVersion {
+		kv.mu.Unlock()
+		return
+	}
+	args.Shard.Version = kv.config.Num
+	args.ConfigNum = kv.config.Num
+	args.Gid = kv.gid
+	var reply MigrateReply
+	kv.mu.Unlock()
+	if gid == 102 && args.Shard.Version == 4 && args.Shard.Id == 0 {
+		fmt.Println("************************")
+		fmt.Println("本来要给", shard)
+		fmt.Println(kv.config)
+		fmt.Println(kv.shards)
+		fmt.Println("************************")
+	}
+	done := make(chan bool, 1)
+	kv.DPrintf("%d %d 发送srv= %d migrate 前-> %d %d", kv.gid, kv.me, srv, gid, shard)
+	go func() {
+		ok := kv.sendMigrateArgs(srv, &args, &reply)
+		kv.DPrintf("%d %d 发送srv= %d migrate 完-> %d %d，ok=%d", kv.gid, kv.me, srv, gid, shard, ok)
+		done <- ok
+	}()
+	select {
+	case ok := <-done:
+		kv.DPrintf("%d %d 接收到done 完-> %d %d", kv.gid, kv.me, gid, shard)
+		if ok && reply.Err == OK {
+			//成功发送Migration ，开始删除
+			//delete shard[i]
+			gc := GC{}
+			gc.Shard = shard
+			gc.Version = shardGCVersion
+			kv.DPrintf("%d %d 发送信号量删除->%d shard%d version %d nowlen=%d", kv.gid, kv.me, gid, gc.Shard, gc.Version, len(kv.GCch))
+
+			kv.GCch <- gc
+			break
+		} else {
+			if reply.Err == ErrWrongLeader {
+				kv.DPrintf("%d %d 发送 migration->%d %d：%d，srv=%d", kv.gid, kv.me, gid, shard, reply.Err, srv)
+				return
+			}
+			if ok {
+				kv.DPrintf("%d %d 发送 migration->%d %d：%d", kv.gid, kv.me, gid, shard, reply.Err)
+			} else {
+				kv.DPrintf("%d %d 发送 migration->%d %d：rpc 失败", kv.gid, kv.me, gid, shard)
+			}
+			time.Sleep(100 * time.Millisecond)
+			//go kv.sendMigration(gid, shard)
+		}
+	case <-time.After(500 * time.Millisecond):
+		kv.DPrintf("%d %d 发送 migration->%d %d：超时", kv.gid, kv.me, gid, shard)
 	}
 }
 
@@ -721,20 +742,31 @@ func (kv *ShardKV) GC(shard int, version int) Err {
 	gc := GC{}
 	gc.Shard = shard
 	gc.Version = version
-	index, _, isLeader := kv.rf.Start(gc)
-	if !isLeader {
-		return ErrWrongLeader
-	}
+	kv.DPrintf("%d %d 发送gcc试探 %d", kv.gid, kv.me, gc)
+	b := time.Now().UnixNano()
+	kv.mu.Lock()
+	a := time.Now().UnixNano()
+	res := (a - b) / int64(time.Millisecond)
+	kv.DPrintf("%d %d 获得锁2,争锁时常 %d", kv.gid, kv.me, res)
 	if s, ok := kv.shards[shard]; !ok {
 		//已经不存在了，所以不发送gc 指令到 raft
+		kv.mu.Unlock()
 		return OK
 	} else {
 		//存在这个 shard，再判断 version 是否正确,不正确就代表被覆盖了
 		if s.Version != version {
+			kv.mu.Unlock()
 			return OK
 		}
 	}
+	kv.mu.Unlock()
+	kv.DPrintf("%d %d 发送gcc %d", kv.gid, kv.me, gc)
+	index, _, isLeader := kv.rf.Start(gc)
+	if !isLeader {
+		return ErrWrongLeader
+	}
 	kv.mu.Lock()
+
 	ch := make(chan GC, 1)
 	kv.appsforGC[index] = ch
 	kv.mu.Unlock()
@@ -746,8 +778,10 @@ func (kv *ShardKV) GC(shard int, version int) Err {
 	select {
 	case <-ch:
 		//gc 成功
+		kv.DPrintf("%d %d 成功返回gc()=OK shard=%d,version=%d", kv.gid, kv.me, shard, version)
 		return OK
 	case <-time.After(1000 * time.Millisecond):
+		kv.DPrintf("%d %d 失败返回gc()=ErrTimeOut shard=%d,version=%d", kv.gid, kv.me, shard, version)
 		return ErrTimeOut
 	}
 
@@ -756,10 +790,15 @@ func (kv *ShardKV) GCDeamon() {
 	for {
 		//信号量
 		gc := <-kv.GCch
-		Err := kv.GC(gc.Shard, gc.Version)
-		if Err != OK {
-			kv.GCch <- gc
-		}
+		EPrintf("%d %d 想要GC %d", kv.gid, kv.me, gc)
+		go func() {
+			Err := kv.GC(gc.Shard, gc.Version)
+			if Err != OK {
+				EPrintf("%d %d 想要GC %d,失败了，再试一次,原因 %d", kv.gid, kv.me, gc, Err)
+				//kv.GCch <- gc
+			}
+		}()
+
 	}
 }
 
