@@ -134,7 +134,7 @@ func (sm *ShardMaster) start(op Op) (bool, Err, Config) { //wrongLeader , Err
 			}
 		}
 		sm.mu.Unlock()
-		return false, DupCommand, op.Config
+		return false, OK, op.Config
 	}
 	index, _, isLeader := sm.rf.Start(op)
 	if !isLeader {
@@ -158,7 +158,7 @@ func (sm *ShardMaster) start(op Op) (bool, Err, Config) { //wrongLeader , Err
 			sm.mu.Lock()
 			defer sm.mu.Unlock()
 			//sm.dup[op.ClientId] = op.SerialId
-			return false, "", oop.Config
+			return false, OK, oop.Config
 		} else {
 			DPrintf("%d :wrongleader", sm.me)
 			return true, "", resConfig
@@ -245,6 +245,7 @@ func (sm *ShardMaster) apply() {
 		sm.copyConfig(&op.Config, &sm.configs[len(sm.configs)-1])
 		if sm.checkDup(op.ClientId, op.SerialId) {
 			op.Config.Num++
+			//fmt.Println(sm.me, "准备好的", op)
 			switch op.Type {
 			case Join:
 
@@ -256,7 +257,7 @@ func (sm *ShardMaster) apply() {
 				}
 				sm.loadBalance(&op.Config)
 				sm.configs = append(sm.configs, op.Config)
-				DPrintf("%d : join config", sm.me)
+				DPrintf("%d : join config", sm.me, op.Config)
 			case Leave:
 				for _, v := range op.GIDs {
 					delete(op.Config.Groups, v)
@@ -316,12 +317,12 @@ func (sm *ShardMaster) copyConfig(newConfig *Config, oldConfig *Config) {
 }
 
 func (sm *ShardMaster) loadBalance(config *Config) {
-	DPrintf("%d rebalanced", sm.me)
+	//DPrintf("%d rebalanced", sm.me)
 	GNum := len(config.Groups)
 	if GNum <= 0 {
 		return
 	}
-
+	//fmt.Println(config.Shards, "before")
 	temp := make([]int, 0)
 	for k, _ := range config.Groups {
 		temp = append(temp, k)
@@ -334,4 +335,6 @@ func (sm *ShardMaster) loadBalance(config *Config) {
 		cur++
 		cur = cur % len(temp)
 	}
+	//fmt.Println(config.Shards, "after")
+
 }

@@ -50,7 +50,7 @@ func (ck *Clerk) Query(num int) Config {
 		srv := ck.servers[ck.leader]
 		var reply QueryReply
 		ok := srv.Call("ShardMaster.Query", args, &reply)
-		if ok && reply.WrongLeader == false {
+		if ok && reply.WrongLeader == false && reply.Err == OK {
 			return reply.Config
 		}
 		time.Sleep(100 * time.Millisecond)
@@ -70,7 +70,7 @@ func (ck *Clerk) Join(servers map[int][]string) {
 		srv := ck.servers[ck.leader]
 		var reply JoinReply
 		ok := srv.Call("ShardMaster.Join", args, &reply)
-		if ok && reply.WrongLeader == false {
+		if ok && reply.WrongLeader == false && reply.Err == OK {
 			return
 		}
 		time.Sleep(100 * time.Millisecond)
@@ -90,7 +90,7 @@ func (ck *Clerk) Leave(gids []int) {
 		srv := ck.servers[ck.leader]
 		var reply LeaveReply
 		ok := srv.Call("ShardMaster.Leave", args, &reply)
-		if ok && reply.WrongLeader == false {
+		if ok && reply.WrongLeader == false && reply.Err == OK {
 			return
 		}
 		time.Sleep(100 * time.Millisecond)
@@ -111,7 +111,7 @@ func (ck *Clerk) Move(shard int, gid int) {
 		srv := ck.servers[ck.leader]
 		var reply MoveReply
 		ok := srv.Call("ShardMaster.Move", args, &reply)
-		if ok && reply.WrongLeader == false {
+		if ok && reply.WrongLeader == false && reply.Err == OK {
 			return
 		}
 		time.Sleep(100 * time.Millisecond)

@@ -11,6 +11,6 @@ fi
 for ((i=0;i<$1;i++))
 do
     echo $i
-	time go test 
+	time go test -race -run TestBasic
 done
 #rm -rf temp

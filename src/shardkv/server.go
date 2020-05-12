@@ -16,7 +16,7 @@ import (
 	"../shardmaster"
 )
 
-const Debug = 1
+const Debug = 0
 
 var begin int64
 
@@ -285,16 +285,16 @@ func (kv *ShardKV) initShard() {
 
 func (kv *ShardKV) apply() {
 	for {
-		kv.mu.Lock()
-		st := kv.killed()
-		kv.mu.Unlock()
-		if st {
+		// if (time.Now().UnixNano()-begin)/int64(time.Millisecond) > 20000 {
+		// 	kv.Kill()
+		// }
+		if kv.killed() {
 			return
 		}
 		msg := <-kv.applyCh
-		now := time.Now().UnixNano()
-		res := (now - begin) / int64(time.Millisecond)
-		fmt.Println(kv.gid, kv.me, " 接收到msg=", msg, res)
+		// now := time.Now().UnixNano()
+		// res := (now - begin) / int64(time.Millisecond)
+		//fmt.Println(kv.gid, kv.me, " 接收到msg=", msg, res)
 		//msg.CommandValid is true,otherwise the command is snapshot
 		kv.DPrintf("%d %d get a command %d", kv.gid, kv.me, msg)
 		if msg.CommandValid {
@@ -372,9 +372,9 @@ func (kv *ShardKV) apply() {
 					}
 
 					kv.config = config
-					now := time.Now().UnixNano()
-					res := (now - begin) / int64(time.Millisecond)
-					fmt.Println(kv.gid, kv.me, "更新", config.Num, res)
+					// now := time.Now().UnixNano()
+					// res := (now - begin) / int64(time.Millisecond)
+					//fmt.Println(kv.gid, kv.me, "更新", config.Num, res)
 					kv.DPrintf("%d %d 更新 config%d ", kv.gid, kv.me, config)
 				} else {
 					kv.DPrintf("%d %d ignore 小于当前 config 的 config，config= %d,my=%d", kv.gid, kv.me, config.Num, kv.config.Num)
@@ -492,6 +492,9 @@ func (kv *ShardKV) LoadSnapshot(snapshot []byte) {
 
 func (kv *ShardKV) fetchLatestConfig() {
 	for {
+		if kv.killed() {
+			return
+		}
 		select {
 		case <-time.After(50 * time.Millisecond):
 			_, isLeader := kv.rf.GetState()
@@ -527,27 +530,29 @@ func (kv *ShardKV) fetchLatestConfig() {
 			config := kv.sm.Query(kv.impleConfig + 1)
 			kv.DPrintf("%d %d newconfig is %d", kv.gid, kv.me, config)
 			if !kv.check_same_config(config, kv.config) {
-				index, _, isleader := kv.rf.Start(config)
+				_, _, isleader := kv.rf.Start(config)
 				if !isleader {
+					kv.DPrintf("%d %d Start - config not leader ", kv.gid, kv.me)
+					kv.mu.Unlock()
 					continue
 				}
 				kv.DPrintf("%d %d Start is %d", kv.gid, kv.me, config)
-				ch := make(chan shardmaster.Config, 1)
-				kv.appsforConfig[index] = ch
-				defer func() {
-					kv.mu.Lock()
-					delete(kv.appsforConfig, index)
-					kv.mu.Unlock()
-				}()
-				select {
-				case <-ch:
-					//其实我觉得这里没差，因为如果修改成功的话，就不会进入判断重复的这里了，所以等会把这个删掉
-					//成功
-				case <-time.After(1000 * time.Millisecond):
-					//没成功
-				}
+				// ch := make(chan shardmaster.Config, 1)
+				// kv.appsforConfig[index] = ch
+				// defer func() {
+				// 	kv.mu.Lock()
+				// 	delete(kv.appsforConfig, index)
+				// 	kv.mu.Unlock()
+				// }()
+				// select {
+				// case <-ch:
+				// 	//其实我觉得这里没差，因为如果修改成功的话，就不会进入判断重复的这里了，所以等会把这个删掉
+				// 	//成功
+				// case <-time.After(1000 * time.Millisecond):
+				// 	//没成功
+				// }
 			} else {
-				//kv.DPrintf("%d %d 没变哟", kv.gid, kv.me)
+				kv.DPrintf("%d %d 没变哟", kv.gid, kv.me)
 			}
 			kv.mu.Unlock()
 		}
@@ -557,6 +562,9 @@ func (kv *ShardKV) fetchLatestConfig() {
 
 func (kv *ShardKV) detectConfig() {
 	for {
+		if kv.killed() {
+			return
+		}
 		select {
 		case <-time.After(50 * time.Millisecond):
 			_, isLeader := kv.rf.GetState()
@@ -597,7 +605,9 @@ func (kv *ShardKV) MigrateReply(args *MigrateArgs, reply *MigrateReply) {
 		reply.Err = ErrWrongLeader
 		return
 	}
+	EPrintf("%d %d 返回", kv.gid, kv.me)
 	kv.mu.Lock()
+	EPrintf("%d %d 锁内", kv.gid, kv.me)
 	if args.ConfigNum < kv.config.Num {
 		reply.Err = OK
 		defer kv.mu.Unlock()
@@ -611,9 +621,6 @@ func (kv *ShardKV) MigrateReply(args *MigrateArgs, reply *MigrateReply) {
 	}
 	if args.Shard.Data == nil {
 		kv.DPrintf("poipoipoipoipoipoippoipoipoi")
-	}
-	if kv.gid == 102 && args.Shard.Version == 4 && args.Shard.Id == 0 {
-		fmt.Println(args)
 	}
 	copyShard := deepCopyShard(args.Shard)
 	index, _, _ := kv.rf.Start(copyShard)
@@ -632,6 +639,7 @@ func (kv *ShardKV) MigrateReply(args *MigrateArgs, reply *MigrateReply) {
 		return
 	case <-time.After(200 * time.Millisecond):
 		reply.Err = ErrTimeOut
+		kv.DPrintf("%d %d rep-migrate %d 的shard %d,is timeout", kv.gid, kv.me, args.Gid, args.Shard)
 		return
 	}
 }
@@ -676,13 +684,6 @@ func (kv *ShardKV) sendMigrationForOne(gid int, shard int, shardGCVersion int, s
 	args.Gid = kv.gid
 	var reply MigrateReply
 	kv.mu.Unlock()
-	if gid == 102 && args.Shard.Version == 4 && args.Shard.Id == 0 {
-		fmt.Println("************************")
-		fmt.Println("本来要给", shard)
-		fmt.Println(kv.config)
-		fmt.Println(kv.shards)
-		fmt.Println("************************")
-	}
 	done := make(chan bool, 1)
 	kv.DPrintf("%d %d 发送srv= %d migrate 前-> %d %d", kv.gid, kv.me, srv, gid, shard)
 	go func() {
@@ -788,6 +789,9 @@ func (kv *ShardKV) GC(shard int, version int) Err {
 }
 func (kv *ShardKV) GCDeamon() {
 	for {
+		if kv.killed() {
+			return
+		}
 		//信号量
 		gc := <-kv.GCch
 		EPrintf("%d %d 想要GC %d", kv.gid, kv.me, gc)

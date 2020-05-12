@@ -30,7 +30,6 @@ type Config struct {
 
 const (
 	OK = "OK"
-	DupCommand = "DupCommand"
 	ErrTimeOut = "ErrTimeOut"
 )
 
