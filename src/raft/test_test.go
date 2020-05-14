@@ -10,9 +10,7 @@ package raft
 
 import (
 	"fmt"
-	"log"
 	"math/rand"
-	"os"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -91,12 +89,6 @@ func TestReElection2A(t *testing.T) {
 }
 
 func TestBasicAgree2B(t *testing.T) {
-	f, err := os.OpenFile("logfile.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("file open error : %v", err)
-	}
-	defer f.Close()
-	log.SetOutput(f)
 	servers := 3
 	cfg := make_config(t, servers, false)
 	defer cfg.cleanup()
@@ -189,19 +181,13 @@ func TestFailAgree2B(t *testing.T) {
 }
 
 func TestFailNoAgree2B(t *testing.T) {
-	f, err := os.OpenFile("logfile.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("file open error : %v", err)
-	}
-	defer f.Close()
-	log.SetOutput(f)
 	servers := 5
 	cfg := make_config(t, servers, false)
 	defer cfg.cleanup()
 
 	cfg.begin("Test (2B): no agreement if too many followers disconnect")
 
-	cfg.one(10, servers, true)
+	cfg.one(10, servers, false)
 
 	// 3 of 5 followers disconnect
 	leader := cfg.checkOneLeader()
@@ -385,85 +371,72 @@ func TestRejoin2B(t *testing.T) {
 }
 
 func TestBackup2B(t *testing.T) {
-	f, err := os.OpenFile("logfile.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("file open error : %v", err)
-	}
-	defer f.Close()
-	log.SetOutput(f)
 	servers := 5
 	cfg := make_config(t, servers, false)
 	defer cfg.cleanup()
 
 	cfg.begin("Test (2B): leader backs up quickly over incorrect follower logs")
 
-	cfg.one(1, servers, true)
+	cfg.one(rand.Int(), servers, true)
 
 	// put leader and one follower in a partition
 	leader1 := cfg.checkOneLeader()
-	DPrintf("find leader 1 finished %d", leader1)
 	cfg.disconnect((leader1 + 2) % servers)
 	cfg.disconnect((leader1 + 3) % servers)
 	cfg.disconnect((leader1 + 4) % servers)
-	DPrintf("disconnect %d,%d,%d", (leader1+2)%servers, (leader1+3)%servers, (leader1+4)%servers)
-	DPrintf("submit 50 command that won't commit")
+
 	// submit lots of commands that won't commit
 	for i := 0; i < 50; i++ {
-		cfg.rafts[leader1].Start(100 + i)
+		cfg.rafts[leader1].Start(rand.Int())
 	}
 
 	time.Sleep(RaftElectionTimeout / 2)
-	DPrintf("disconnect leader and leader+1:%d,%d", (leader1+0)%servers, (leader1+1)%servers)
+
 	cfg.disconnect((leader1 + 0) % servers)
 	cfg.disconnect((leader1 + 1) % servers)
-	DPrintf("connect follower:%d,%d,%d", (leader1+2)%servers, (leader1+3)%servers, (leader1+4)%servers)
+
 	// allow other partition to recover
 	cfg.connect((leader1 + 2) % servers)
 	cfg.connect((leader1 + 3) % servers)
 	cfg.connect((leader1 + 4) % servers)
-	DPrintf("submit 50 successful commands")
+
 	// lots of successful commands to new group.
 	for i := 0; i < 50; i++ {
-		cfg.one(200+i, 3, true)
+		cfg.one(rand.Int(), 3, true)
 	}
 
 	// now another partitioned leader and one follower
 	leader2 := cfg.checkOneLeader()
-	DPrintf("find a leader2 :%d", leader2)
 	other := (leader1 + 2) % servers
 	if leader2 == other {
 		other = (leader2 + 1) % servers
 	}
-	DPrintf("disconnect server %d", other)
 	cfg.disconnect(other)
 
 	// lots more commands that won't commit
 	for i := 0; i < 50; i++ {
-		cfg.rafts[leader2].Start(300 + i)
+		cfg.rafts[leader2].Start(rand.Int())
 	}
 
 	time.Sleep(RaftElectionTimeout / 2)
-	DPrintf("disconnect all Server")
+
 	// bring original leader back to life,
 	for i := 0; i < servers; i++ {
 		cfg.disconnect(i)
 	}
-	DPrintf("connect %d,%d,%d", (leader1+0)%servers, (leader1+1)%servers, other)
 	cfg.connect((leader1 + 0) % servers)
 	cfg.connect((leader1 + 1) % servers)
 	cfg.connect(other)
 
 	// lots of successful commands to new group.
-	DPrintf("submit 50 successful command")
 	for i := 0; i < 50; i++ {
-		cfg.one(400+i, 3, true)
+		cfg.one(rand.Int(), 3, true)
 	}
-	DPrintf("connect all server ")
+
 	// now everyone
 	for i := 0; i < servers; i++ {
 		cfg.connect(i)
 	}
-	DPrintf("submit one command")
 	cfg.one(rand.Int(), servers, true)
 
 	cfg.end()
@@ -580,7 +553,6 @@ loop:
 }
 
 func TestPersist12C(t *testing.T) {
-
 	servers := 3
 	cfg := make_config(t, servers, false)
 	defer cfg.cleanup()
@@ -588,6 +560,7 @@ func TestPersist12C(t *testing.T) {
 	cfg.begin("Test (2C): basic persistence")
 
 	cfg.one(11, servers, true)
+
 	// crash and re-start all
 	for i := 0; i < servers; i++ {
 		cfg.start1(i)
@@ -598,6 +571,7 @@ func TestPersist12C(t *testing.T) {
 	}
 
 	cfg.one(12, servers, true)
+
 	leader1 := cfg.checkOneLeader()
 	cfg.disconnect(leader1)
 	cfg.start1(leader1)
@@ -767,12 +741,6 @@ func TestFigure82C(t *testing.T) {
 }
 
 func TestUnreliableAgree2C(t *testing.T) {
-	f, err := os.OpenFile("logfile.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("file open error : %v", err)
-	}
-	defer f.Close()
-	log.SetOutput(f)
 	servers := 5
 	cfg := make_config(t, servers, true)
 	defer cfg.cleanup()
@@ -802,19 +770,13 @@ func TestUnreliableAgree2C(t *testing.T) {
 }
 
 func TestFigure8Unreliable2C(t *testing.T) {
-	f, err := os.OpenFile("logfile.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("file open error : %v", err)
-	}
-	defer f.Close()
-	log.SetOutput(f)
 	servers := 5
 	cfg := make_config(t, servers, true)
 	defer cfg.cleanup()
 
 	cfg.begin("Test (2C): Figure 8 (unreliable)")
 
-	cfg.one(1234, 1, true)
+	cfg.one(rand.Int()%10000, 1, true)
 
 	nup := servers
 	for iters := 0; iters < 1000; iters++ {
@@ -823,7 +785,7 @@ func TestFigure8Unreliable2C(t *testing.T) {
 		}
 		leader := -1
 		for i := 0; i < servers; i++ {
-			_, _, ok := cfg.rafts[i].Start(i*1000 + iters)
+			_, _, ok := cfg.rafts[i].Start(rand.Int() % 10000)
 			if ok && cfg.connected[i] {
 				leader = i
 			}
@@ -839,7 +801,6 @@ func TestFigure8Unreliable2C(t *testing.T) {
 
 		if leader != -1 && (rand.Int()%1000) < int(RaftElectionTimeout/time.Millisecond)/2 {
 			cfg.disconnect(leader)
-			DPrintf("断开 %d leader", leader)
 			nup -= 1
 		}
 
@@ -847,18 +808,18 @@ func TestFigure8Unreliable2C(t *testing.T) {
 			s := rand.Int() % servers
 			if cfg.connected[s] == false {
 				cfg.connect(s)
-				DPrintf("连接 %d", s)
 				nup += 1
 			}
 		}
 	}
+
 	for i := 0; i < servers; i++ {
 		if cfg.connected[i] == false {
 			cfg.connect(i)
 		}
 	}
-	DPrintf("抬棺！！！")
-	cfg.one(9876, servers, true)
+
+	cfg.one(rand.Int()%10000, servers, true)
 
 	cfg.end()
 }
@@ -1009,12 +970,6 @@ func internalChurn(t *testing.T, unreliable bool) {
 }
 
 func TestReliableChurn2C(t *testing.T) {
-	f, err := os.OpenFile("logfile.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("file open error : %v", err)
-	}
-	defer f.Close()
-	log.SetOutput(f)
 	internalChurn(t, false)
 }
 

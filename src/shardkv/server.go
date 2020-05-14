@@ -16,7 +16,7 @@ import (
 	"../shardmaster"
 )
 
-const Debug = 0
+const Debug = 1
 
 var begin int64
 
@@ -190,7 +190,7 @@ func (kv *ShardKV) start(op Op) (string, Err) {
 //
 func (kv *ShardKV) Kill() {
 	atomic.StoreInt32(&kv.dead, 1)
-	kv.DPrintf("%d %d :杀死一个 server", kv.gid, kv.me)
+	EPrintf("%d %d :杀死一个 server", kv.gid, kv.me)
 	kv.rf.Kill()
 	// Your code here, if desired.
 }
@@ -347,6 +347,7 @@ func (kv *ShardKV) apply() {
 				if config.Num > kv.config.Num {
 					kv.impleConfig = config.Num
 					//为那些没有改变shard 的 version 进行同步
+					kv.DPrintf("%d %d config=%d,kv.config=%d ", kv.gid, kv.me, config, kv.config)
 					for i := 0; i < shardmaster.NShards; i++ {
 						if config.Shards[i] == kv.gid && kv.config.Shards[i] == kv.gid {
 							shard := kv.shards[i]
@@ -527,8 +528,12 @@ func (kv *ShardKV) fetchLatestConfig() {
 				kv.mu.Unlock()
 				continue
 			}
-			config := kv.sm.Query(kv.impleConfig + 1)
-			kv.DPrintf("%d %d newconfig is %d", kv.gid, kv.me, config)
+			kv.DPrintf("%d %d 这是要poi呀config=%d", kv.gid, kv.me, kv.config)
+			for k, _ := range kv.shards {
+				kv.DPrintf("%d %d ,shards[%d].Version=%d", kv.gid, kv.me, k, kv.shards[k].Version)
+			}
+			config := kv.sm.Query(kv.config.Num + 1)
+			kv.DPrintf("%d %d imple = %d newconfig is %d", kv.gid, kv.me, kv.config.Num, config)
 			if !kv.check_same_config(config, kv.config) {
 				_, _, isleader := kv.rf.Start(config)
 				if !isleader {
@@ -664,7 +669,7 @@ func (kv *ShardKV) sendMigration(gid int, shard int, shardGCVersion int) {
 
 func (kv *ShardKV) sendMigrationForOne(gid int, shard int, shardGCVersion int, si int, servers []string) {
 	kv.mu.Lock()
-	kv.DPrintf("%d %d 获得锁", kv.gid, kv.me)
+	//kv.DPrintf("%d %d 获得锁", kv.gid, kv.me)
 	srv := kv.make_end(servers[si])
 	var args MigrateArgs
 	args.Shard = kv.copyOfShard(shard)

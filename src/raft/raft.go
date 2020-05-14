@@ -20,7 +20,7 @@ const leader = 2
 const follower = 0
 const candidate = 1
 const heartbeatConstTime = 50 * time.Millisecond
-const isDan = false
+const isDan = true
 
 //
 // as each Raft peer becomes aware that successive log entries are
@@ -232,6 +232,8 @@ func (rf *Raft) Discard(index int) {
 			rf.lastIncludedIndex = index
 			rf.commitIndex = max(rf.commitIndex, rf.lastIncludedIndex)
 		}
+		rf.lastIncludedIndex = index
+		rf.commitIndex = max(rf.commitIndex, rf.lastIncludedIndex)
 		DPrintf("%d Term->%d", rf.me, rf.lastIncludedTerm)
 		rf.log = make([]Entry, 0)
 		rf.persist()

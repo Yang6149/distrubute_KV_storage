@@ -155,6 +155,7 @@ func (sm *ShardMaster) start(op Op) (bool, Err, Config) { //wrongLeader , Err
 		//返回成功
 		if op.ClientId == oop.ClientId && op.SerialId == oop.SerialId {
 			DPrintf("return op ", oop)
+			DPrintf("全部log ", sm.configs)
 			sm.mu.Lock()
 			defer sm.mu.Unlock()
 			//sm.dup[op.ClientId] = op.SerialId
@@ -329,12 +330,55 @@ func (sm *ShardMaster) loadBalance(config *Config) {
 	}
 	sort.Ints(temp)
 
+	gid2Num := make(map[int]int) //gid->个数
 	cur := 0
 	for i := 0; i < NShards; i++ {
-		config.Shards[i] = temp[cur]
+		gid2Num[temp[cur]]++
 		cur++
 		cur = cur % len(temp)
 	}
+	//减的过程
+
+	for i := 0; i < NShards; i++ {
+		if gid2Num[config.Shards[i]] == 0 {
+			delete(gid2Num, config.Shards[i])
+			config.Shards[i] = 0
+		} else {
+			gid2Num[config.Shards[i]]--
+			if gid2Num[config.Shards[i]] == 0 {
+				delete(gid2Num, config.Shards[i])
+			}
+		}
+	}
+	// if sm.me == 0 {
+	// 	fmt.Println(config, gid2Num)
+	// }
+	//加的过程
+	for i := 0; i < NShards; i++ {
+		if config.Shards[i] == 0 {
+			var tempList []int
+			for k, _ := range gid2Num {
+				tempList = append(tempList, k)
+			}
+			sort.Ints(tempList)
+			config.Shards[i] = tempList[0]
+			gid2Num[tempList[0]]--
+			if gid2Num[tempList[0]] == 0 {
+				delete(gid2Num, tempList[0])
+			}
+
+		}
+	}
+	// if sm.me == 0 {
+	// 	fmt.Println(config, gid2Num)
+	// }
+
+	// cur := 0
+	// for i := 0; i < NShards; i++ {
+	// 	config.Shards[i] = temp[cur]
+	// 	cur++
+	// 	cur = cur % len(temp)
+	// }
 	//fmt.Println(config.Shards, "after")
 
 }

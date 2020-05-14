@@ -6,6 +6,7 @@ type Entry struct {
 }
 
 func (rf *Raft) logGet(index int) Entry {
+	DPrintf("%d -logGet-%d %d - len=%", rf.me, index, rf.lastIncludedIndex, len(rf.log))
 	return rf.log[index-rf.lastIncludedIndex-1]
 }
 
