@@ -3,13 +3,14 @@ package shardkv
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"math/rand"
 	"strconv"
 	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
+
+	//"time"
 
 	"../models"
 	"../porcupine"
@@ -235,23 +236,23 @@ func TestSnapshot(t *testing.T) {
 	fmt.Printf("  ... Passed\n")
 }
 
-func timey(begin int64) int64 {
-	now := time.Now().UnixNano()
-	res := (now - begin) / int64(time.Millisecond)
-	return res
-}
+// func timey(begin int64) int64 {
+// 	now := time.Now().UnixNano()
+// 	res := (now - begin) / int64(time.Millisecond)
+// 	return res
+// }
 
 func TestMissChange(t *testing.T) {
 	fmt.Printf("Test: servers miss configuration changes...\n")
-	begin := time.Now().UnixNano()
+	//begin := time.Now().UnixNano()
 	cfg := make_config(t, 3, false, 1000)
 	defer cfg.cleanup()
 
 	ck := cfg.makeClient()
-	fmt.Println("mkClient", timey(begin))
+	//fmt.Println("mkClient", timey(begin))
 	cfg.join(0)
-	log.Printf("join 100")
-	fmt.Println("mkClient,config 1", timey(begin))
+	//log.Printf("join 100")
+	//fmt.Println("mkClient,config 1", timey(begin))
 	n := 10
 	ka := make([]string, n)
 	va := make([]string, n)
@@ -260,80 +261,80 @@ func TestMissChange(t *testing.T) {
 		va[i] = randstring(20)
 		ck.Put(ka[i], va[i])
 	}
-	fmt.Println("put10", timey(begin))
+	//fmt.Println("put10", timey(begin))
 	for i := 0; i < n; i++ {
 		check(t, ck, ka[i], va[i])
 	}
-	fmt.Println("put 前10个 success", timey(begin))
-	log.Printf("put 前10个 success")
+	//fmt.Println("put 前10个 success", timey(begin))
+	//log.Printf("put 前10个 success")
 	cfg.join(1)
-	fmt.Println("put10,config2", timey(begin))
-	log.Printf("join 101")
+	//fmt.Println("put10,config2", timey(begin))
+	//log.Printf("join 101")
 	cfg.ShutdownServer(0, 0)
 	cfg.ShutdownServer(1, 0)
 	cfg.ShutdownServer(2, 0)
-	fmt.Println("shut down 100,101,102-0", timey(begin))
-	log.Printf("shut down 100,101,102-0")
+	//fmt.Println("shut down 100,101,102-0", timey(begin))
+	//log.Printf("shut down 100,101,102-0")
 	cfg.join(2)
 	cfg.leave(1)
 	cfg.leave(0)
-	fmt.Println("join 102 , leave 101,100,config5", timey(begin))
-	log.Printf("join 102 , leave 101,100")
+	//fmt.Println("join 102 , leave 101,100,config5", timey(begin))
+	//log.Printf("join 102 , leave 101,100")
 	for i := 0; i < n; i++ {
 		check(t, ck, ka[i], va[i])
 		x := randstring(20)
 		ck.Append(ka[i], x)
 		va[i] += x
-		fmt.Println("check 前10个而且再append10 个-", i, "----------------", timey(begin))
+		//fmt.Println("check 前10个而且再append10 个-", i, "----------------", timey(begin))
 	}
-	fmt.Println("check 前10个而且再append10 个", timey(begin))
-	log.Printf("check 前10个而且再append10 个")
+	//fmt.Println("check 前10个而且再append10 个", timey(begin))
+	//log.Printf("check 前10个而且再append10 个")
 	cfg.join(1)
-	fmt.Println("join 101,config6", timey(begin))
+	//fmt.Println("join 101,config6", timey(begin))
 	for i := 0; i < n; i++ {
 		check(t, ck, ka[i], va[i])
 		x := randstring(20)
 		ck.Append(ka[i], x)
 		va[i] += x
 	}
-	fmt.Println("check 前10个而且再append10 个", timey(begin))
-	log.Printf("check 前10个而且再append10 个")
+	//fmt.Println("check 前10个而且再append10 个", timey(begin))
+	//log.Printf("check 前10个而且再append10 个")
 	cfg.StartServer(0, 0)
 	cfg.StartServer(1, 0)
 	cfg.StartServer(2, 0)
-	fmt.Println("restart 100,101,102-0", timey(begin))
-	log.Printf("restart 100,101,102-0")
+	//fmt.Println("restart 100,101,102-0", timey(begin))
+	//log.Printf("restart 100,101,102-0")
 	for i := 0; i < n; i++ {
 		check(t, ck, ka[i], va[i])
 		x := randstring(20)
 		ck.Append(ka[i], x)
 		va[i] += x
 	}
-	fmt.Println("又 append 了10个", timey(begin))
+	//fmt.Println("又 append 了10个", timey(begin))
 	time.Sleep(2 * time.Second)
 
 	cfg.ShutdownServer(0, 1)
 	cfg.ShutdownServer(1, 1)
 	cfg.ShutdownServer(2, 1)
-	fmt.Println("shutdown 100,101,102-1", timey(begin))
+	//fmt.Println("shutdown 100,101,102-1", timey(begin))
 	cfg.join(0)
 	cfg.leave(2)
-	fmt.Println("join 100,leave 102,config8", timey(begin))
+	//fmt.Println("join 100,leave 102,config8", timey(begin))
 	for i := 0; i < n; i++ {
 		check(t, ck, ka[i], va[i])
 		x := randstring(20)
 		ck.Append(ka[i], x)
 		va[i] += x
 	}
-	fmt.Println("又 append 了10个", timey(begin))
+	//fmt.Println("又 append 了10个", timey(begin))
 	cfg.StartServer(0, 1)
 	cfg.StartServer(1, 1)
 	cfg.StartServer(2, 1)
-	fmt.Println("restart 100,101,102-1", timey(begin))
+	//fmt.Println("restart 100,101,102-1", timey(begin))
 	for i := 0; i < n; i++ {
 		check(t, ck, ka[i], va[i])
 	}
-	fmt.Println("最后check", timey(begin))
+	//fmt.Println("最后check", timey(begin))
 	fmt.Printf("  ... Passed\n")
 }
 

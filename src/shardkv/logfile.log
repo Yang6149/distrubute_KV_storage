@@ -1,0 +1,8 @@
+2020/06/03 test_test.go:253: join 100
+2020/06/03 test_test.go:268: put 前10个 success
+2020/06/03 test_test.go:271: join 101
+2020/06/03 test_test.go:276: shut down 100,101,102-0
+2020/06/03 test_test.go:281: join 102 , leave 101,100
+2020/06/03 test_test.go:290: check 前10个而且再append10 个
+2020/06/03 test_test.go:300: check 前10个而且再append10 个
+2020/06/03 test_test.go:305: restart 100,101,102-0
