@@ -982,3 +982,52 @@ func TestChallenge2Partial(t *testing.T) {
 
 	fmt.Printf("  ... Passed\n")
 }
+
+//Test performance
+// func TestConcurrent331(t *testing.T) {
+// 	fmt.Printf("Test: concurrent puts and configuration changes11...\n")
+
+// 	cfg := make_config(t, 3, false, 100)
+// 	defer cfg.cleanup()
+// 	var wg sync.WaitGroup
+// 	ck := cfg.makeClient()
+
+// 	cfg.join(0)
+
+// 	n := 10
+// 	ka := make([]string, n)
+// 	va := make([]string, n)
+// 	for i := 0; i < n; i++ {
+// 		ka[i] = strconv.Itoa(i) // ensure multiple shards
+// 		va[i] = randstring(5)
+// 		ck.Put(ka[i], va[i])
+// 	}
+
+// 	ch := make(chan bool)
+
+// 	ff := func(i int) {
+// 		defer func() { ch <- true }()
+// 		ck1 := cfg.makeClient()
+// 		x := randstring(5)
+// 		ck1.Append(ka[i], x)
+// 		va[i] += x
+// 		time.Sleep(10 * time.Millisecond)
+// 		for i := 0; i < 3000; i++ {
+// 			ck1.Put(randstring(5), randstring(5))
+// 		}
+// 		wg.Done()
+// 	}
+
+// 	for i := 0; i < n; i++ {
+// 		wg.Add(1)
+// 		go ff(i)
+// 	}
+
+// 	//cfg.net.Reliable(true)
+// 	wg.Wait()
+// 	for i := 0; i < n; i++ {
+// 		check(t, ck, ka[i], va[i])
+// 	}
+
+// 	fmt.Printf("  ... Passed\n")
+// }

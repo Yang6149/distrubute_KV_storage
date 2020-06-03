@@ -16,7 +16,7 @@ import (
 	"../shardmaster"
 )
 
-const Debug = 1
+const Debug = 0
 
 var begin int64
 
