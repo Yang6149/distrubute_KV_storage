@@ -65,9 +65,9 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 			// return
 		}
 		DPrintf("%d candicate %d的up-to-data害没自己的 last大", rf.me, args.CandidateId)
-		DPrintf("%d 拒绝，现在我的 term is ", rf.me, rf.currentTerm)
+		DPrintf("%d 拒绝，现在我的 term is %d", rf.me, rf.currentTerm)
 		DPrintf("%d args.LastLogTerm =%d rf.logTerm(myLastIndex)=%d", rf.me,args.LastLogTerm , rf.logTerm(myLastIndex))
-		DPrintf("%D args.LastLogIndex =%d myLastIndex=%d", rf.me,args.LastLogIndex , myLastIndex)
+		DPrintf("%d args.LastLogIndex =%d myLastIndex=%d", rf.me,args.LastLogIndex , myLastIndex)
 		reply.Term = args.Term
 		reply.VoteGranted = false
 

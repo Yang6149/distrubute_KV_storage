@@ -13,8 +13,8 @@ import (
 	"testing"
 	"time"
 
-	"../models"
-	"../porcupine"
+	"distrubute_KV_storage/models"
+	"distrubute_KV_storage/porcupine"
 )
 
 // The tester generously allows solutions to complete elections in one second

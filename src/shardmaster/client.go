@@ -9,7 +9,7 @@ import (
 	"math/big"
 	"time"
 
-	"../labrpc"
+	"distrubute_KV_storage/labrpc"
 )
 
 type Clerk struct {

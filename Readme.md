@@ -5,9 +5,9 @@ ALL Finished
 
 一些博客希望能帮助到人：
 
-[lab4](http://yang614.xyz/blog/99)
+[lab4](https://github.com/Yang6149/notes/blob/master/md%E7%AC%94%E8%AE%B0/%E5%88%86%E5%B8%83%E5%BC%8F/MIT%206.824%20Lab%204.md)
 
-[lab3a](http://yang614.xyz/blog/97) [lab3b](http://yang614.xyz/blog/98)
+[lab3a](https://github.com/Yang6149/notes/blob/master/md%E7%AC%94%E8%AE%B0/%E5%88%86%E5%B8%83%E5%BC%8F/lab3b%20kvDB.md) [lab3b](https://github.com/Yang6149/notes/blob/master/md%E7%AC%94%E8%AE%B0/%E5%88%86%E5%B8%83%E5%BC%8F/lab3b%20kvDB.md)
 
-[lab2a](http://yang614.xyz/blog/96) [lab2b](http://yang614.xyz/blog/95) [lab2c](http://yang614.xyz/blog/94)
+[lab2a](https://github.com/Yang6149/notes/blob/master/md%E7%AC%94%E8%AE%B0/%E5%88%86%E5%B8%83%E5%BC%8F/lab2%20Raft2A.md) [lab2b](https://github.com/Yang6149/notes/blob/master/md%E7%AC%94%E8%AE%B0/%E5%88%86%E5%B8%83%E5%BC%8F/lab2%20Raft2B.md) [lab2c](https://github.com/Yang6149/notes/blob/master/md%E7%AC%94%E8%AE%B0/%E5%88%86%E5%B8%83%E5%BC%8F/Lab2%20Raft2C.md)
 

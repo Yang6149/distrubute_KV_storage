@@ -1,0 +1,600 @@
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B
+2021/03/15 test_test.go:645: put a->A
+2021/03/15 test_test.go:647: check a->A
+2021/03/15 test_test.go:649: check a->A1
+2021/03/15 test_test.go:651: check a->A2
+2021/03/15 test_test.go:653: check a->A3
+2021/03/15 test_test.go:655: check a->A4
+2021/03/15 test_test.go:657: check a->A5
+2021/03/15 test_test.go:661: check a->A
+2021/03/15 test_test.go:666: electionTimeout
+2021/03/15 test_test.go:669: check b->B

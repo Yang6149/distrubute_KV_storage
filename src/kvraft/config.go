@@ -1,6 +1,6 @@
 package kvraft
 
-import "../labrpc"
+import "distrubute_KV_storage/labrpc"
 import "testing"
 import "os"
 
@@ -11,7 +11,7 @@ import "math/rand"
 import "encoding/base64"
 import "sync"
 import "runtime"
-import "../raft"
+import "distrubute_KV_storage/raft"
 import "fmt"
 import "time"
 import "sync/atomic"

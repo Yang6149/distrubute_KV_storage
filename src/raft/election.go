@@ -25,7 +25,7 @@ func (rf *Raft) election() {
 		}
 		reply := &RequestVoteReply{}
 		go func(i int) {
-			DPrintf("%d 发送election，Term=%d,lastIndex=%d,lastTerm=", rf.me,args.Term, args.LastLogIndex, args.LastLogTerm)
+			DPrintf("%d 发送election，Term=%d,lastIndex=%d,lastTerm=%d", rf.me,args.Term, args.LastLogIndex, args.LastLogTerm)
 			rf.sendRequestVote(i, args, reply)
 			rf.mu.Lock()
 			defer rf.mu.Unlock()

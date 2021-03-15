@@ -206,7 +206,7 @@ func (rf *Raft) sendInstallSnapshot(i int) {
 	if ok && reply.Success && args.Term == rf.currentTerm {
 		DPrintf("%d : next[%d] %d->%d", rf.me, i, rf.nextIndex[i], reply.Term+1)
 	} else {
-		DPrintf("ok : %d ,success : %d, agrs.Term: %d ,rf.curr := %d", ok, reply.Success, args.Term, rf.currentTerm)
+		DPrintf("ok : %t ,success : %t, agrs.Term: %d ,rf.curr := %d", ok, reply.Success, args.Term, rf.currentTerm)
 	}
 	if rf.nextIndex[i]-1-rf.lastIncludedIndex-1 >= len(rf.log) {
 		fmt.Println(rf.log[rf.nextIndex[i]-1-rf.lastIncludedIndex-1])

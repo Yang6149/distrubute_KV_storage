@@ -15,7 +15,7 @@ import (
 	"sync"
 	"testing"
 
-	"../labrpc"
+	"distrubute_KV_storage/labrpc"
 
 	crand "crypto/rand"
 	"encoding/base64"

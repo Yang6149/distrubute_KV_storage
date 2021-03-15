@@ -13,8 +13,8 @@ import (
 	"math/big"
 	"time"
 
-	"../labrpc"
-	"../shardmaster"
+	"distrubute_KV_storage/labrpc"
+	"distrubute_KV_storage/shardmaster"
 )
 
 //

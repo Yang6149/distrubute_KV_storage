@@ -10,10 +10,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"../labgob"
-	"../labrpc"
-	"../raft"
-	"../shardmaster"
+	"distrubute_KV_storage/labgob"
+	"distrubute_KV_storage/labrpc"
+	"distrubute_KV_storage/raft"
+	"distrubute_KV_storage/shardmaster"
 )
 
 const Debug = 0
@@ -259,7 +259,7 @@ func StartServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister,
 	kv.maxraftstate = maxraftstate
 	kv.LoadSnapshot(kv.rf.GetSnapshots())
 	EPrintf("%d %d :init finished", kv.gid, kv.me)
-	EPrintf("%d %d :config-", kv.gid, kv.me, kv.config)
+	EPrintf("%d %d :config- %v", kv.gid, kv.me, kv.config)
 	//labgob init
 	labgob.Register(MigrateArgs{})
 	labgob.Register(Shard{})
@@ -803,7 +803,7 @@ func (kv *ShardKV) GCDeamon() {
 		go func() {
 			Err := kv.GC(gc.Shard, gc.Version)
 			if Err != OK {
-				EPrintf("%d %d 想要GC %d,失败了，再试一次,原因 %d", kv.gid, kv.me, gc, Err)
+				EPrintf("%d %d 想要GC %d,失败了，再试一次,原因 %v", kv.gid, kv.me, gc, Err)
 				//kv.GCch <- gc
 			}
 		}()

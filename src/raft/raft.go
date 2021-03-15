@@ -7,8 +7,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"../labgob"
-	"../labrpc"
+	"distrubute_KV_storage/labgob"
+	"distrubute_KV_storage/labrpc"
 )
 
 // import "bytes"
@@ -213,13 +213,12 @@ func (rf *Raft) Discard(index int) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
 	DPrintf("%d 调用discard %d", rf.me, index)
-	DPrintf("", rf.nextIndex)
 	if index <= rf.lastIncludedIndex {
 		DPrintf("%d 调用discard 失败%d %d", rf.me, index, rf.lastIncludedIndex)
 		return
 	}
 	if index+1 >= rf.logLen() {
-		DPrintf("%d 调用discard全删 %d", rf.me, index, rf.logLen())
+		DPrintf("%d 调用discard全删 %d len = %d", rf.me, index, rf.logLen())
 		//fmt.Println(rf.me, "删掉多的", index)
 		//fmt.Println(rf.me,rf.nextIndex)
 		//如果index+1 > rf.logLen()，说明是传来的snapshot，在appendEntry中会进行统一的状态处理

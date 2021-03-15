@@ -6,9 +6,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"../labgob"
-	"../labrpc"
-	"../raft"
+	"distrubute_KV_storage/labgob"
+	"distrubute_KV_storage/labrpc"
+	"distrubute_KV_storage/raft"
 )
 
 const Join = "Join"

@@ -6,7 +6,7 @@ type Entry struct {
 }
 
 func (rf *Raft) logGet(index int) Entry {
-	DPrintf("%d -logGet-%d %d - len=%", rf.me, index, rf.lastIncludedIndex, len(rf.log))
+	DPrintf("%d -logGet-%d %d - len=%d", rf.me, index, rf.lastIncludedIndex, len(rf.log))
 	return rf.log[index-rf.lastIncludedIndex-1]
 }
 
@@ -24,7 +24,7 @@ func (rf *Raft) logLen() int {
 }
 
 func (rf *Raft) logTerm(index int) int {
-	DPrintf("%d index=%d ,lastIncludedIndex = %d ,lastIncludedTerm", rf.me, index, rf.lastIncludedIndex, rf.lastIncludedTerm)
+	DPrintf("%d index=%d ,lastIncludedIndex = %d ,lastIncludedTerm = %d", rf.me, index, rf.lastIncludedIndex, rf.lastIncludedTerm)
 	if index == rf.lastIncludedIndex {
 		return rf.lastIncludedTerm
 	}

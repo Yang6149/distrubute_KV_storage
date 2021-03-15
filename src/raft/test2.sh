@@ -3,7 +3,7 @@
 export GOPATH="/home/yangshen/MIT6824/6.824"
 export PATH="$PATH:/usr/lib/go-1.10/bin"
 
-rm res -rf
+rm -rf res
 mkdir res
 rm -rf temp
 mkdir temp

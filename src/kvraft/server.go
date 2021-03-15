@@ -7,9 +7,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"../labgob"
-	"../labrpc"
-	"../raft"
+	"distrubute_KV_storage/labgob"
+	"distrubute_KV_storage/labrpc"
+	"distrubute_KV_storage/raft"
 )
 
 const Debug = 0
@@ -73,7 +73,7 @@ func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 
 func (kv *KVServer) start(op Op) (string, Err) {
 	kv.mu.Lock()
-	DPrintf("%d start %d", kv.me, op)
+	DPrintf("%d start %v", kv.me, op)
 	//检查put重复或是否直接返回get
 	if res, ok := kv.dup[op.ClientId]; ok && res >= op.SerialId {
 		res := ""
@@ -100,7 +100,7 @@ func (kv *KVServer) start(op Op) (string, Err) {
 	case oop := <-ch:
 		//返回成功
 		if op.ClientId == oop.ClientId && op.SerialId == oop.SerialId {
-			DPrintf("return op ", oop)
+			DPrintf("return op %v", oop)
 			res := oop.Value
 			return res, OK
 		} else {
@@ -186,16 +186,16 @@ func (kv *KVServer) apply() {
 			kv.mu.Lock()
 			op := msg.Command.(Op)
 			//判断是否重复指令
-			DPrintf("%d server get Command %d", kv.me, msg)
+			DPrintf("%d server get Command %v", kv.me, msg)
 			if res, ok := kv.dup[op.ClientId]; !ok || (ok && op.SerialId > res) {
 				switch op.Type {
 				case "Put":
 					kv.data[op.Key] = op.Value
 				case "Append":
-					DPrintf("%d :append 之前是", kv.me, kv.data[op.Key])
-					DPrintf("%d :index 之前是", kv.me, msg.CommandIndex)
+					DPrintf("%d :append 之前是 %s", kv.me, kv.data[op.Key])
+					DPrintf("%d :index 之前是 %d", kv.me, msg.CommandIndex)
 					kv.data[op.Key] = kv.data[op.Key] + op.Value
-					DPrintf("%d :append %d res is ", kv.me, op.Value, kv.data[op.Key])
+					DPrintf("%d :append %s res is %s", kv.me, op.Value, kv.data[op.Key])
 				}
 				kv.dup[op.ClientId] = op.SerialId
 			} else {
@@ -275,8 +275,8 @@ func (kv *KVServer) LoadSnapshot(snapshot []byte) {
 	} else {
 		kv.mu.Lock()
 		defer kv.mu.Unlock()
-		DPrintf("%d:load 之前：%d", kv.me, kv.data)
-		DPrintf("%d:之后：%d", kv.me, data)
+		DPrintf("%d:load 之前：%s", kv.me, kv.data)
+		DPrintf("%d:之后：%s", kv.me, data)
 		kv.data = data
 		kv.dup = dup
 		kv.lastIncludedIndex = lastIncludedIndex

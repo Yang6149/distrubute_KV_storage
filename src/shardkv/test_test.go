@@ -12,8 +12,8 @@ import (
 
 	//"time"
 
-	"../models"
-	"../porcupine"
+	"distrubute_KV_storage/models"
+	"distrubute_KV_storage/porcupine"
 )
 
 const linearizabilityCheckTimeout = 1 * time.Second

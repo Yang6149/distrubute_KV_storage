@@ -27,7 +27,7 @@ func (rf *Raft) convert(state int) {
 		rf.matchIndex = make([]int, len(rf.peers))
 		rf.heartBeat()
 		go rf.heartBeatInit()
-		DPrintf("%d log=%d,len = %d", rf.me, rf.log, rf.logLen(), rf.commitIndex)
+		DPrintf("%d log=%d,len = %d commit = %d", rf.me, rf.log, rf.logLen(), rf.commitIndex)
 	}
 }
 func (rf *Raft) chanReset() {
